@@ -15,7 +15,7 @@ class FrameworkManager(): #{
     ## Constructor
     ##-----------------------------------------------------------------------------
     def startup(self): #{
-        self.ui.createWindow()
+        self.UserInterface.createWindow()
     #}
 #}
 
