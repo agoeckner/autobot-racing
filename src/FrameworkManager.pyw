@@ -12,7 +12,7 @@ class FrameworkManager(): #{
     #}
 
     ##-----------------------------------------------------------------------------
-    ## Constructor
+    ## Opens the User Interface
     ##-----------------------------------------------------------------------------
     def startup(self): #{
         self.UserInterface.createWindow()
