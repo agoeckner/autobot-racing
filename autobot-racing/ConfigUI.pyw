@@ -41,11 +41,14 @@ class ConfigUI(): #{
     #}
 
     def createCarDisplayFrame(self): #{
-        self.f2 = Frame(self.window, width=(self.window.winfo_width() - 50), height=(self.window.winfo_height() - 150), borderwidth=5,relief=tk.RIDGE)
+        self.f2 = Frame(self.window, width=(self.window.winfo_width() - 50), height=(self.window.winfo_height() - 150), borderwidth=5,highlightbackground="black", highlightthickness=1)
 
-        ysb = ttk.Scrollbar(self.f3, orient='vertical', command=self.routingList.yview)
-        ysb.grid(row=0,column=2,sticky=N+S)
+        #Frame Scrollbar
+        scrollY = ttk.Scrollbar(self.f2)
+        scrollY.pack(side='right', fill=Y)
 
+        
+        
         self.f2.pack()
     #}
 
