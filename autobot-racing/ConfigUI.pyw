@@ -18,9 +18,9 @@ class ConfigUI(): #{
         self.window = Tk()
 
         #Maximizes the window on the screen
-        self.window.state('zoomed')
+        self.window.geometry('1100x500+150+50')
         self.window.wm_iconbitmap('../ccs.ico')
-        self.window.title('AutoBots Racing')
+        self.window.title('Car Configuration Menu')
 
         #Frames
         self.f1 = Frame(self.window)
