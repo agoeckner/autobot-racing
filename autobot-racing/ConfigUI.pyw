@@ -2,12 +2,13 @@ from tkinter import *
 from tkinter import ttk
 import tkinter as tk
 
-class UIManager(): #{
+class ConfigUI(): #{
+
     ##-----------------------------------------------------------------------------
     ## Constructor
     ##-----------------------------------------------------------------------------
     def __init__(self, parent): #{
-        self.parent = parent
+        
     #}
 
     ##-----------------------------------------------------------------------------
@@ -35,5 +36,4 @@ class UIManager(): #{
         
     #}
 
-    
 #}
