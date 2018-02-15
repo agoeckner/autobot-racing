@@ -4,6 +4,8 @@ import tkinter as tk
 
 class ConfigUI(): #{
 
+    currentCarRow = 0 #Used for grid when adding new Car Config Frames
+
     ##-----------------------------------------------------------------------------
     ## Constructor
     ##-----------------------------------------------------------------------------
@@ -12,7 +14,7 @@ class ConfigUI(): #{
     #}
 
     ##-----------------------------------------------------------------------------
-    ## Creates the main window for the program
+    ## Creates the Car Configuration Menu Window
     ##-----------------------------------------------------------------------------
     def createWindow(self): #{
         self.window = Tk()
@@ -22,18 +24,33 @@ class ConfigUI(): #{
         self.window.wm_iconbitmap('../ccs.ico')
         self.window.title('Car Configuration Menu')
 
-        #Frames
-        self.f1 = Frame(self.window)
-        self.f2 = Frame(self.window)
-        self.f3 = Frame(self.window)
-        self.f4 = Frame(self.window)
-        self.f5 = Frame(self.window)
-        self.f6 = Frame(self.window)
-        self.f7 = Frame(self.window)
-        self.f8 = Frame(self.window)
-        self.f9 = Frame(self.window)
+        self.createf1()
+        self.createCarDisplayFrame()
 
-        
+        self.window.bind("<Configure>", self.updateWindow)
+    #}
+
+    def createf1(self): #{
+        self.f1 = Frame(self.window)
+
+        self.f1.pack(fill=X)
+
+        blankLabel = Label(self.f1, text=' ')
+        blankLabel.config(font=("Tahoma", 10))
+        blankLabel.grid(row=0,column=0)
+    #}
+
+    def createCarDisplayFrame(self): #{
+        self.f2 = Frame(self.window, width=(self.window.winfo_width() - 50), height=(self.window.winfo_height() - 150), borderwidth=5,relief=tk.RIDGE)
+
+        ysb = ttk.Scrollbar(self.f3, orient='vertical', command=self.routingList.yview)
+        ysb.grid(row=0,column=2,sticky=N+S)
+
+        self.f2.pack()
+    #}
+
+    def updateWindow(self, event): #{
+        self.f2.config(width=(self.window.winfo_width() - 50), height=(self.window.winfo_height() - 150))
     #}
 
 #}
