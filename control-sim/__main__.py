@@ -27,7 +27,19 @@ class SimDisplay(Widget):
 			print("Added elipse")
 			self.trajectory = Line(points=(0, 0))
 	
+	def on_touch_down(self, touch):
+		color = (0.5, 1, 1)
+		with self.canvas:
+			Color(*color, mode='hsv')
+			d = 30.
+			Ellipse(pos=(touch.x - d / 2, touch.y - d / 2), size=(d, d))
+		print(str(touch.x) + "   " + str(touch.y))
+		print(self.to_widget(touch.x, touch.y, False))
+	
 	def on_step(self, pos):
+		if pos == None:
+			pos = self.center
+	
 		self.trajectory.points += pos
 		print("Current trajectory: " + str(self.trajectory.points))
 		
@@ -54,11 +66,11 @@ class ControlSim(App):
 		parent.add_widget(restartBtn)
 		
 		# Set up control system.
-		print("CENTER: " + str(self.display.center))
+		# print("CENTER: " + str(self.display.canvas.center))
 		self.control = ControlSystem()
 		
 		# Add the vehicle.
-		self.vehicles = [SimVehicle([0,0])]
+		self.vehicles = [SimVehicle([250,250])]
 		
 		# Set up event loop.
 		Clock.schedule_interval(self.step, 1)
@@ -70,10 +82,12 @@ class ControlSim(App):
 		raise Exception("not implemented")
 	
 	def step(self, dt):
-		print("CENTER: " + str(self.display.center))
-		# self.control.position[0] += 1
-		# self.control.position[1] += 0.5
-		# self.display.on_step(self.control.position)
+		# print("CENTER: " + str(self.display.to_widget(*self.display.center)))
+		print("POS: " + str(self.display.pos))
+		print("SIZE: " + str(self.display.size))
+		self.vehicles[0].position[0] += 10
+		self.vehicles[0].position[1] += 10.5
+		self.display.on_step(self.vehicles[0].position)
 		return True #false to stop
 
 if __name__ == '__main__':
