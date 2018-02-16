@@ -1,5 +1,7 @@
 from random import random
 from math import *
+import numpy as np
+from numpy.linalg import *
 from kivy.app import App
 from kivy.core.window import Window
 from kivy.clock import Clock
@@ -15,7 +17,7 @@ class ControlSystem:
 
 	# Given an actual and a desired heading, returns new delta heading value.
 	def heading(self, actual, desired):
-		return -(pi / 16 * actual)
+		return desired - actual
 	
 	# Given an actual and a desired throttle, returns new delta speed value.
 	def throttle(self, actual, desired):
@@ -25,14 +27,31 @@ class GuidanceSystem:
 	def __init__(self, track):
 		self.innerWall = track.innerWall
 	
+	# Returns the desired heading at a specific position on the track.
 	def getDesiredHeading(self, pos):
-		pass
+		(wall0, wall1) = self._getClosestPolyVertex(pos, self.innerWall)
+		heading = atan2(wall1[1] - wall0[1], wall1[0] - wall0[0]);
+		# print("CLOSEST LINE "+str(pos)+": " + str((wall0, wall1)))
+		# print("HEADING: " + str(heading))
+		return heading
 	
+	# Returns the desired speed at a specific position on the track.
 	def getDesiredSpeed(self, pos):
 		pass
 	
-	def _getClosestPointOnPoly(pos, polygon):
-		pass
+	def _getClosestPolyVertex(self, pos, polygon):
+		closest = ()
+		min = 99999999
+		p1 = polygon[0]
+		for p in range(1, len(polygon)):
+			p2 = polygon[p]
+			d = np.cross(np.subtract(p2, p1), np.subtract(p1, pos)) / norm(np.subtract(p2, p1))
+			if d < min:
+				min = d
+				closest = (p1, p2)
+			p1 = p2
+		return closest
+		
 
 class SimDisplay(Widget):
 	def __init__(self, track, **kwargs):
@@ -85,7 +104,12 @@ class SimVehicle:
 		self.speed = initialSpeed
 	
 	def updateHeading(self, delta):
-		self.heading += delta
+		print("DELTA: " + str(delta))
+		delta = delta % pi
+		if delta > 0:
+			self.heading += min(delta, self.MIN_TURN_ANGLE)
+		else:
+			self.heading -= min(delta, self.MIN_TURN_ANGLE)
 	
 	def updateSpeed(self, delta):
 		self.speed += delta
@@ -105,13 +129,13 @@ class ControlSim(App):
 		parent.add_widget(restartBtn)
 		
 		# Set up event loop.
-		Clock.schedule_interval(self.step, 1 / 5)
+		Clock.schedule_interval(self.step, 1 / 30)
 		
 		return parent
 	
 	def initSim(self):
 		# Add the vehicle.
-		self.vehicles = [SimVehicle([250,250], pi / 2, 2)]
+		self.vehicles = [SimVehicle([250,250], pi / 2, 5)]
 		
 		# Add the track.
 		self.track = SimTrack(
