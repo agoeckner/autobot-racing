@@ -29,16 +29,17 @@ class GuidanceSystem:
 	
 	# Returns the desired heading at a specific position on the track.
 	def getDesiredHeading(self, pos):
-		(wall0, wall1) = self._getClosestPolyVertex(pos, self.innerWall)
-		heading = atan2(wall1[1] - wall0[1], wall1[0] - wall0[0]);
-		# print("CLOSEST LINE "+str(pos)+": " + str((wall0, wall1)))
-		# print("HEADING: " + str(heading))
+		((wall0, wall1), d) = self._getClosestPolyVertex(pos, self.innerWall)
+		heading = atan2(wall1[1] - wall0[1], wall1[0] - wall0[0]) + pi
+		print("CURRENTLY " + str(d) + " FROM THE WALL, HEADING " + str(heading))
 		return heading
 	
 	# Returns the desired speed at a specific position on the track.
 	def getDesiredSpeed(self, pos):
 		pass
 	
+	# Returns tuple of ((line0, line1), dist), where line0 and line1 are
+	# points on closest vertex, and dist is distance to closest point on line.
 	def _getClosestPolyVertex(self, pos, polygon):
 		closest = ()
 		min = 99999999
@@ -50,45 +51,35 @@ class GuidanceSystem:
 				min = d
 				closest = (p1, p2)
 			p1 = p2
-		return closest
+		return (closest, abs(min))
 		
 
 class SimDisplay(Widget):
 	def __init__(self, track, **kwargs):
 		super(SimDisplay, self).__init__(**kwargs)
 		
-		self.trajectory = None
+		self.traj = {}
 		
 		# Display the track.
 		color = (0, 0, 0, 1)
 		with self.canvas:
 			Color(*color, mode='rgba')
-			self.innerWall = Line(points=track.innerWall)
-			self.outerWall = Line(points=track.outerWall, width=2.0)
-		
-		# # Create the trajectory line.
-		# color = (1, 0, 0, 1)
-		# with self.canvas:
-			# Color(*color, mode='rgba')
-			# d = 30.
-			# Ellipse(pos=(50 - d / 2, 50 - d / 2), size=(d, d))
-			# print("Added elipse")
+			self.innerWall = Line(points=track.innerWall, width=2.0)
+			self.outerWall = Line(points=track.outerWall, width=3.0)
 	
-	def on_step(self, pos):
-		if pos == None:
-			pos = self.center
-		
+	def on_step(self, vehicle):
 		# Trajectory line.
+		pos = vehicle.position
 		with self.canvas:
 			Color(1, 0, 0, 1, mode='rgba')
-			if self.trajectory == None:
-				self.trajectory = Line(points=pos)
-				d = 10.
-				Ellipse(pos=(pos[0] - d / 2, pos[1] - d / 2), size=(d, d), width=5)
+			if vehicle not in self.traj or self.traj[vehicle] == None:
+				self.traj[vehicle] = Line(points=pos)
+				# d = 10.
+				# Ellipse(pos=(pos[0] - d / 2, pos[1] - d / 2), size=(d, d), width=5)
 			else:
 				# d = 5.
 				# Ellipse(pos=(pos[0] - d / 2, pos[1] - d / 2), size=(d, d))
-				self.trajectory = Line(points=self.trajectory.points + pos)
+				self.traj[vehicle] = Line(points=self.traj[vehicle].points + pos)
 
 class SimTrack:
 	def __init__(self, innerWall, outerWall):
@@ -96,15 +87,23 @@ class SimTrack:
 		self.outerWall = outerWall
 			
 class SimVehicle:
-	MIN_TURN_ANGLE = pi / 6
+	MIN_TURN_ANGLE = pi / 8
 
 	def __init__(self, initialPosition, initialHeading, initialSpeed):
+		self.initialPosition = initialPosition
+		self.initialHeading = initialHeading
+		self.initialSpeed = initialSpeed
 		self.position = initialPosition
 		self.heading = initialHeading
 		self.speed = initialSpeed
 	
+	def reset(self):
+		self.position = self.initialPosition
+		self.heading = self.initialHeading
+		self.speed = self.initialSpeed
+	
 	def updateHeading(self, delta):
-		print("DELTA: " + str(delta))
+		# print("DELTA: " + str(delta))
 		delta = delta % pi
 		if delta > 0:
 			self.heading += min(delta, self.MIN_TURN_ANGLE)
@@ -147,15 +146,16 @@ class ControlSim(App):
 		self.control = ControlSystem()
 
 	def restart(self, obj):
-		self.display.canvas.clear()
-		raise Exception("not implemented")
+		for vehicle in self.vehicles:
+			self.display.traj[vehicle] = None
+			vehicle.reset()
 	
 	def step(self, dt):
 		for vehicle in self.vehicles:
 			# Move the vehicle.
 			vehicle.position[0] += cos(vehicle.heading) * vehicle.speed
 			vehicle.position[1] += sin(vehicle.heading) * vehicle.speed
-			self.display.on_step(vehicle.position)
+			self.display.on_step(vehicle)
 			
 			# Determine guidance.
 			desiredHeading = self.guidance.getDesiredHeading(vehicle.position)
