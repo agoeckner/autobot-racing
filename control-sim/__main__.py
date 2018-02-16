@@ -7,6 +7,7 @@ from kivy.core.window import Window
 from kivy.clock import Clock
 from kivy.uix.widget import Widget
 from kivy.uix.button import Button
+from kivy.uix.label import Label
 from kivy.graphics import Color, Ellipse, Line
 
 Window.clearcolor = (1, 1, 1, 1)
@@ -31,7 +32,7 @@ class GuidanceSystem:
 	def getDesiredHeading(self, pos):
 		((wall0, wall1), d) = self._getClosestPolyVertex(pos, self.innerWall)
 		heading = atan2(wall1[1] - wall0[1], wall1[0] - wall0[0]) + pi
-		print("CURRENTLY " + str(d) + " FROM THE WALL, HEADING " + str(heading))
+		# print("CURRENTLY " + str(d) + " FROM THE WALL, HEADING " + str(heading))
 		return heading
 	
 	# Returns the desired speed at a specific position on the track.
@@ -55,31 +56,45 @@ class GuidanceSystem:
 		
 
 class SimDisplay(Widget):
+	FUTURE_LINE_SCALE = 100
+
 	def __init__(self, track, **kwargs):
 		super(SimDisplay, self).__init__(**kwargs)
 		
+		self.track = track
 		self.traj = {}
+	
+	def on_step(self, vehicle):
+		# Reset canvas.
+		self.canvas.clear()
 		
 		# Display the track.
 		color = (0, 0, 0, 1)
 		with self.canvas:
 			Color(*color, mode='rgba')
-			self.innerWall = Line(points=track.innerWall, width=2.0)
-			self.outerWall = Line(points=track.outerWall, width=3.0)
-	
-	def on_step(self, vehicle):
+			self.innerWall = Line(points=self.track.innerWall, width=2.0)
+			self.outerWall = Line(points=self.track.outerWall, width=3.0)
+		
 		# Trajectory line.
 		pos = vehicle.position
+		futurePoint = (pos[0] + cos(vehicle.heading) * vehicle.speed * self.FUTURE_LINE_SCALE,
+			pos[1] + sin(vehicle.heading) * vehicle.speed * self.FUTURE_LINE_SCALE)
 		with self.canvas:
 			Color(1, 0, 0, 1, mode='rgba')
 			if vehicle not in self.traj or self.traj[vehicle] == None:
-				self.traj[vehicle] = Line(points=pos)
-				# d = 10.
-				# Ellipse(pos=(pos[0] - d / 2, pos[1] - d / 2), size=(d, d), width=5)
+				self.traj[vehicle] = Line(points=pos, width=1.5)
 			else:
-				# d = 5.
-				# Ellipse(pos=(pos[0] - d / 2, pos[1] - d / 2), size=(d, d))
-				self.traj[vehicle] = Line(points=self.traj[vehicle].points + pos)
+				self.traj[vehicle] = Line(points=self.traj[vehicle].points + pos, width=1.5)
+			
+			# Future trajectory.
+			Color(0, 1, 0, 1, mode='rgba')
+			Line(points=[pos, futurePoint], width=1.2)
+			
+			# Vehicle dot.
+			Color(0, 0, 0, 1, mode='rgba')
+			d = 5.
+			Ellipse(pos=(pos[0] - d / 2, pos[1] - d / 2), size=(d, d), width=5)
+
 
 class SimTrack:
 	def __init__(self, innerWall, outerWall):
@@ -87,7 +102,7 @@ class SimTrack:
 		self.outerWall = outerWall
 			
 class SimVehicle:
-	MIN_TURN_ANGLE = pi / 8
+	MIN_TURN_ANGLE = pi / 24
 
 	def __init__(self, initialPosition, initialHeading, initialSpeed):
 		self.initialPosition = initialPosition
@@ -128,7 +143,7 @@ class ControlSim(App):
 		parent.add_widget(restartBtn)
 		
 		# Set up event loop.
-		Clock.schedule_interval(self.step, 1 / 30)
+		Clock.schedule_interval(self.step, 1 / 10)
 		
 		return parent
 	
