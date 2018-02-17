@@ -27,6 +27,8 @@ class ControlSystem:
 class GuidanceSystem:
 	def __init__(self, track):
 		self.innerWall = track.innerWall
+		self.prevVertex = None
+		self.prevprevVertex = None
 	
 	# Returns the desired heading at a specific position on the track.
 	def getDesiredHeading(self, pos):
@@ -60,16 +62,11 @@ class WallFollowingGuidanceSystem(GuidanceSystem):
 	# Returns the desired heading at a specific position on the track.
 	def getDesiredHeading(self, pos):
 		((wall0, wall1), d) = self._getClosestPolyVertex(pos, self.innerWall)
+		# Straight-line heading along wall.
 		ha = atan2(wall1[1] - wall0[1], wall1[0] - wall0[0])
-		diff = d - self.WALL_DISTANCE
-		print("DIFF: " + str(diff))
-		hd = atan2(diff, self.LOOKAHEAD_DISTANCE)
-		# return ha
-		# print("CURRENTLY " + str(d) + " FROM THE WALL, HEADING " + str(ha))
-		# print(pi/4 - atan2(d - self.WALL_DISTANCE, self.LOOKAHEAD_DISTANCE))
+		# Heading that converges to correct distance from wall.
+		hd = atan2(d - self.WALL_DISTANCE, self.LOOKAHEAD_DISTANCE)
 		heading = ha - hd
-		print("WALLS: " + str((wall0, wall1)) + " HA: " + str(ha) + " HD: " + str(hd))
-		print("DESIRED HEADING: " + str(heading))
 		return heading
 
 class SimDisplay(Widget):
@@ -122,7 +119,7 @@ class SimVehicle:
 	MIN_TURN_ANGLE = pi / 8
 
 	def __init__(self, initialPosition, initialHeading, initialSpeed,
-		color = (1, 0, 0, 1)):
+			control, guidance, color = (1, 0, 0, 1)):
 		self.initialPosition = initialPosition
 		self.initialHeading = initialHeading
 		self.initialSpeed = initialSpeed
@@ -130,6 +127,8 @@ class SimVehicle:
 		self.heading = initialHeading
 		self.speed = initialSpeed
 		self.color = color
+		self.control = control
+		self.guidance = guidance
 	
 	def reset(self):
 		self.position = self.initialPosition
@@ -137,14 +136,16 @@ class SimVehicle:
 		self.speed = self.initialSpeed
 	
 	def updateHeading(self, delta):
-		# print("DELTA: " + str(delta))
+		# print("OLD: " + str(delta))
 		direction = delta > 0
-		delta = delta % pi
+		# delta = delta# % (2 * pi)
+		# print("NEW: " + str(delta))
 		if direction:
-			print("GREATER")
+			print("GREATER " + str(delta))
 			self.heading += min(delta, self.MIN_TURN_ANGLE)
 		else:
-			self.heading -= min(delta, self.MIN_TURN_ANGLE)
+			print("LESS " + str(delta))
+			self.heading += max(delta, -self.MIN_TURN_ANGLE)
 	
 	def updateSpeed(self, delta):
 		self.speed += delta
@@ -169,22 +170,22 @@ class ControlSim(App):
 		return parent
 	
 	def initSim(self):
-		# Add the vehicle.
-		self.vehicles = [
-			SimVehicle([250,250], 0, 5,
-				color = (1, 0, 0, 1)),
-			# SimVehicle([450,230], pi / 2, 5,
-				# color = (0, 0, 1, 1)),
-		]
-		
 		# Add the track.
 		self.track = SimTrack(
 			[(200, 220), (600, 220), (600, 150), (200, 150), (200, 220)],
 			[(100, 320), (700, 320), (700, 50), (100, 50), (100, 320)])
 		
-		# Set up control/guidance system.
-		self.guidance = WallFollowingGuidanceSystem(self.track)
-		self.control = ControlSystem()
+		# Add the vehicles.
+		self.vehicles = [
+			SimVehicle([650,220], 0, 5,
+				ControlSystem(),
+				WallFollowingGuidanceSystem(self.track),
+				color = (1, 0, 0, 1)),
+			# SimVehicle([350,270], 0, 7,
+				# ControlSystem(),
+				# WallFollowingGuidanceSystem(self.track),
+				# color = (0, 0, 1, 1)),
+		]
 
 	def restart(self, obj):
 		for vehicle in self.vehicles:
@@ -200,12 +201,12 @@ class ControlSim(App):
 			vehicle.position[1] += sin(vehicle.heading) * vehicle.speed
 			
 			# Determine guidance.
-			desiredHeading = self.guidance.getDesiredHeading(vehicle.position)
-			desiredSpeed = self.guidance.getDesiredSpeed(vehicle.position)
+			desiredHeading = vehicle.guidance.getDesiredHeading(vehicle.position)
+			desiredSpeed = vehicle.guidance.getDesiredSpeed(vehicle.position)
 			
 			# Run control algorithm.
-			deltaHeading = self.control.heading(vehicle.heading, desiredHeading)
-			deltaSpeed = self.control.throttle(vehicle.speed, desiredSpeed)
+			deltaHeading = vehicle.control.heading(vehicle.heading, desiredHeading)
+			deltaSpeed = vehicle.control.throttle(vehicle.speed, desiredSpeed)
 			
 			# Apply changes to vehicle.
 			vehicle.updateHeading(deltaHeading)
