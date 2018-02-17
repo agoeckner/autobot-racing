@@ -26,6 +26,7 @@ class AddNewCarUI(): #{
         self.createf2()
         self.createf3()
         self.createf4()
+        self.createf5()
     #}
 
     ##-----------------------------------------------------------------------------
@@ -80,6 +81,18 @@ class AddNewCarUI(): #{
 
         IPEntry = Entry(self.f4, width=25)
         IPEntry.pack(side='left')
+    #}
+
+    ##-----------------------------------------------------------------------------
+    ## Creates the frame f5
+    ##-----------------------------------------------------------------------------
+    def createf3(self): #{
+        self.f5 = Frame(self.window)
+        self.f5.pack(fill=X)
+
+        blankLabel = Label(self.f5, text=' ')
+        blankLabel.config(font=("Tahoma", 4))
+        blankLabel.grid(row=0,column=0)
     #}
 #}
 
