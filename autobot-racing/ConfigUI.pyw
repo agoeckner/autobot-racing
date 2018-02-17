@@ -132,7 +132,7 @@ class ConfigUI(): #{
     ## Callback for the AddNewCar UI to update car display frame
     ##-----------------------------------------------------------------------------
     def addNewCarCallback(self, carName, IP, port): #{
-        newCarFrame = Frame(self.f2,  width=(self.window.winfo_width() - 150), height=10, borderwidth=5,highlightbackground="green", highlightthickness=1)
+        newCarFrame = Frame(self.f2,  width=(self.window.winfo_width() - 150), height=10, borderwidth=5,highlightbackground="green", highlightthickness=2)
         newCarFrame.pack(side='top', padx=5, pady=3, fill=X)
         newCarFrame.bind("<Button-1>", lambda event, arg=carName: self.openEditCarWindow(event, arg))
 
@@ -181,7 +181,9 @@ class ConfigUI(): #{
                 carFrame = i[4]
         
         if status is True:
-            
+            carFrame.config(highlightbackground='green')
+        else:
+            carFrame.config(highlightbackground='red')
     #}
 
     ##-----------------------------------------------------------------------------
