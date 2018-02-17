@@ -1,5 +1,6 @@
 from ConfigUI import ConfigUI
 from AddNewCarUI import AddNewCarUI
+from EditCarUI import EditCarUI
 
 class UIManager(): #{
     ##-----------------------------------------------------------------------------
@@ -9,6 +10,7 @@ class UIManager(): #{
         #self.parent = parent
         self.configWindow = ConfigUI(self)
         self.addNewCarUI = AddNewCarUI(self)
+        self.editCarUI = EditCarUI(self)
     #}
 
     ##-----------------------------------------------------------------------------
@@ -30,6 +32,20 @@ class UIManager(): #{
     ##-----------------------------------------------------------------------------
     def addNewCarFrame(self, carName, IP, port): #{
         self.configWindow.addNewCarCallback(carName, IP, port)
+    #}
+
+    ##-----------------------------------------------------------------------------
+    ## Opens the editCarUI
+    ##-----------------------------------------------------------------------------
+    def openEditCarUI(self, carName, IP, port, frame): #{
+        self.editCarUI.createWindow(carName, IP, port, frame)
+    #}
+
+    ##-----------------------------------------------------------------------------
+    ## Sends the information from editCar to update a car frame in the config UI
+    ##-----------------------------------------------------------------------------
+    def updateCarFrame(self, carName, IP, port, frame): #{
+        self.configWindow.editCarCallback(carName, IP, port, frame)
     #}
 #}
 
