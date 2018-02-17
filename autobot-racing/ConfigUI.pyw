@@ -132,7 +132,7 @@ class ConfigUI(): #{
     ## Callback for the AddNewCar UI to update car display frame
     ##-----------------------------------------------------------------------------
     def addNewCarCallback(self, carName, IP, port): #{
-        newCarFrame = Frame(self.f2, width=(self.window.winfo_width() - 150), height=10, borderwidth=5,highlightbackground="black", highlightthickness=1)
+        newCarFrame = Frame(self.f2,  width=(self.window.winfo_width() - 150), height=10, borderwidth=5,highlightbackground="black", highlightthickness=1)
         newCarFrame.pack(side='top', padx=5, pady=3, fill=X)
         newCarFrame.bind("<Button-1>", lambda event, arg=carName: self.openEditCarWindow(event, arg))
 
@@ -142,6 +142,7 @@ class ConfigUI(): #{
         carLabel = Label(carFrame1, text=str(carName))
         carLabel.config(font=("Tahoma", 12))
         carLabel.pack()
+        #print(str(carLabel.winfo_id()))
         carFrame1.grid(row=0,column=0,sticky=E)
 
         carFrame2 = Frame(newCarFrame)
@@ -156,8 +157,10 @@ class ConfigUI(): #{
         portLabel.pack()
         carFrame3.grid(row=0,column=2,sticky=W)
 
-        frameInfo = [carName, IP, port, newCarFrame]
+        frameInfo = [carName, IP, port, newCarFrame.winfo_id(), newCarFrame]
         self.carDisplayFrames.append(frameInfo)
+        #print(newCarFrame.winfo_id())
+        #print(str(newCarFrame.winfo_children()))
     #}
 
     ##-----------------------------------------------------------------------------
@@ -181,8 +184,29 @@ class ConfigUI(): #{
     ##-----------------------------------------------------------------------------
     ## Callback for the editCar UI to update a car frame
     ##-----------------------------------------------------------------------------
-    def editCarCallback(self, carName, IP, port): #{
-        print('')
+    def editCarCallback(self, carName, IP, port, frame): #{
+        carFrame = None
+        
+        for i in self.carDisplayFrames: #{
+            if frame == i[3]:
+                carFrame = i[4]
+                children = carFrame.winfo_children()
+        #}
+        carFrame = children[0]
+        IPFrame = children[1]
+        portFrame = children[2]
+
+        carChildren = carFrame.winfo_children()
+        IPChildren = IPFrame.winfo_children()
+        portChildren = portFrame.winfo_children()
+
+        carLabel = carChildren[0]
+        IPLabel = IPChildren[0]
+        portLabel = portChildren[0]
+
+        carLabel['text'] = carName
+        IPLabel['text'] = IP
+        portLabel['text'] = port
     #}
 #}
 

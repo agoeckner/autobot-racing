@@ -31,7 +31,7 @@ class EditCarUI(): #{
         self.createf5()
         self.createf6(port)
         self.createf7()
-        #self.createf8()
+        self.createf8()
 
         self.carNameEntry.focus_force()
         self.window.mainloop()
@@ -140,13 +140,21 @@ class EditCarUI(): #{
         self.f8 = Frame(self.window)
         self.f8.pack(fill=X)
 
-        blankLabel = Label(self.f8, text='\t\t\t                ')
+        blankLabel = Label(self.f8, text='\t\t  ')
         blankLabel.config(font=("Tahoma", 8))
         blankLabel.grid(row=0,column=0)
 
-        self.addNewCarButton = Button(self.f8, text='Add Car', command=self.addCar, width=15)
-        self.addNewCarButton.config(font=("Tahoma", 10))
-        self.addNewCarButton.grid(row=0,column=1)
+        self.saveChangesButton = Button(self.f8, text='Save Changes', command=self.saveCarSettings, width=15)
+        self.saveChangesButton.config(font=("Tahoma", 10))
+        self.saveChangesButton.grid(row=0,column=1)
+
+        blankLabel1 = Label(self.f8, text='\t')
+        blankLabel1.config(font=("Tahoma", 8))
+        blankLabel1.grid(row=0,column=2)
+
+        self.deleteCarButton = Button(self.f8, text='Delete Car', command=self.saveCarSettings, width=15)
+        self.deleteCarButton.config(font=("Tahoma", 10))
+        self.deleteCarButton.grid(row=0,column=3)
     #}
 
     ##-----------------------------------------------------------------------------
