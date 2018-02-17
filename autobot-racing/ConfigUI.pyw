@@ -167,10 +167,22 @@ class ConfigUI(): #{
         self.f2.config(width=(self.window.winfo_width() - 50), height=(self.window.winfo_height() - 150))
     #}
 
-    #lambda event, arg=data: self.on_mouse_down(event, arg)
+    ##-----------------------------------------------------------------------------
+    ## Event handler for clicking on a Car frame
+    ##-----------------------------------------------------------------------------
     def openEditCarWindow(self, event, arg): #{
-        print('Event: ' + str(event) + '\nArg: ' + str(arg))
-        
+
+        for i in self.carDisplayFrames: #{
+            if arg == i[0]:
+                self.parent.openEditCarUI(i[0], i[1], i[2], i[3])
+        #}
+    #}
+
+    ##-----------------------------------------------------------------------------
+    ## Callback for the editCar UI to update a car frame
+    ##-----------------------------------------------------------------------------
+    def editCarCallback(self, carName, IP, port): #{
+        print('')
     #}
 #}
 
