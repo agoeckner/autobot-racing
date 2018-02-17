@@ -33,6 +33,9 @@ class ConfigUI(): #{
         self.window.bind("<Configure>", self.updateWindow)
     #}
 
+    ##-----------------------------------------------------------------------------
+    ## Creates the frame f1 at the top
+    ##-----------------------------------------------------------------------------
     def createf1(self): #{
         self.f1 = Frame(self.window)
 
@@ -43,6 +46,9 @@ class ConfigUI(): #{
         blankLabel.grid(row=0,column=0)
     #}
 
+    ##-----------------------------------------------------------------------------
+    ## Creates the frame to display the list of cars
+    ##-----------------------------------------------------------------------------
     def createCarDisplayFrame(self): #{
         self.f2 = Frame(self.window, width=(self.window.winfo_width() - 50), height=(self.window.winfo_height() - 150), borderwidth=5,highlightbackground="black", highlightthickness=1)
 
@@ -55,6 +61,9 @@ class ConfigUI(): #{
         self.f2.pack()
     #}
 
+    ##-----------------------------------------------------------------------------
+    ## Creates the frame f3 below the car display
+    ##-----------------------------------------------------------------------------
     def createf3(self): #{
         self.f3 = Frame(self.window)
 
@@ -65,6 +74,9 @@ class ConfigUI(): #{
         blankLabel.grid(row=0,column=0)
     #}
 
+    ##-----------------------------------------------------------------------------
+    ## Creates the frame that holds the add car button
+    ##-----------------------------------------------------------------------------
     def createf4(self): #{
         self.f4 = Frame(self.window)
 
@@ -75,12 +87,43 @@ class ConfigUI(): #{
         self.addCarButton.pack()
     #}
 
+    ##-----------------------------------------------------------------------------
+    ## Opens the AddNewCar UI and updates the car display frame
+    ##-----------------------------------------------------------------------------
     def addNewCar(self): #{
         print('')
     #}
 
+    ##-----------------------------------------------------------------------------
+    ## Tracks size changes in UI to update UI widgets
+    ##-----------------------------------------------------------------------------
     def updateWindow(self, event): #{
         self.f2.config(width=(self.window.winfo_width() - 50), height=(self.window.winfo_height() - 150))
     #}
 
 #}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
