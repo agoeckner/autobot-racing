@@ -28,7 +28,7 @@ class UIManager(): #{
     ##-----------------------------------------------------------------------------
     ## Sends the information from addnewcar to add a new car frame in the config UI
     ##-----------------------------------------------------------------------------
-    def openAddNewCarUI(self, carName, IP, port): #{
+    def addNewCarFrame(self, carName, IP, port): #{
         self.configWindow.addNewCarCallback(carName, IP, port)
     #}
 #}
