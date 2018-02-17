@@ -27,6 +27,9 @@ class AddNewCarUI(): #{
         self.createf3()
         self.createf4()
         self.createf5()
+        self.createf6()
+        self.createf7()
+        self.createf8()
     #}
 
     ##-----------------------------------------------------------------------------
@@ -52,8 +55,8 @@ class AddNewCarUI(): #{
         carNameLabel.config(font=("Tahoma", 11))
         carNameLabel.pack(side='left')
 
-        carNameEntry = Entry(self.f2, width=55)
-        carNameEntry.pack(side='left')
+        self.carNameEntry = Entry(self.f2, width=55)
+        self.carNameEntry.pack(side='left')
     #}
 
     ##-----------------------------------------------------------------------------
@@ -79,18 +82,45 @@ class AddNewCarUI(): #{
         IPLabel.config(font=("Tahoma", 11))
         IPLabel.pack(side='left')
 
-        IPEntry = Entry(self.f4, width=25)
-        IPEntry.pack(side='left')
+        self.IPEntry = Entry(self.f4, width=25)
+        self.IPEntry.pack(side='left')
     #}
 
     ##-----------------------------------------------------------------------------
     ## Creates the frame f5
     ##-----------------------------------------------------------------------------
-    def createf3(self): #{
+    def createf5(self): #{
         self.f5 = Frame(self.window)
         self.f5.pack(fill=X)
 
         blankLabel = Label(self.f5, text=' ')
+        blankLabel.config(font=("Tahoma", 4))
+        blankLabel.grid(row=0,column=0)
+    #}
+
+    ##-----------------------------------------------------------------------------
+    ## Creates the frame f6
+    ##-----------------------------------------------------------------------------
+    def createf6(self): #{
+        self.f6 = Frame(self.window)
+        self.f6.pack(fill=X)
+
+        portLabel = Label(self.f6, text='   Enter Car Port:    ')
+        portLabel.config(font=("Tahoma", 11))
+        portLabel.pack(side='left')
+
+        self.portEntry = Entry(self.f6, width=25)
+        self.portEntry.pack(side='left', padx=3)
+    #}
+
+    ##-----------------------------------------------------------------------------
+    ## Creates the frame f7
+    ##-----------------------------------------------------------------------------
+    def createf7(self): #{
+        self.f7 = Frame(self.window)
+        self.f7.pack(fill=X)
+
+        blankLabel = Label(self.f7, text=' ')
         blankLabel.config(font=("Tahoma", 4))
         blankLabel.grid(row=0,column=0)
     #}
