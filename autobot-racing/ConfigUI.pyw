@@ -9,7 +9,6 @@ class ConfigUI(): #{
     ##-----------------------------------------------------------------------------
     def __init__(self, parent): #{
         self.parent = parent
-        self.currentCarRow = 0 #Used for grid when adding new Car Config Frames
         self.carDisplayFrames = [] # Used to store the frames inside the car display frame
     #}
 
@@ -36,6 +35,7 @@ class ConfigUI(): #{
         #----------------------------------------------------------------------------------------------------------------------------
         
         self.window.bind("<Configure>", self.updateWindow)
+        self.window.mainloop()
     #}
 
     ##-----------------------------------------------------------------------------
@@ -116,7 +116,7 @@ class ConfigUI(): #{
         titleFrame3 = Frame(titleFrame)
         portLabel = Label(titleFrame3, text='Port')
         portLabel.config(font=("Tahoma", 12))
-        portLabel.pack()
+        portLabel.pack(padx=2)
         titleFrame3.grid(row=0,column=2,sticky=W)
     #}
 
@@ -134,6 +134,7 @@ class ConfigUI(): #{
     def addNewCarCallback(self, carName, IP, port): #{
         newCarFrame = Frame(self.f2, width=(self.window.winfo_width() - 150), height=10, borderwidth=5,highlightbackground="black", highlightthickness=1)
         newCarFrame.pack(side='top', padx=5, pady=3, fill=X)
+        newCarFrame.bind("<Button-1>", lambda event, arg=carName: self.openEditCarWindow(event, arg))
 
         newCarFrame.columnconfigure(1, weight=3)
 
@@ -155,8 +156,8 @@ class ConfigUI(): #{
         portLabel.pack()
         carFrame3.grid(row=0,column=2,sticky=W)
 
-
-        self.carDisplayFrames.append(newCarFrame)
+        frameInfo = [carName, newCarFrame]
+        self.carDisplayFrames.append(frameInfo)
     #}
 
     ##-----------------------------------------------------------------------------
@@ -166,10 +167,10 @@ class ConfigUI(): #{
         self.f2.config(width=(self.window.winfo_width() - 50), height=(self.window.winfo_height() - 150))
     #}
 
-    
-    def openEditCarWindow(self): #{
-        print('')
-        #frame.bind("<Button-1>", callback)
+    #lambda event, arg=data: self.on_mouse_down(event, arg)
+    def openEditCarWindow(self, event, arg): #{
+        print('Event: ' + str(event) + '\nArg: ' + str(arg))
+        
     #}
 #}
 
