@@ -28,6 +28,7 @@ class ConfigUI(): #{
         self.createCarDisplayFrame()
         self.createf3()
         self.createf4()
+        self.addCarDisplayTitle()
 
         #For Testing Remove Later----------------------------------------------------------------------------------------------------
         self.addNewCarCallback('Car 1', '127.0.0.5', '457')
@@ -91,7 +92,33 @@ class ConfigUI(): #{
         self.addCarButton.pack()
     #}
 
-    
+    ##-----------------------------------------------------------------------------
+    ## Adds a Title section for the Car List
+    ##-----------------------------------------------------------------------------
+    def addCarDisplayTitle(self): #{
+        titleFrame = Frame(self.f2, width=(self.window.winfo_width() - 150), height=10)
+        titleFrame.pack(side='top', padx=5, pady=3, fill=X)
+
+        titleFrame.columnconfigure(1, weight=3)
+
+        titleFrame1 = Frame(titleFrame)
+        carLabel = Label(titleFrame1, text='Car Name')
+        carLabel.config(font=("Tahoma", 12))
+        carLabel.pack()
+        titleFrame1.grid(row=0,column=0,sticky=E)
+
+        titleFrame2 = Frame(titleFrame)
+        IPLabel = Label(titleFrame2, text='IP    ')
+        IPLabel.config(font=("Tahoma", 12))
+        IPLabel.pack()
+        titleFrame2.grid(row=0,column=1)
+
+        titleFrame3 = Frame(titleFrame)
+        portLabel = Label(titleFrame3, text='Port')
+        portLabel.config(font=("Tahoma", 12))
+        portLabel.pack()
+        titleFrame3.grid(row=0,column=2,sticky=W)
+    #}
 
     ##-----------------------------------------------------------------------------
     ## Opens the AddNewCar UI
@@ -108,9 +135,7 @@ class ConfigUI(): #{
         newCarFrame = Frame(self.f2, width=(self.window.winfo_width() - 150), height=10, borderwidth=5,highlightbackground="black", highlightthickness=1)
         newCarFrame.pack(side='top', padx=5, pady=3, fill=X)
 
-        #newCarFrame.columnconfigure(0, weight=3)
         newCarFrame.columnconfigure(1, weight=3)
-        #newCarFrame.columnconfigure(2, weight=3)
 
         carFrame1 = Frame(newCarFrame)
         carLabel = Label(carFrame1, text=str(carName))
