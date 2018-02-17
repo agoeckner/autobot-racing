@@ -31,8 +31,7 @@ class GuidanceSystem:
 	# Returns the desired heading at a specific position on the track.
 	def getDesiredHeading(self, pos):
 		((wall0, wall1), d) = self._getClosestPolyVertex(pos, self.innerWall)
-		heading = atan2(wall1[1] - wall0[1], wall1[0] - wall0[0]) + pi
-		# print("CURRENTLY " + str(d) + " FROM THE WALL, HEADING " + str(heading))
+		heading = atan2(wall1[1] - wall0[1], wall1[0] - wall0[0])
 		return heading
 	
 	# Returns the desired speed at a specific position on the track.
@@ -53,7 +52,25 @@ class GuidanceSystem:
 				closest = (p1, p2)
 			p1 = p2
 		return (closest, abs(min))
-		
+
+class WallFollowingGuidanceSystem(GuidanceSystem):
+	WALL_DISTANCE = 20
+	LOOKAHEAD_DISTANCE = 50
+	
+	# Returns the desired heading at a specific position on the track.
+	def getDesiredHeading(self, pos):
+		((wall0, wall1), d) = self._getClosestPolyVertex(pos, self.innerWall)
+		ha = atan2(wall1[1] - wall0[1], wall1[0] - wall0[0])
+		diff = d - self.WALL_DISTANCE
+		print("DIFF: " + str(diff))
+		hd = atan2(diff, self.LOOKAHEAD_DISTANCE)
+		# return ha
+		# print("CURRENTLY " + str(d) + " FROM THE WALL, HEADING " + str(ha))
+		# print(pi/4 - atan2(d - self.WALL_DISTANCE, self.LOOKAHEAD_DISTANCE))
+		heading = ha - hd
+		print("WALLS: " + str((wall0, wall1)) + " HA: " + str(ha) + " HD: " + str(hd))
+		print("DESIRED HEADING: " + str(heading))
+		return heading
 
 class SimDisplay(Widget):
 	FUTURE_LINE_SCALE = 100
@@ -64,7 +81,7 @@ class SimDisplay(Widget):
 		self.track = track
 		self.traj = {}
 	
-	def on_step(self, vehicle):
+	def on_step(self, vehicles):
 		# Reset canvas.
 		self.canvas.clear()
 		
@@ -75,26 +92,26 @@ class SimDisplay(Widget):
 			self.innerWall = Line(points=self.track.innerWall, width=2.0)
 			self.outerWall = Line(points=self.track.outerWall, width=3.0)
 		
-		# Trajectory line.
-		pos = vehicle.position
-		futurePoint = (pos[0] + cos(vehicle.heading) * vehicle.speed * self.FUTURE_LINE_SCALE,
-			pos[1] + sin(vehicle.heading) * vehicle.speed * self.FUTURE_LINE_SCALE)
-		with self.canvas:
-			Color(1, 0, 0, 1, mode='rgba')
-			if vehicle not in self.traj or self.traj[vehicle] == None:
-				self.traj[vehicle] = Line(points=pos, width=1.5)
-			else:
-				self.traj[vehicle] = Line(points=self.traj[vehicle].points + pos, width=1.5)
-			
-			# Future trajectory.
-			Color(0, 1, 0, 1, mode='rgba')
-			Line(points=[pos, futurePoint], width=1.2)
-			
-			# Vehicle dot.
-			Color(0, 0, 0, 1, mode='rgba')
-			d = 5.
-			Ellipse(pos=(pos[0] - d / 2, pos[1] - d / 2), size=(d, d), width=5)
-
+		# Trajectory lines.
+		for vehicle in vehicles:
+			pos = vehicle.position
+			futurePoint = (pos[0] + cos(vehicle.heading) * vehicle.speed * self.FUTURE_LINE_SCALE,
+				pos[1] + sin(vehicle.heading) * vehicle.speed * self.FUTURE_LINE_SCALE)
+			with self.canvas:
+				Color(*vehicle.color, mode='rgba')
+				if vehicle not in self.traj or self.traj[vehicle] == None:
+					self.traj[vehicle] = Line(points=pos, width=1.5)
+				else:
+					self.traj[vehicle] = Line(points=self.traj[vehicle].points + pos, width=1.5)
+				
+				# Future trajectory.
+				Color(0, 1, 0, 1, mode='rgba')
+				Line(points=[pos, futurePoint], width=1.2)
+				
+				# Vehicle dot.
+				Color(0, 0, 0, 1, mode='rgba')
+				d = 5.
+				Ellipse(pos=(pos[0] - d / 2, pos[1] - d / 2), size=(d, d), width=5)
 
 class SimTrack:
 	def __init__(self, innerWall, outerWall):
@@ -102,15 +119,17 @@ class SimTrack:
 		self.outerWall = outerWall
 			
 class SimVehicle:
-	MIN_TURN_ANGLE = pi / 24
+	MIN_TURN_ANGLE = pi / 8
 
-	def __init__(self, initialPosition, initialHeading, initialSpeed):
+	def __init__(self, initialPosition, initialHeading, initialSpeed,
+		color = (1, 0, 0, 1)):
 		self.initialPosition = initialPosition
 		self.initialHeading = initialHeading
 		self.initialSpeed = initialSpeed
 		self.position = initialPosition
 		self.heading = initialHeading
 		self.speed = initialSpeed
+		self.color = color
 	
 	def reset(self):
 		self.position = self.initialPosition
@@ -119,8 +138,10 @@ class SimVehicle:
 	
 	def updateHeading(self, delta):
 		# print("DELTA: " + str(delta))
+		direction = delta > 0
 		delta = delta % pi
-		if delta > 0:
+		if direction:
+			print("GREATER")
 			self.heading += min(delta, self.MIN_TURN_ANGLE)
 		else:
 			self.heading -= min(delta, self.MIN_TURN_ANGLE)
@@ -149,7 +170,12 @@ class ControlSim(App):
 	
 	def initSim(self):
 		# Add the vehicle.
-		self.vehicles = [SimVehicle([250,250], pi / 2, 5)]
+		self.vehicles = [
+			SimVehicle([250,250], 0, 5,
+				color = (1, 0, 0, 1)),
+			# SimVehicle([450,230], pi / 2, 5,
+				# color = (0, 0, 1, 1)),
+		]
 		
 		# Add the track.
 		self.track = SimTrack(
@@ -157,7 +183,7 @@ class ControlSim(App):
 			[(100, 320), (700, 320), (700, 50), (100, 50), (100, 320)])
 		
 		# Set up control/guidance system.
-		self.guidance = GuidanceSystem(self.track)
+		self.guidance = WallFollowingGuidanceSystem(self.track)
 		self.control = ControlSystem()
 
 	def restart(self, obj):
@@ -166,11 +192,12 @@ class ControlSim(App):
 			vehicle.reset()
 	
 	def step(self, dt):
+		self.display.on_step(self.vehicles)
+		# return
 		for vehicle in self.vehicles:
 			# Move the vehicle.
 			vehicle.position[0] += cos(vehicle.heading) * vehicle.speed
 			vehicle.position[1] += sin(vehicle.heading) * vehicle.speed
-			self.display.on_step(vehicle)
 			
 			# Determine guidance.
 			desiredHeading = self.guidance.getDesiredHeading(vehicle.position)
