@@ -47,6 +47,13 @@ class UIManager(): #{
     def updateCarFrame(self, carName, IP, port, frame): #{
         self.configWindow.editCarCallback(carName, IP, port, frame)
     #}
+
+    ##-----------------------------------------------------------------------------
+    ## Sends the information from editCar to update a car frame in the config UI
+    ##-----------------------------------------------------------------------------
+    def deleteCarFrame(self, frame): #{
+        self.configWindow.deleteCarCallback(frame)
+    #}
 #}
 
 
