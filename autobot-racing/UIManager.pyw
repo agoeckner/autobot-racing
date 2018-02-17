@@ -49,6 +49,13 @@ class UIManager(): #{
     #}
 
     ##-----------------------------------------------------------------------------
+    ## Updates the carFrame border color based on connection status
+    ##-----------------------------------------------------------------------------
+    def changeCarFrameColor(self, carName, status): #{
+        self.configWindow.updateCarFrameColor(carName, status)
+    #}
+
+    ##-----------------------------------------------------------------------------
     ## Sends the information from editCar to update a car frame in the config UI
     ##-----------------------------------------------------------------------------
     def deleteCarFrame(self, frame): #{
