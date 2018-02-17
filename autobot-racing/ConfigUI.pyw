@@ -5,6 +5,7 @@ import tkinter as tk
 class ConfigUI(): #{
 
     currentCarRow = 0 #Used for grid when adding new Car Config Frames
+    carDisplayFrames = [] # Used to store the frames inside the car display frame
 
     ##-----------------------------------------------------------------------------
     ## Constructor
@@ -26,6 +27,8 @@ class ConfigUI(): #{
 
         self.createf1()
         self.createCarDisplayFrame()
+        self.createf3()
+        self.createf4()
 
         self.window.bind("<Configure>", self.updateWindow)
     #}
@@ -36,7 +39,7 @@ class ConfigUI(): #{
         self.f1.pack(fill=X)
 
         blankLabel = Label(self.f1, text=' ')
-        blankLabel.config(font=("Tahoma", 10))
+        blankLabel.config(font=("Tahoma", 11))
         blankLabel.grid(row=0,column=0)
     #}
 
@@ -50,6 +53,30 @@ class ConfigUI(): #{
         
         
         self.f2.pack()
+    #}
+
+    def createf3(self): #{
+        self.f3 = Frame(self.window)
+
+        self.f3.pack(fill=X)
+
+        blankLabel = Label(self.f3, text=' ')
+        blankLabel.config(font=("Tahoma", 11))
+        blankLabel.grid(row=0,column=0)
+    #}
+
+    def createf4(self): #{
+        self.f4 = Frame(self.window)
+
+        self.f4.pack(fill=X)
+        
+        self.addCarButton = Button(self.f4, text='Add Car', command=self.addNewCar, width=12)
+        self.addCarButton.config(font=("Tahoma", 12))
+        self.addCarButton.pack()
+    #}
+
+    def addNewCar(self): #{
+        print('')
     #}
 
     def updateWindow(self, event): #{
