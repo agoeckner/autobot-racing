@@ -14,6 +14,7 @@ class AddNewCarUI(): #{
     ## Creates the Add New Car Window
     ##-----------------------------------------------------------------------------
     def createWindow(self): #{
+        self.destroyWindow() #Called in case the user tries to open multiple windows
         self.window = Tk()
 
         #Sets the geometry and title on the window
@@ -30,6 +31,9 @@ class AddNewCarUI(): #{
         self.createf6()
         self.createf7()
         self.createf8()
+
+        self.carNameEntry.focus_force()
+        self.window.mainloop()
     #}
 
     ##-----------------------------------------------------------------------------
@@ -121,8 +125,47 @@ class AddNewCarUI(): #{
         self.f7.pack(fill=X)
 
         blankLabel = Label(self.f7, text=' ')
-        blankLabel.config(font=("Tahoma", 4))
+        blankLabel.config(font=("Tahoma", 11))
         blankLabel.grid(row=0,column=0)
+    #}
+
+    ##-----------------------------------------------------------------------------
+    ## Creates the frame f8
+    ##-----------------------------------------------------------------------------
+    def createf8(self): #{
+        self.f8 = Frame(self.window)
+        self.f8.pack(fill=X)
+
+        blankLabel = Label(self.f8, text='\t\t\t                ')
+        blankLabel.config(font=("Tahoma", 8))
+        blankLabel.grid(row=0,column=0)
+
+        self.addNewCarButton = Button(self.f8, text='Add Car', command=self.addCar, width=15)
+        self.addNewCarButton.config(font=("Tahoma", 10))
+        self.addNewCarButton.grid(row=0,column=1)
+    #}
+
+    ##-----------------------------------------------------------------------------
+    ## Collects info from entries and sends back to config UI
+    ##-----------------------------------------------------------------------------
+    def addCar(self): #{
+        carName = self.carNameEntry.get()
+        IP = self.IPEntry.get()
+        port = self.portEntry.get()
+
+        self.parent.addNewCarFrame(carName,IP,port)
+
+        self.destroyWindow()
+    #}
+
+    ##-----------------------------------------------------------------------------
+    ## Deletes the addNewCar Window
+    ##-----------------------------------------------------------------------------
+    def destroyWindow(self): #{
+        try:
+            self.window.destroy()
+        except:
+            print('Error destroying AddNewCar UI')
     #}
 #}
 
