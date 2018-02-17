@@ -25,6 +25,7 @@ class AddNewCarUI(): #{
         self.createf1()
         self.createf2()
         self.createf3()
+        self.createf4()
     #}
 
     ##-----------------------------------------------------------------------------
@@ -32,7 +33,6 @@ class AddNewCarUI(): #{
     ##-----------------------------------------------------------------------------
     def createf1(self): #{
         self.f1 = Frame(self.window)
-
         self.f1.pack(fill=X)
 
         blankLabel = Label(self.f1, text=' ')
@@ -60,12 +60,26 @@ class AddNewCarUI(): #{
     ##-----------------------------------------------------------------------------
     def createf3(self): #{
         self.f3 = Frame(self.window)
-
         self.f3.pack(fill=X)
 
         blankLabel = Label(self.f3, text=' ')
-        blankLabel.config(font=("Tahoma", 8))
+        blankLabel.config(font=("Tahoma", 4))
         blankLabel.grid(row=0,column=0)
+    #}
+
+    ##-----------------------------------------------------------------------------
+    ## Creates the frame f4
+    ##-----------------------------------------------------------------------------
+    def createf4(self): #{
+        self.f4 = Frame(self.window)
+        self.f4.pack(fill=X)
+
+        IPLabel = Label(self.f4, text='   Enter Car IP:       ')
+        IPLabel.config(font=("Tahoma", 11))
+        IPLabel.pack(side='left')
+
+        IPEntry = Entry(self.f4, width=25)
+        IPEntry.pack(side='left')
     #}
 #}
 
