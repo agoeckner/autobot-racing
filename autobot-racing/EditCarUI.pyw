@@ -152,7 +152,7 @@ class EditCarUI(): #{
         blankLabel1.config(font=("Tahoma", 8))
         blankLabel1.grid(row=0,column=2)
 
-        self.deleteCarButton = Button(self.f8, text='Delete Car', command=self.saveCarSettings, width=15)
+        self.deleteCarButton = Button(self.f8, text='Delete Car', command=self.deleteCarFrame, width=15)
         self.deleteCarButton.config(font=("Tahoma", 10))
         self.deleteCarButton.grid(row=0,column=3)
     #}
@@ -167,6 +167,14 @@ class EditCarUI(): #{
 
         self.parent.updateCarFrame(carName,IP,port,self.frameToUpdate)
 
+        self.destroyWindow()
+    #}
+
+    ##-----------------------------------------------------------------------------
+    ## Sends back the car frame to delete
+    ##-----------------------------------------------------------------------------
+    def deleteCarFrame(self): #{
+        self.parent.deleteCarFrame(self.frameToUpdate)
         self.destroyWindow()
     #}
 
