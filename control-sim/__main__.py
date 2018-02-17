@@ -1,4 +1,4 @@
-from random import random
+from random import randint, random
 from math import *
 import numpy as np
 from numpy.linalg import *
@@ -10,7 +10,7 @@ from kivy.uix.button import Button
 from kivy.uix.label import Label
 from kivy.graphics import Color, Ellipse, Line
 
-Window.clearcolor = (1, 1, 1, 1)
+# Window.clearcolor = (1, 1, 1, 1)
 
 class ControlSystem:
 	def __init__(self):
@@ -18,6 +18,10 @@ class ControlSystem:
 
 	# Given an actual and a desired heading, returns new delta heading value.
 	def heading(self, actual, desired):
+		if desired - actual > pi:
+			actual += 2 * pi
+		elif desired - actual < -pi:
+			actual -= 2 * pi;
 		return desired - actual
 	
 	# Given an actual and a desired throttle, returns new delta speed value.
@@ -27,8 +31,6 @@ class ControlSystem:
 class GuidanceSystem:
 	def __init__(self, track):
 		self.innerWall = track.innerWall
-		self.prevVertex = None
-		self.prevprevVertex = None
 	
 	# Returns the desired heading at a specific position on the track.
 	def getDesiredHeading(self, pos):
@@ -57,7 +59,7 @@ class GuidanceSystem:
 
 class WallFollowingGuidanceSystem(GuidanceSystem):
 	WALL_DISTANCE = 20
-	LOOKAHEAD_DISTANCE = 50
+	LOOKAHEAD_DISTANCE = 45
 	
 	# Returns the desired heading at a specific position on the track.
 	def getDesiredHeading(self, pos):
@@ -83,7 +85,7 @@ class SimDisplay(Widget):
 		self.canvas.clear()
 		
 		# Display the track.
-		color = (0, 0, 0, 1)
+		color = (1, 1, 1, 1)
 		with self.canvas:
 			Color(*color, mode='rgba')
 			self.innerWall = Line(points=self.track.innerWall, width=2.0)
@@ -102,7 +104,7 @@ class SimDisplay(Widget):
 					self.traj[vehicle] = Line(points=self.traj[vehicle].points + pos, width=1.5)
 				
 				# Future trajectory.
-				Color(0, 1, 0, 1, mode='rgba')
+				Color(0, 1, 1, 1, mode='rgba')
 				Line(points=[pos, futurePoint], width=1.2)
 				
 				# Vehicle dot.
@@ -116,7 +118,7 @@ class SimTrack:
 		self.outerWall = outerWall
 			
 class SimVehicle:
-	MIN_TURN_ANGLE = pi / 8
+	MIN_TURN_ANGLE = pi / 24
 
 	def __init__(self, initialPosition, initialHeading, initialSpeed,
 			control, guidance, color = (1, 0, 0, 1)):
@@ -136,15 +138,9 @@ class SimVehicle:
 		self.speed = self.initialSpeed
 	
 	def updateHeading(self, delta):
-		# print("OLD: " + str(delta))
-		direction = delta > 0
-		# delta = delta# % (2 * pi)
-		# print("NEW: " + str(delta))
-		if direction:
-			print("GREATER " + str(delta))
+		if delta > 0:
 			self.heading += min(delta, self.MIN_TURN_ANGLE)
 		else:
-			print("LESS " + str(delta))
 			self.heading += max(delta, -self.MIN_TURN_ANGLE)
 	
 	def updateSpeed(self, delta):
@@ -172,19 +168,23 @@ class ControlSim(App):
 	def initSim(self):
 		# Add the track.
 		self.track = SimTrack(
-			[(200, 220), (600, 220), (600, 150), (200, 150), (200, 220)],
+			[(200, 220), (460, 280), (600, 220), (600, 150), (200, 150), (200, 220)],
 			[(100, 320), (700, 320), (700, 50), (100, 50), (100, 320)])
 		
 		# Add the vehicles.
 		self.vehicles = [
-			SimVehicle([650,220], 0, 5,
+			SimVehicle([400,60], pi, 5,
 				ControlSystem(),
 				WallFollowingGuidanceSystem(self.track),
 				color = (1, 0, 0, 1)),
-			# SimVehicle([350,270], 0, 7,
-				# ControlSystem(),
-				# WallFollowingGuidanceSystem(self.track),
-				# color = (0, 0, 1, 1)),
+			SimVehicle([500,60], pi, 5,
+				ControlSystem(),
+				WallFollowingGuidanceSystem(self.track),
+				color = (0, 1, 0, 1)),
+			SimVehicle([600,60], pi, 5,
+				ControlSystem(),
+				WallFollowingGuidanceSystem(self.track),
+				color = (0, 0, 1, 1)),
 		]
 
 	def restart(self, obj):
@@ -207,6 +207,10 @@ class ControlSim(App):
 			# Run control algorithm.
 			deltaHeading = vehicle.control.heading(vehicle.heading, desiredHeading)
 			deltaSpeed = vehicle.control.throttle(vehicle.speed, desiredSpeed)
+			
+			# Add some error.
+			# if randint(0, 5) == 5:
+				# deltaHeading = deltaHeading + (random() - 0.5)
 			
 			# Apply changes to vehicle.
 			vehicle.updateHeading(deltaHeading)
