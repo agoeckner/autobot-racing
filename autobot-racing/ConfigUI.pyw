@@ -9,7 +9,7 @@ class ConfigUI(): #{
     ##-----------------------------------------------------------------------------
     def __init__(self, parent): #{
         self.parent = parent
-        self.carDisplayFrames = [] # Used to store the frames inside the car display frame
+        self.carDisplayFrames = [] # Used to store the car frames and their info
     #}
 
     ##-----------------------------------------------------------------------------
@@ -18,7 +18,7 @@ class ConfigUI(): #{
     def createWindow(self): #{
         self.window = Tk()
 
-        #Maximizes the window on the screen
+        #Sets the geometry and title on the window
         self.window.geometry('1100x500+150+50')
         self.window.wm_iconbitmap('../ccs.ico')
         self.window.title('Car Configuration Menu')
@@ -125,7 +125,7 @@ class ConfigUI(): #{
     ##-----------------------------------------------------------------------------
     def addNewCar(self): #{
         #Open new car UI
-        print('')
+        self.parent.openAddNewCarUI()
     #}
 
     ##-----------------------------------------------------------------------------
@@ -156,7 +156,7 @@ class ConfigUI(): #{
         portLabel.pack()
         carFrame3.grid(row=0,column=2,sticky=W)
 
-        frameInfo = [carName, newCarFrame]
+        frameInfo = [carName, IP, port, newCarFrame]
         self.carDisplayFrames.append(frameInfo)
     #}
 
