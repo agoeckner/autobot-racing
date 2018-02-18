@@ -11,6 +11,7 @@ class UIManager(): #{
         self.configWindow = ConfigUI(self)
         self.addNewCarUI = AddNewCarUI(self)
         self.editCarUI = EditCarUI(self)
+        self.carStatsUI = CarStatsUI(self)
     #}
 
     ##-----------------------------------------------------------------------------
@@ -35,6 +36,13 @@ class UIManager(): #{
     #}
 
     ##-----------------------------------------------------------------------------
+    ## Sends the information from editCar to update a car frame in the config UI
+    ##-----------------------------------------------------------------------------
+    def deleteCarFrame(self, frame): #{
+        self.configWindow.deleteCarCallback(frame)
+    #}
+
+    ##-----------------------------------------------------------------------------
     ## Opens the editCarUI
     ##-----------------------------------------------------------------------------
     def openEditCarUI(self, carName, IP, port, frame): #{
@@ -53,13 +61,6 @@ class UIManager(): #{
     ##-----------------------------------------------------------------------------
     def changeCarFrameColor(self, carName, status): #{
         self.configWindow.updateCarFrameColor(carName, status)
-    #}
-
-    ##-----------------------------------------------------------------------------
-    ## Sends the information from editCar to update a car frame in the config UI
-    ##-----------------------------------------------------------------------------
-    def deleteCarFrame(self, frame): #{
-        self.configWindow.deleteCarCallback(frame)
     #}
 #}
 
