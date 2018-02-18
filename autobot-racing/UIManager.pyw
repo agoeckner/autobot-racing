@@ -1,6 +1,7 @@
 from ConfigUI import ConfigUI
 from AddNewCarUI import AddNewCarUI
 from EditCarUI import EditCarUI
+from CarStatsUI import CarStatsUI
 
 class UIManager(): #{
     ##-----------------------------------------------------------------------------
@@ -29,6 +30,20 @@ class UIManager(): #{
     #}
 
     ##-----------------------------------------------------------------------------
+    ## Opens the Edit Car Window
+    ##-----------------------------------------------------------------------------
+    def openEditCarUI(self, carName, IP, port, frame): #{
+        self.editCarUI.createWindow(carName, IP, port, frame)
+    #}
+
+    ##-----------------------------------------------------------------------------
+    ## Opens the Car Statistics Window
+    ##-----------------------------------------------------------------------------
+    def openCarStatsUI(self): #{
+        self.carStatsUI.createWindow()
+    #}
+
+    ##-----------------------------------------------------------------------------
     ## Sends the information from addnewcar to add a new car frame in the config UI
     ##-----------------------------------------------------------------------------
     def addNewCarFrame(self, carName, IP, port): #{
@@ -40,13 +55,6 @@ class UIManager(): #{
     ##-----------------------------------------------------------------------------
     def deleteCarFrame(self, frame): #{
         self.configWindow.deleteCarCallback(frame)
-    #}
-
-    ##-----------------------------------------------------------------------------
-    ## Opens the editCarUI
-    ##-----------------------------------------------------------------------------
-    def openEditCarUI(self, carName, IP, port, frame): #{
-        self.editCarUI.createWindow(carName, IP, port, frame)
     #}
 
     ##-----------------------------------------------------------------------------
