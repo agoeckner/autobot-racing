@@ -7,8 +7,6 @@ class Car:
 	name = None
 	ip = None
 	port = None
-	connection = None
-	isConnected = False
 
 	def __init__(self, name, ip, port):
 		self.name = name
@@ -16,39 +14,35 @@ class Car:
 		self.port = port
 		
 	#gets attributes in tuple form (name, ip, port)
-	def getAttr(self, ):
-		return (name, ip, port)
+	def getAttr(self):
+		return (self.name, self.ip, sefl.port)
 
 	#set attributes in tuple form (name, ip, port). 
 	#None can be set for any attribute to skip assignment
 	def setAttr(self, attr):
-		#Todo add handling if already connected!
-		if attr[0]: name = attr[0]
-		if attr[1]: ip = attr[1]
-		if attr[2]: port = attr[2]
+		if attr[0]: self.name = attr[0]
+		if attr[1]: self.ip = attr[1]
+		if attr[2]: self.port = attr[2]
 	
 	#Simply send strings. This will change when we decide on needs to be sent.
 	def sendMsg(self, str):
-		connection.sendall(str.encode('ascii'))
+		try:
+			self.connection.sendall(str.encode('ascii'))
+		except Exception:
+			self.connection = None
+			raise
 	
 	def getMsg(self):
-		return connection.recv(1024).decode('ascii')
+		try:
+			return self.connection.recv(1024).decode('ascii')
+		except Exception:
+			self.connection = None
+			raise
 	
 	def connectToHost(self):
-			
-		try:
-			#connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-			
-			#Will raise a socket.timeout exception after 5 seconds if connection is not made
-			connection = socket.create_connection((self.ip, self.port), 5)
-			
-		except socket.timeout:
-			raise TimeoutError
-		
-		isConnected = True
-
+		#Will raise a socket.timeout exception after 5 seconds if connection is not made
+		self.connection = socket.create_connection((self.ip, self.port), 5)
 		
 	def disconnectFromHost(self):
-		connection.close()
-		connection = None
-		isConnected = False
+		self.connection.close()
+		self.connection = None
