@@ -10,7 +10,7 @@ from kivy.graphics import Color, Ellipse, Line
 
 from controls import *
 
-# Window.clearcolor = (1, 1, 1, 1)
+Window.clearcolor = (1, 1, 1, 1)
 
 class SimDisplay(Widget):
 	FUTURE_LINE_SCALE = 100
@@ -26,7 +26,7 @@ class SimDisplay(Widget):
 		self.canvas.clear()
 		
 		# Display the track.
-		color = (1, 1, 1, 1)
+		color = (0, 0, 0, 1)
 		with self.canvas:
 			Color(*color, mode='rgba')
 			self.innerWall = Line(points=self.track.innerWall, width=2.0)
@@ -106,7 +106,7 @@ class ControlSim(App):
 		parent.add_widget(restartBtn)
 		
 		# Set up event loop.
-		Clock.schedule_interval(self.step, 1 / 50)
+		Clock.schedule_interval(self.step, 1 / 20)
 		
 		return parent
 	
@@ -114,22 +114,26 @@ class ControlSim(App):
 		# Add the track.
 		self.track = SimTrack(
 			[(200, 220), (460, 280), (600, 220), (600, 150), (200, 150), (200, 220)],
-			[(100, 320), (700, 320), (700, 50), (100, 50), (100, 320)])
+			[(100, 320), (450, 370), (700, 320), (700, 50), (100, 50), (100, 320)])
 		
 		# Add the vehicles.
 		self.vehicles = [
-			SimVehicle([400,60], pi, 5,
+			SimVehicle([600,120], pi, 7,
 				ControlSystem(),
-				WallFollowingGuidanceSystem(self.track),
+				WallFollowingGuidanceSystem(self.track,
+					wallDistance = 10,
+					lookahead = 200),
 				color = (1, 0, 0, 1)),
-			# SimVehicle([500,60], pi, 5,
-				# ControlSystem(),
-				# WallFollowingGuidanceSystem(self.track),
-				# color = (0, 1, 0, 1)),
-			# SimVehicle([600,60], pi, 5,
-				# ControlSystem(),
-				# WallFollowingGuidanceSystem(self.track),
-				# color = (0, 0, 1, 1)),
+			SimVehicle([600,90], pi, 5,
+				ControlSystem(),
+				WallFollowingGuidanceSystem(self.track,
+					lookahead = 20),
+				color = (0, 1, 0, 1)),
+			SimVehicle([600,60], pi, 5,
+				ControlSystem(),
+				WallFollowingGuidanceSystem(self.track,
+					lookahead = 100),
+				color = (0, 0, 1, 1)),
 		]
 
 	def restart(self, obj):
@@ -155,7 +159,7 @@ class ControlSim(App):
 			
 			# Add some error.
 			# if randint(0, 5) == 5:
-				# deltaHeading = deltaHeading + (random() - 0.5)
+				# deltaHeading = deltaHeading + 50 * (random() - 0.5)
 			
 			# Apply changes to vehicle.
 			vehicle.updateHeading(deltaHeading)
