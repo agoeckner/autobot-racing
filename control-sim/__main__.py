@@ -1,7 +1,5 @@
 from random import randint, random
 from math import *
-import numpy as np
-from numpy.linalg import *
 from kivy.app import App
 from kivy.core.window import Window
 from kivy.clock import Clock
@@ -10,66 +8,9 @@ from kivy.uix.button import Button
 from kivy.uix.label import Label
 from kivy.graphics import Color, Ellipse, Line
 
+from controls import *
+
 # Window.clearcolor = (1, 1, 1, 1)
-
-class ControlSystem:
-	def __init__(self):
-		pass
-
-	# Given an actual and a desired heading, returns new delta heading value.
-	def heading(self, actual, desired):
-		if desired - actual > pi:
-			actual += 2 * pi
-		elif desired - actual < -pi:
-			actual -= 2 * pi;
-		return desired - actual
-	
-	# Given an actual and a desired throttle, returns new delta speed value.
-	def throttle(self, actual, desired):
-		return 0 #TODO
-
-class GuidanceSystem:
-	def __init__(self, track):
-		self.innerWall = track.innerWall
-	
-	# Returns the desired heading at a specific position on the track.
-	def getDesiredHeading(self, pos):
-		((wall0, wall1), d) = self._getClosestPolyVertex(pos, self.innerWall)
-		heading = atan2(wall1[1] - wall0[1], wall1[0] - wall0[0])
-		return heading
-	
-	# Returns the desired speed at a specific position on the track.
-	def getDesiredSpeed(self, pos):
-		pass
-	
-	# Returns tuple of ((line0, line1), dist), where line0 and line1 are
-	# points on closest vertex, and dist is distance to closest point on line.
-	def _getClosestPolyVertex(self, pos, polygon):
-		closest = ()
-		min = 99999999
-		p1 = polygon[0]
-		for p in range(1, len(polygon)):
-			p2 = polygon[p]
-			d = np.cross(np.subtract(p2, p1), np.subtract(p1, pos)) / norm(np.subtract(p2, p1))
-			if d < min:
-				min = d
-				closest = (p1, p2)
-			p1 = p2
-		return (closest, abs(min))
-
-class WallFollowingGuidanceSystem(GuidanceSystem):
-	WALL_DISTANCE = 20
-	LOOKAHEAD_DISTANCE = 45
-	
-	# Returns the desired heading at a specific position on the track.
-	def getDesiredHeading(self, pos):
-		((wall0, wall1), d) = self._getClosestPolyVertex(pos, self.innerWall)
-		# Straight-line heading along wall.
-		ha = atan2(wall1[1] - wall0[1], wall1[0] - wall0[0])
-		# Heading that converges to correct distance from wall.
-		hd = atan2(d - self.WALL_DISTANCE, self.LOOKAHEAD_DISTANCE)
-		heading = ha - hd
-		return heading
 
 class SimDisplay(Widget):
 	FUTURE_LINE_SCALE = 100
@@ -138,10 +79,14 @@ class SimVehicle:
 		self.speed = self.initialSpeed
 	
 	def updateHeading(self, delta):
+		# Clamp the turn rate.
 		if delta > 0:
 			self.heading += min(delta, self.MIN_TURN_ANGLE)
 		else:
 			self.heading += max(delta, -self.MIN_TURN_ANGLE)
+		
+		# Clamp the heading.
+		self.heading = self.heading % (2 * pi)
 	
 	def updateSpeed(self, delta):
 		self.speed += delta
@@ -161,7 +106,7 @@ class ControlSim(App):
 		parent.add_widget(restartBtn)
 		
 		# Set up event loop.
-		Clock.schedule_interval(self.step, 1 / 10)
+		Clock.schedule_interval(self.step, 1 / 50)
 		
 		return parent
 	
@@ -177,14 +122,14 @@ class ControlSim(App):
 				ControlSystem(),
 				WallFollowingGuidanceSystem(self.track),
 				color = (1, 0, 0, 1)),
-			SimVehicle([500,60], pi, 5,
-				ControlSystem(),
-				WallFollowingGuidanceSystem(self.track),
-				color = (0, 1, 0, 1)),
-			SimVehicle([600,60], pi, 5,
-				ControlSystem(),
-				WallFollowingGuidanceSystem(self.track),
-				color = (0, 0, 1, 1)),
+			# SimVehicle([500,60], pi, 5,
+				# ControlSystem(),
+				# WallFollowingGuidanceSystem(self.track),
+				# color = (0, 1, 0, 1)),
+			# SimVehicle([600,60], pi, 5,
+				# ControlSystem(),
+				# WallFollowingGuidanceSystem(self.track),
+				# color = (0, 0, 1, 1)),
 		]
 
 	def restart(self, obj):
