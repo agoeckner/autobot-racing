@@ -60,8 +60,6 @@ class ConfigUI(): #{
         #Frame Scrollbar
         scrollY = ttk.Scrollbar(self.f2)
         scrollY.pack(side='right', fill=Y)
-
-        
         
         self.f2.pack()
     #}
