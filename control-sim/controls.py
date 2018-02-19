@@ -47,9 +47,12 @@ class GuidanceSystem:
 			p1 = p2
 		return (closest, abs(min))
 
-class WallFollowingGuidanceSystem(GuidanceSystem):
-	WALL_DISTANCE = 20
-	LOOKAHEAD_DISTANCE = 45
+class WallFollowingGuidanceSystem(GuidanceSystem):	
+	def __init__(self, *args, wallDistance = 20, lookahead = 45, **kwargs):
+		super(WallFollowingGuidanceSystem, self).__init__(*args, **kwargs)
+		self.distWall = wallDistance
+		self.distLookahead = lookahead
+
 	
 	# Returns the desired heading at a specific position on the track.
 	def getDesiredHeading(self, pos):
@@ -57,6 +60,6 @@ class WallFollowingGuidanceSystem(GuidanceSystem):
 		# Straight-line heading along wall.
 		ha = atan2(wall1[1] - wall0[1], wall1[0] - wall0[0])
 		# Heading that converges to correct distance from wall.
-		hd = atan2(d - self.WALL_DISTANCE, self.LOOKAHEAD_DISTANCE)
+		hd = atan2(d - self.distWall, self.distLookahead)
 		heading = ha - hd
 		return heading
