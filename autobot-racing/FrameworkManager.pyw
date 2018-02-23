@@ -8,14 +8,14 @@ class FrameworkManager(): #{
     def __init__(self): #{
         self.UserInterface = UIManager(self)
         self.EthernetInterface = EthernetInterface(self)
-        
+        self.listOfCars = []
     #}
 
     ##-----------------------------------------------------------------------------
     ## Opens the User Interface
     ##-----------------------------------------------------------------------------
     def startup(self): #{
-        self.UserInterface.createWindow()
+        self.UserInterface.openCarStatsUI()
     #}
 #}
 
