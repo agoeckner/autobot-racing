@@ -5,7 +5,7 @@ class Car(): #{
         self.carName = carName
         self.IP = IP
         self.port = port
-        self.carFrameID = carFrameId
+        self.carFrameID = carFrameID
         self.frame = frame
         self.lapNum = lapNum
         self.place = place
