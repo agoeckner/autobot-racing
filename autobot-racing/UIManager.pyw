@@ -74,4 +74,5 @@ class UIManager(): #{
 
 
 ui = UIManager()
-ui.openConfigurationWindow()
+#ui.openConfigurationWindow()
+ui.openCarStatsUI()
