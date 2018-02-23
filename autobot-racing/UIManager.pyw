@@ -70,4 +70,52 @@ class UIManager(): #{
     def changeCarFrameColor(self, carName, status): #{
         self.carStatsUI.updateCarFrameColor(carName, status)
     #}
+
+    ##-----------------------------------------------------------------------------
+    ## Adds a new car to the list of car objects
+    ##-----------------------------------------------------------------------------
+    def addNewCarObj(self, car): #{
+        self.parent.carList.append(car)
+        print(str(self.parent.carList))
+    #}
+
+    ##-----------------------------------------------------------------------------
+    ## Returns the list of Cars
+    ##-----------------------------------------------------------------------------
+    def getCarList(self): #{
+        return self.parent.getCarList()
+    #}
+
+    ##-----------------------------------------------------------------------------
+    ## Updates the list of cars
+    ##-----------------------------------------------------------------------------
+    def updateCarList(self, newList): #{
+        self.parent.updateCarList(newList)
+    #}
 #}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
