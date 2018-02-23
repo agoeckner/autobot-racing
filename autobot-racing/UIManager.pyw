@@ -1,3 +1,4 @@
+sys.path.insert(0, './UIWindows')
 from ConfigUI import ConfigUI
 from AddNewCarUI import AddNewCarUI
 from EditCarUI import EditCarUI
