@@ -1,7 +1,7 @@
 
 #Car class to store car objects
 class Car(): #{
-    def __init__(self, carName, IP, port, carFrameID, frame, lapNum, place, lapTimes): #{
+    def __init__(self, carName, IP, port, carFrameID, frame, lapNum, place, lapTimes, controlSystem, guidanceSystem): #{
         self.carName = carName
         self.IP = IP
         self.port = port
@@ -10,5 +10,7 @@ class Car(): #{
         self.lapNum = lapNum
         self.place = place
         self.lapTimes = lapTimes
+        self.controlSystem = controlSystem
+        self.guidanceSystem = guidanceSystem
     #}
 #}

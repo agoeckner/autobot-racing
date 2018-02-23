@@ -2,6 +2,8 @@ from tkinter import *
 from tkinter import ttk
 import tkinter as tk
 
+##TODO: Add dropdowns to select control and guidance system
+
 class EditCarUI(): #{
     ##-----------------------------------------------------------------------------
     ## Constructor

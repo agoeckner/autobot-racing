@@ -35,8 +35,8 @@ class CarStatsUI(): #{
         self.createCameraFrames()
 
         #For Testing Remove Later----------------------------------------------------------------------------------------------------
-        self.addNewCarCallback('Car 1', '127.0.0.5', '457')
-        self.addNewCarCallback('Car 2', '127.0.0.6', '458')
+        self.addNewCarCallback('Car 1', '127.0.0.5', '457', 'Option 1', 'Option 1')
+        self.addNewCarCallback('Car 2', '127.0.0.6', '458', 'Option 1', 'Option 1')
         #----------------------------------------------------------------------------------------------------------------------------
 
         self.window.bind("<Configure>", self.updateWindow)
@@ -182,7 +182,7 @@ class CarStatsUI(): #{
     ##-----------------------------------------------------------------------------
     ## Callback for the AddNewCar UI to update car display frame
     ##-----------------------------------------------------------------------------
-    def addNewCarCallback(self, carName, IP, port): #{
+    def addNewCarCallback(self, carName, IP, port, controlSystem, guidanceSystem): #{
         newCarFrame = Frame(self.CarConfigCarsFrame, height=10, borderwidth=5,highlightbackground="green", highlightthickness=1)
         newCarFrame.pack(side='top', padx=5, pady=3, fill=X)
 
@@ -208,7 +208,7 @@ class CarStatsUI(): #{
         carFrame3.grid(row=0,column=2,sticky=W)
 
         newCarFrame.bind("<Button-1>", lambda event, arg=newCarFrame.winfo_id(): self.openEditCarWindow(event, arg))
-        car = Car(carName, IP, port, newCarFrame.winfo_id(), newCarFrame, None, None, None)
+        car = Car(carName, IP, port, newCarFrame.winfo_id(), newCarFrame, None, None, None, None, None)
         self.parent.addNewCarObj(car)
     #}
 
@@ -236,7 +236,7 @@ class CarStatsUI(): #{
     ##-----------------------------------------------------------------------------
     ## Callback for the editCar UI to update a car frame
     ##-----------------------------------------------------------------------------
-    def editCarCallback(self, carName, IP, port, frame): #{
+    def editCarCallback(self, carName, IP, port, frame, controlSystem, guidanceSystem): #{
         carFrame = None
         cars = self.parent.getCarList()
         print(str(cars))
