@@ -8,7 +8,7 @@ class FrameworkManager(): #{
     def __init__(self): #{
         self.UserInterface = UIManager(self)
         self.EthernetInterface = EthernetInterface(self)
-        self.listOfCars = []
+        self.carList = []
     #}
 
     ##-----------------------------------------------------------------------------
@@ -16,6 +16,20 @@ class FrameworkManager(): #{
     ##-----------------------------------------------------------------------------
     def startup(self): #{
         self.UserInterface.openCarStatsUI()
+    #}
+
+    ##-----------------------------------------------------------------------------
+    ## Returns the current list of cars
+    ##-----------------------------------------------------------------------------
+    def getCarList(self): #{
+        return self.carList
+    #}
+
+    ##-----------------------------------------------------------------------------
+    ## Updates the list of cars
+    ##-----------------------------------------------------------------------------
+    def updateCarList(self, newList): #{
+        self.carList = newList
     #}
 #}
 

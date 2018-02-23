@@ -4,6 +4,7 @@ import tkinter as tk
 import tkinter.font as tkFont
 import cv2
 from PIL import Image, ImageTk
+from Car import Car
 
 class CarStatsUI(): #{
     ##-----------------------------------------------------------------------------
@@ -11,7 +12,7 @@ class CarStatsUI(): #{
     ##-----------------------------------------------------------------------------
     def __init__(self, parent): #{
         self.parent = parent
-        self.carDisplayFrames = [] # Used to store the car frames and their info
+        #self.carDisplayFrames = [] # Used to store the car frames and their info
     #}
 
     ##-----------------------------------------------------------------------------
@@ -184,7 +185,6 @@ class CarStatsUI(): #{
     def addNewCarCallback(self, carName, IP, port): #{
         newCarFrame = Frame(self.CarConfigCarsFrame, height=10, borderwidth=5,highlightbackground="green", highlightthickness=1)
         newCarFrame.pack(side='top', padx=5, pady=3, fill=X)
-        newCarFrame.bind("<Button-1>", lambda event, arg=carName: self.openEditCarWindow(event, arg))
 
         newCarFrame.columnconfigure(1, weight=3)
 
@@ -207,8 +207,9 @@ class CarStatsUI(): #{
         portLabel.pack()
         carFrame3.grid(row=0,column=2,sticky=W)
 
-        frameInfo = [carName, IP, port, newCarFrame.winfo_id(), newCarFrame]
-        self.carDisplayFrames.append(frameInfo)
+        newCarFrame.bind("<Button-1>", lambda event, arg=newCarFrame.winfo_id(): self.openEditCarWindow(event, arg))
+        car = Car(carName, IP, port, newCarFrame.winfo_id(), newCarFrame, None, None, None)
+        self.parent.addNewCarObj(car)
     #}
 
     ##-----------------------------------------------------------------------------
@@ -223,10 +224,12 @@ class CarStatsUI(): #{
     ## Event handler for clicking on a Car frame
     ##-----------------------------------------------------------------------------
     def openEditCarWindow(self, event, arg): #{
+        cars = self.parent.getCarList()
+
         
-        for i in self.carDisplayFrames: #{
-            if arg == i[0]:
-                self.parent.openEditCarUI(i[0], i[1], i[2], i[3])
+        for car in cars: #{
+            if arg == car.carFrameID:
+                self.parent.openEditCarUI(car.carName, car.IP, car.port, car.frame)
         #}
     #}
 
@@ -235,17 +238,23 @@ class CarStatsUI(): #{
     ##-----------------------------------------------------------------------------
     def editCarCallback(self, carName, IP, port, frame): #{
         carFrame = None
+        cars = self.parent.getCarList()
+        print(str(cars))
+        car = None
+        children = []
         
-        for i in self.carDisplayFrames: #{
-            if frame == i[3]:
-                carFrame = i[4]
+        for i in cars: #{
+            if frame == i.frame:
+                carFrame = i.frame
+                car = i
+                cars.remove(i)
                 children = carFrame.winfo_children()
         #}
-        carFrame = children[0]
+        carNameFrame = children[0]
         IPFrame = children[1]
         portFrame = children[2]
 
-        carChildren = carFrame.winfo_children()
+        carChildren = carNameFrame.winfo_children()
         IPChildren = IPFrame.winfo_children()
         portChildren = portFrame.winfo_children()
 
@@ -257,7 +266,12 @@ class CarStatsUI(): #{
         IPLabel['text'] = IP
         portLabel['text'] = port
 
-        ##TODO: Update Information Stored in carDisplayFrames---------------------------------------------------------------------------------------------
+        car.carName = carName
+        car.IP = IP
+        car.port = port
+        cars.append(car)
+
+        self.parent.updateCarList(cars)
     #}
 
     ##-----------------------------------------------------------------------------
@@ -265,17 +279,19 @@ class CarStatsUI(): #{
     ##-----------------------------------------------------------------------------
     def deleteCarCallback(self, frame): #{
         carFrame = None
+        cars = self.parent.getCarList()
         
-        for i in self.carDisplayFrames: #{
-            if frame == i[3]:
-                carFrame = i[4]
+        for i in cars: #{
+            if frame == i.frame:
+                carFrame = i.frame
+                car = i
         #}
         try:
             carFrame.destroy()
+            cars.remove(car)
+            self.parent.updateCarList(cars)
         except:
             print('Error Deleting Car Frame')
-
-        ##TODO: Update Information Stored in carDisplayFrames---------------------------------------------------------------------------------------------
     #}
 
     ##-----------------------------------------------------------------------------
