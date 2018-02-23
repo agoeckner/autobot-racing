@@ -47,28 +47,28 @@ class UIManager(): #{
     ## Sends the information from addnewcar to add a new car frame in the config UI
     ##-----------------------------------------------------------------------------
     def addNewCarFrame(self, carName, IP, port): #{
-        self.configWindow.addNewCarCallback(carName, IP, port)
+        self.carStatsUI.addNewCarCallback(carName, IP, port)
     #}
 
     ##-----------------------------------------------------------------------------
     ## Sends the information from editCar to update a car frame in the config UI
     ##-----------------------------------------------------------------------------
     def deleteCarFrame(self, frame): #{
-        self.configWindow.deleteCarCallback(frame)
+        self.carStatsUI.deleteCarCallback(frame)
     #}
 
     ##-----------------------------------------------------------------------------
     ## Sends the information from editCar to update a car frame in the config UI
     ##-----------------------------------------------------------------------------
     def updateCarFrame(self, carName, IP, port, frame): #{
-        self.configWindow.editCarCallback(carName, IP, port, frame)
+        self.carStatsUI.editCarCallback(carName, IP, port, frame)
     #}
 
     ##-----------------------------------------------------------------------------
     ## Updates the carFrame border color based on connection status
     ##-----------------------------------------------------------------------------
     def changeCarFrameColor(self, carName, status): #{
-        self.configWindow.updateCarFrameColor(carName, status)
+        self.carStatsUI.updateCarFrameColor(carName, status)
     #}
 #}
 

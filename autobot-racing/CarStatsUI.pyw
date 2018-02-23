@@ -64,35 +64,42 @@ class CarStatsUI(): #{
         s.configure('.', font=f)
 
         CarInfoFrame = Frame(self.f2,width=400, borderwidth=5,highlightbackground="black", highlightthickness=1)
-        CameraFeedTitleFrame = Frame(self.f2, borderwidth=5,highlightbackground="red", highlightthickness=1)
+        CameraFeedTitleFrame = Frame(self.f2,highlightbackground="red", highlightthickness=1)
 
         CarInfoFrame.pack(side='left', expand=False, anchor=NW, fill=Y)#grid(row=0,column=0,sticky=N+S)
         CameraFeedTitleFrame.pack(side='right', expand=True, anchor=NE, fill=BOTH, padx=5)
 
         titleLabel = Label(CarInfoFrame, text='Car Information\t\t\t\t        ')
         titleLabel.config(font=("Tahoma", 12))
-        titleLabel.pack(side='top', anchor=NW)
+        titleLabel.pack(side='top', anchor=NW, expand=False)
 
         nb = ttk.Notebook(CarInfoFrame)
+        self.CarConfigButtonFrame = Frame(CarInfoFrame)
         self.CarConfig = Canvas(nb)
         self.LeaderBoard = Canvas(nb)
 
-        nb.add(self.CarConfig, text="Car Configuration Menu")
-        nb.add(self.LeaderBoard, text="LeaderBoard")
+        nb.add(self.CarConfig, text=" Car Configuration Menu ")
+        nb.add(self.LeaderBoard, text="  LeaderBoard  ")
 
-        nb.pack(fill=X, pady=5)
+        self.CarConfigCarsFrame = Frame(self.CarConfig)
 
+        self.CarConfigCarsFrame.pack(side='top', fill=BOTH, expand=True)
+        scrollY = ttk.Scrollbar(self.CarConfigCarsFrame)
+        scrollY.pack(side='right', fill=Y)
 
-        LeaderBoardTitleLabel = Label(self.LeaderBoard, text='LeaderBoard')
-        LeaderBoardTitleLabel.config(font=("Tahoma", 13))
-        LeaderBoardTitleLabel.grid(row=0,column=0)
+        self.addCarButton = Button(self.CarConfigButtonFrame, text='Add Car', command=self.addNewCar, width=12)
+        self.addCarButton.config(font=("Tahoma", 9))
+        self.addCarButton.pack(side='bottom')
+
+        nb.pack(fill=BOTH, pady=5, expand=True)
+        self.CarConfigButtonFrame.pack(side='bottom', fill=X)
     #}
 
     ##-----------------------------------------------------------------------------
     ## Creates title section in the Car Configuration Tab
     ##-----------------------------------------------------------------------------
     def createCarConfigTitle(self): #{
-        titleFrame = Frame(self.CarConfig, height=10)
+        titleFrame = Frame(self.CarConfigCarsFrame, height=10)
         titleFrame.pack(side='top', padx=5, pady=3, fill=X)
 
         titleFrame.columnconfigure(1, weight=3)
@@ -104,7 +111,7 @@ class CarStatsUI(): #{
         titleFrame1.grid(row=0,column=0,sticky=E)
 
         titleFrame2 = Frame(titleFrame)
-        IPLabel = Label(titleFrame2, text='IP         ')
+        IPLabel = Label(titleFrame2, text='IP  ')
         IPLabel.config(font=("Tahoma", 9))
         IPLabel.pack()
         titleFrame2.grid(row=0,column=1)
@@ -120,7 +127,7 @@ class CarStatsUI(): #{
     ## Callback for the AddNewCar UI to update car display frame
     ##-----------------------------------------------------------------------------
     def addNewCarCallback(self, carName, IP, port): #{
-        newCarFrame = Frame(self.CarConfig, height=10, borderwidth=5,highlightbackground="green", highlightthickness=1)
+        newCarFrame = Frame(self.CarConfigCarsFrame, height=10, borderwidth=5,highlightbackground="green", highlightthickness=1)
         newCarFrame.pack(side='top', padx=5, pady=3, fill=X)
         newCarFrame.bind("<Button-1>", lambda event, arg=carName: self.openEditCarWindow(event, arg))
 
@@ -136,7 +143,7 @@ class CarStatsUI(): #{
         carFrame2 = Frame(newCarFrame)
         IPLabel = Label(carFrame2, text=str(IP))
         IPLabel.config(font=("Tahoma", 9))
-        IPLabel.pack()
+        IPLabel.pack(padx=2)
         carFrame2.grid(row=0,column=1)
 
         carFrame3 = Frame(newCarFrame)
@@ -150,14 +157,70 @@ class CarStatsUI(): #{
     #}
 
     ##-----------------------------------------------------------------------------
+    ## Opens the AddNewCar UI
+    ##-----------------------------------------------------------------------------
+    def addNewCar(self): #{
+        #Open new car UI
+        self.parent.openAddNewCarUI()
+    #}
+
+    ##-----------------------------------------------------------------------------
     ## Event handler for clicking on a Car frame
     ##-----------------------------------------------------------------------------
     def openEditCarWindow(self, event, arg): #{
-        print('')
-##        for i in self.carDisplayFrames: #{
-##            if arg == i[0]:
-##                self.parent.openEditCarUI(i[0], i[1], i[2], i[3])
-##        #}
+        
+        for i in self.carDisplayFrames: #{
+            if arg == i[0]:
+                self.parent.openEditCarUI(i[0], i[1], i[2], i[3])
+        #}
+    #}
+
+    ##-----------------------------------------------------------------------------
+    ## Callback for the editCar UI to update a car frame
+    ##-----------------------------------------------------------------------------
+    def editCarCallback(self, carName, IP, port, frame): #{
+        carFrame = None
+        
+        for i in self.carDisplayFrames: #{
+            if frame == i[3]:
+                carFrame = i[4]
+                children = carFrame.winfo_children()
+        #}
+        carFrame = children[0]
+        IPFrame = children[1]
+        portFrame = children[2]
+
+        carChildren = carFrame.winfo_children()
+        IPChildren = IPFrame.winfo_children()
+        portChildren = portFrame.winfo_children()
+
+        carLabel = carChildren[0]
+        IPLabel = IPChildren[0]
+        portLabel = portChildren[0]
+
+        carLabel['text'] = carName
+        IPLabel['text'] = IP
+        portLabel['text'] = port
+
+        ##TODO: Update Information Stored in carDisplayFrames---------------------------------------------------------------------------------------------
+    #}
+
+    ##-----------------------------------------------------------------------------
+    ## Callback for the editCar UI to delete a car frame
+    ##-----------------------------------------------------------------------------
+    def deleteCarCallback(self, frame): #{
+        carFrame = None
+        
+        for i in self.carDisplayFrames: #{
+            if frame == i[3]:
+                carFrame = i[4]
+        #}
+        try:
+            carFrame.destroy()
+        except:
+            print('Error Deleting Car Frame')
+
+        ##TODO: Update Information Stored in carDisplayFrames---------------------------------------------------------------------------------------------
     #}
 
     ##-----------------------------------------------------------------------------
@@ -166,6 +229,22 @@ class CarStatsUI(): #{
     def updateWindow(self, event): #{
         #print('')
         self.f2.config(width=(self.window.winfo_width() - 50), height=(self.window.winfo_height() - 100))
+    #}
+
+    ##-----------------------------------------------------------------------------
+    ## Updates the color code of the car frame
+    ##-----------------------------------------------------------------------------
+    def updateCarFrameColor(self, carName, status): #{
+        carFrame = None
+        
+        for i in self.carDisplayFrames: #{
+            if arg == i[0]:
+                carFrame = i[4]
+        
+        if status is True:
+            carFrame.config(highlightbackground='green')
+        else:
+            carFrame.config(highlightbackground='red')
     #}
 #}
 
