@@ -1,37 +1,123 @@
-import cv2
 import numpy as np
-from matplotlib import pyplot as plt
+import cv2
 
-img = cv2.imread('track.PNG',0)
-img2 = img.copy()
-template = cv2.imread('car.PNG',0)
-w, h = template.shape[::-1]
+ALLOWED_COLORS = (
+	(255, 0, 0),
+	(0, 255, 0),
+	(0, 0, 255),
+)
 
-# All the 6 methods for comparison in a list
-methods = ['cv2.TM_CCOEFF', 'cv2.TM_CCOEFF_NORMED', 'cv2.TM_CCORR',
-            'cv2.TM_CCORR_NORMED', 'cv2.TM_SQDIFF', 'cv2.TM_SQDIFF_NORMED']
+cap = cv2.VideoCapture(0)
 
-for meth in methods:
-    img = img2.copy()
-    method = eval(meth)
+face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
+eye_cascade = cv2.CascadeClassifier('haarcascade_eye.xml')
 
-    # Apply template Matching
-    res = cv2.matchTemplate(img,template,method)
-    min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
+def checkArea(contour):
+	a = cv2.contourArea(contour)
+	return a > 50 and a < 20000
+	
+def npDistance(a, b):
+	return np.linalg.norm(a-b)
+	
+def getClosestColor(color):
+	def distance(c1, c2):
+		(r1,g1,b1) = c1
+		(r2,g2,b2) = c2
+		return ((r1 - r2)**2 + (g1 - g2) ** 2 + (b1 - b2) **2) ** 0.5
+	closest = sorted(ALLOWED_COLORS, key=lambda c: distance(c, color))
+	return closest[0]
+	
+def checkTriangle(contour):
+	# Get the sides.
+	sides = ((contour[0], contour[1]),
+		(contour[1], contour[2]),
+		(contour[2], contour[0]))
+	
+	# Get lengths of each side.
+	lengths = [npDistance(s[0], s[1]) for s in sides]
 
-    # If the method is TM_SQDIFF or TM_SQDIFF_NORMED, take minimum
-    if method in [cv2.TM_SQDIFF, cv2.TM_SQDIFF_NORMED]:
-        top_left = min_loc
-    else:
-        top_left = max_loc
-    bottom_right = (top_left[0] + w, top_left[1] + h)
+	# Determine which is shortest side.
+	minLen = 999999
+	minLenIdx = -1
+	for idx in range(0, len(lengths)):
+		l = lengths[idx]
+		if l < minLen:
+			minLen = l
+			minLenIdx = idx
+	if minLenIdx == -1:
+		return False
+	
+	# Check that two longer sides are roughly equal.
+	long1 = None
+	for idx in range(0, len(lengths)):
+		if idx != minLenIdx:
+			if long1 == None:
+				long1 = lengths[idx]
+			else:
+				long2 = lengths[idx]
+	if abs(long1 - long2) >= 5:
+		return False
+		
+	ratio = minLen / max(lengths)
+	if abs(ratio - 0.363636) >= 0.07:
+		return False
+	return True
 
-    cv2.rectangle(img,top_left, bottom_right, 255, 2)
+while(True):
+	# Capture frame-by-frame
+	ret, frame = cap.read()
+	height, width = frame.shape[:2]
+	area = height * width
 
-    plt.subplot(121),plt.imshow(res,cmap = 'gray')
-    plt.title('Matching Result'), plt.xticks([]), plt.yticks([])
-    plt.subplot(122),plt.imshow(img,cmap = 'gray')
-    plt.title('Detected Point'), plt.xticks([]), plt.yticks([])
-    plt.suptitle(meth)
+	# Preprocess the image.
+	# gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+	# ret,thresh = cv2.threshold(gray,120,255,0)
+	blurred = cv2.GaussianBlur(frame, (5, 5), 0)
+	gray = cv2.cvtColor(blurred, cv2.COLOR_BGR2GRAY)
+	lab = cv2.cvtColor(blurred, cv2.COLOR_BGR2LAB)
+	thresh = cv2.threshold(gray, 150, 255, cv2.THRESH_BINARY)[1]
+	
+	# Find all contours.
+	im2, contours, hierarchy = cv2.findContours(thresh,cv2.RETR_TREE,cv2.CHAIN_APPROX_NONE)
 
-    plt.show()
+	# Loop over candidate contours.
+	candidates = list(filter(checkArea, contours))
+	# cv2.drawContours(frame, contours, -1, (0,0,255), 1)
+	for c in candidates:
+		epsilon = 0.03 * cv2.arcLength(c, True)
+		approx = cv2.approxPolyDP(c, epsilon, True)
+		
+		# Check its triangley-ness.
+		if len(approx) != 3:
+			continue
+		if not checkTriangle(approx):
+			continue
+		
+		# Determine color.
+		M = cv2.moments(c)
+		cX = int(M["m10"] / M["m00"])
+		cY = int(M["m01"] / M["m00"])
+		
+		color = (int(frame[cY][cX][0]), int(frame[cY][cX][1]), int(frame[cY][cX][2]))
+		color = getClosestColor(color)
+		# mask = np.zeros(frame.shape,np.uint8)
+		# cv2.drawContours(mask, [c], 0, 255, -1)
+		# color = cv2.mean(frame, mask = mask)
+		# print("GOT COLOR: " + str(color))
+	 
+		cv2.drawContours(frame, [approx], -1, color, 3)
+		
+		# draw the contour and center of the shape on the image
+		cv2.circle(frame, (cX, cY), 7, (255, 255, 255), -1)
+		label = "(" + str(cX) + "," + str(cY) + ")"
+		cv2.putText(frame, label, (cX - 20, cY - 20),
+			cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+		
+
+	# display = np.dstack((frame, gray))
+	cv2.imshow('frame', frame)
+	if cv2.waitKey(1) & 0xFF == ord('q'):
+		break
+
+cap.release()
+cv2.destroyAllWindows()
