@@ -208,7 +208,8 @@ class CarStatsUI(): #{
         carFrame3.grid(row=0,column=2,sticky=W)
 
         newCarFrame.bind("<Button-1>", lambda event, arg=newCarFrame.winfo_id(): self.openEditCarWindow(event, arg))
-        car = Car(carName, IP, port, newCarFrame.winfo_id(), newCarFrame, None, None, None, None, None)
+        car = Car(carName, IP, port, newCarFrame.winfo_id(), newCarFrame, None, None, None, controlSystem, guidanceSystem)
+        #print(str(controlSystem)+'\n'+str(guidanceSystem))
         self.parent.addNewCarObj(car)
     #}
 

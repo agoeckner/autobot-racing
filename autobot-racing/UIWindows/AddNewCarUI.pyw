@@ -218,9 +218,10 @@ class AddNewCarUI(): #{
         carName = self.carNameEntry.get()
         IP = self.IPEntry.get()
         port = self.portEntry.get()
-        #controlSystem = 
+        controlSystem = self.controlOptionList.current()
+        guidanceSystem = self.guidanceOptionList.current()
 
-        self.parent.addNewCarFrame(carName,IP,port)
+        self.parent.addNewCarFrame(carName,IP,port,controlSystem,guidanceSystem)
 
         self.destroyWindow()
     #}
