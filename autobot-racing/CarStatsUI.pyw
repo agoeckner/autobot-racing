@@ -2,6 +2,8 @@ from tkinter import *
 from tkinter import ttk
 import tkinter as tk
 import tkinter.font as tkFont
+import cv2
+from PIL import Image, ImageTk
 
 class CarStatsUI(): #{
     ##-----------------------------------------------------------------------------
@@ -26,14 +28,15 @@ class CarStatsUI(): #{
         #Create each frame in the window
         self.createf1()
         self.createf2()
+        self.createf3()
 
         self.createCarConfigTitle()
+        self.createCameraFrames()
 
         #For Testing Remove Later----------------------------------------------------------------------------------------------------
         self.addNewCarCallback('Car 1', '127.0.0.5', '457')
         self.addNewCarCallback('Car 2', '127.0.0.6', '458')
         #----------------------------------------------------------------------------------------------------------------------------
-
 
         self.window.bind("<Configure>", self.updateWindow)
         self.window.mainloop()
@@ -56,7 +59,7 @@ class CarStatsUI(): #{
     ## Creates frame f2
     ##-----------------------------------------------------------------------------
     def createf2(self): #{
-        self.f2 = Frame(self.window, width=(self.window.winfo_width() - 10), height=(self.window.winfo_height() - 100), borderwidth=5,highlightbackground="black", highlightthickness=1)
+        self.f2 = Frame(self.window, width=(self.window.winfo_width() - 10), height=(self.window.winfo_height() - 100))#, borderwidth=5,highlightbackground="black", highlightthickness=1)
         self.f2.pack()
 
         f = tkFont.Font(family='helvetica', size=12)
@@ -64,10 +67,10 @@ class CarStatsUI(): #{
         s.configure('.', font=f)
 
         CarInfoFrame = Frame(self.f2,width=400, borderwidth=5,highlightbackground="black", highlightthickness=1)
-        CameraFeedTitleFrame = Frame(self.f2,highlightbackground="red", highlightthickness=1)
+        self.CameraFeedTitleFrame = Frame(self.f2,highlightbackground="black", highlightthickness=1)
 
         CarInfoFrame.pack(side='left', expand=False, anchor=NW, fill=Y)#grid(row=0,column=0,sticky=N+S)
-        CameraFeedTitleFrame.pack(side='right', expand=True, anchor=NE, fill=BOTH, padx=5)
+        self.CameraFeedTitleFrame.pack(side='right', expand=True, anchor=NE, fill=BOTH, padx=5)
 
         titleLabel = Label(CarInfoFrame, text='Car Information\t\t\t\t        ')
         titleLabel.config(font=("Tahoma", 12))
@@ -121,6 +124,58 @@ class CarStatsUI(): #{
         portLabel.config(font=("Tahoma", 9))
         portLabel.pack(padx=2)
         titleFrame3.grid(row=0,column=2,sticky=W)
+    #}
+
+    ##-----------------------------------------------------------------------------
+    ## Creates the frames for the Camera Feed
+    ##-----------------------------------------------------------------------------
+    def createCameraFrames(self): #{
+        titleFrame = Frame(self.CameraFeedTitleFrame)
+        titleFrame.pack(side='top', fill=X)
+
+        titleLabel = Label(titleFrame, text='Camera Feed')
+        titleLabel.config(font=("Tahoma", 12))
+        titleLabel.pack(anchor=N, expand=False)
+
+        self.fpsLabel = Label(titleFrame, text='FPS:')
+        self.fpsLabel.config(font=("Tahoma", 10))
+        self.fpsLabel.pack(anchor=NW, expand=False)
+
+        self.CameraFeed = Frame(self.CameraFeedTitleFrame)#, highlightbackground="green", highlightthickness=1)
+        self.CameraFeed.pack(side='top',fill=BOTH, expand=True, padx=2, pady=2)
+        #vidFile = cv2.VideoCapture(0)
+    #}
+
+    ##-----------------------------------------------------------------------------
+    ## Creates the frame f3 at the bottom
+    ##-----------------------------------------------------------------------------
+    def createf3(self): #{
+        self.f3 = Frame(self.window, width=600)
+        self.f3.pack(pady=5)
+        #self.f3.columnconfigure(1, weight=2)
+
+        self.startRaceButton = Button(self.f3, text='Start Race', command=self.startRace, width=12)
+        self.startRaceButton.config(font=("Tahoma", 11))
+        #self.startRaceButton.pack(anchor=NW)
+        self.startRaceButton.grid(row=0,column=0)
+
+        blankLabel = Label(self.f3, text='\t')
+        blankLabel.config(font=("Tahoma", 11))
+        blankLabel.grid(row=0,column=1)
+
+        self.pauseRaceButton = Button(self.f3, text='Pause Race', command=self.pauseRace, width=12)
+        self.pauseRaceButton.config(font=("Tahoma", 11))
+        #self.pauseRaceButton.pack(anchor=N)
+        self.pauseRaceButton.grid(row=0,column=2)
+
+        blankLabel1 = Label(self.f3, text='\t')
+        blankLabel1.config(font=("Tahoma", 11))
+        blankLabel1.grid(row=0,column=3)
+
+        self.stopRaceButton = Button(self.f3, text='Stop Race', command=self.stopRace, width=12)
+        self.stopRaceButton.config(font=("Tahoma", 11))
+        #self.stopRaceButton.pack(anchor=NE)
+        self.stopRaceButton.grid(row=0,column=4)
     #}
 
     ##-----------------------------------------------------------------------------
@@ -245,6 +300,27 @@ class CarStatsUI(): #{
             carFrame.config(highlightbackground='green')
         else:
             carFrame.config(highlightbackground='red')
+    #}
+
+    ##-----------------------------------------------------------------------------
+    ## Starts the Race
+    ##-----------------------------------------------------------------------------
+    def startRace(self): #{
+        print('Start Race')
+    #}
+
+    ##-----------------------------------------------------------------------------
+    ## Pauses the Race
+    ##-----------------------------------------------------------------------------
+    def pauseRace(self): #{
+        print('Pause Race')
+    #}
+
+    ##-----------------------------------------------------------------------------
+    ## Stops the Race
+    ##-----------------------------------------------------------------------------
+    def stopRace(self): #{
+        print('Stop Race')
     #}
 #}
 
