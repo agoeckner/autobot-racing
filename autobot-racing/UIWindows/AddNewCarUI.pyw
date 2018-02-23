@@ -2,6 +2,8 @@ from tkinter import *
 from tkinter import ttk
 import tkinter as tk
 
+##TODO: Add dropdowns to select control and guidance system
+
 class AddNewCarUI(): #{
     ##-----------------------------------------------------------------------------
     ## Constructor
@@ -18,7 +20,7 @@ class AddNewCarUI(): #{
         self.window = Tk()
 
         #Sets the geometry and title on the window
-        self.window.geometry('500x200+200+50')
+        self.window.geometry('500x300+300+150')
         self.window.wm_iconbitmap('../ccs.ico')
         self.window.title('Add New Car')
         self.window.resizable(0, 0)
@@ -31,6 +33,10 @@ class AddNewCarUI(): #{
         self.createf6()
         self.createf7()
         self.createf8()
+        self.createf9()
+        self.createf10()
+        self.createf11()
+        self.createf12()
 
         self.carNameEntry.focus_force()
         self.window.mainloop()
@@ -136,11 +142,71 @@ class AddNewCarUI(): #{
         self.f8 = Frame(self.window)
         self.f8.pack(fill=X)
 
-        blankLabel = Label(self.f8, text='\t\t\t                ')
+        controlSystemLabel = Label(self.f8, text='   Select Control System:     ')
+        controlSystemLabel.config(font=("Tahoma", 11))
+        controlSystemLabel.grid(row=0,column=0)
+
+        #self.controlOptions = StringVar()
+        #self.controlOptions['values'] = self.parent.getControlSystems()
+        
+        self.controlOptionList = ttk.Combobox(self.f8, values=self.parent.getControlSystems())
+        self.controlOptionList.grid(row=0,column=1)
+    #}
+
+    ##-----------------------------------------------------------------------------
+    ## Creates the frame f9
+    ##-----------------------------------------------------------------------------
+    def createf9(self): #{
+        self.f9 = Frame(self.window)
+        self.f9.pack(fill=X)
+
+        blankLabel = Label(self.f9, text=' ')
+        blankLabel.config(font=("Tahoma", 11))
+        blankLabel.grid(row=0,column=0)
+    #}
+
+    ##-----------------------------------------------------------------------------
+    ## Creates the frame f10
+    ##-----------------------------------------------------------------------------
+    def createf10(self): #{
+        self.f10 = Frame(self.window)
+        self.f10.pack(fill=X)
+
+        guidanceSystemLabel = Label(self.f10, text='   Select Guidance System:  ')
+        guidanceSystemLabel.config(font=("Tahoma", 11))
+        guidanceSystemLabel.grid(row=0,column=0)
+
+        #self.guidanceOptions = StringVar()
+        #self.guidanceOptions['values'] = self.parent.getGuidanceSystems()
+        
+        self.guidanceOptionList = ttk.Combobox(self.f10, values=self.parent.getGuidanceSystems())
+        self.guidanceOptionList.grid(row=0,column=1)
+    #}
+
+    ##-----------------------------------------------------------------------------
+    ## Creates the frame f11
+    ##-----------------------------------------------------------------------------
+    def createf11(self): #{
+        self.f11 = Frame(self.window)
+        self.f11.pack(fill=X)
+
+        blankLabel = Label(self.f11, text=' ')
+        blankLabel.config(font=("Tahoma", 11))
+        blankLabel.grid(row=0,column=0)
+    #}
+
+    ##-----------------------------------------------------------------------------
+    ## Creates the frame f12
+    ##-----------------------------------------------------------------------------
+    def createf12(self): #{
+        self.f12 = Frame(self.window)
+        self.f12.pack(fill=X)
+
+        blankLabel = Label(self.f12, text='\t\t\t                ')
         blankLabel.config(font=("Tahoma", 8))
         blankLabel.grid(row=0,column=0)
 
-        self.addNewCarButton = Button(self.f8, text='Add Car', command=self.addCar, width=15)
+        self.addNewCarButton = Button(self.f12, text='Add Car', command=self.addCar, width=15)
         self.addNewCarButton.config(font=("Tahoma", 10))
         self.addNewCarButton.grid(row=0,column=1)
     #}
@@ -152,6 +218,7 @@ class AddNewCarUI(): #{
         carName = self.carNameEntry.get()
         IP = self.IPEntry.get()
         port = self.portEntry.get()
+        #controlSystem = 
 
         self.parent.addNewCarFrame(carName,IP,port)
 

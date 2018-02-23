@@ -1,3 +1,5 @@
+import sys
+
 sys.path.insert(0, './UIWindows')
 from ConfigUI import ConfigUI
 from AddNewCarUI import AddNewCarUI
@@ -47,8 +49,9 @@ class UIManager(): #{
     ##-----------------------------------------------------------------------------
     ## Sends the information from addnewcar to add a new car frame in the config UI
     ##-----------------------------------------------------------------------------
-    def addNewCarFrame(self, carName, IP, port): #{
-        self.carStatsUI.addNewCarCallback(carName, IP, port)
+    def addNewCarFrame(self, carName, IP, port, controlSystem, guidanceSystem): #{
+        self.carStatsUI.addNewCarCallback(carName, IP, port, controlSystem, guidanceSystem)
+        
     #}
 
     ##-----------------------------------------------------------------------------
@@ -61,8 +64,8 @@ class UIManager(): #{
     ##-----------------------------------------------------------------------------
     ## Sends the information from editCar to update a car frame in the config UI
     ##-----------------------------------------------------------------------------
-    def updateCarFrame(self, carName, IP, port, frame): #{
-        self.carStatsUI.editCarCallback(carName, IP, port, frame)
+    def updateCarFrame(self, carName, IP, port, frame, controlSystem, guidanceSystem): #{
+        self.carStatsUI.editCarCallback(carName, IP, port, frame, controlSystem, guidanceSystem)
     #}
 
     ##-----------------------------------------------------------------------------
@@ -77,7 +80,7 @@ class UIManager(): #{
     ##-----------------------------------------------------------------------------
     def addNewCarObj(self, car): #{
         self.parent.carList.append(car)
-        print(str(self.parent.carList))
+        #self.parent.connectNewCar(car)
     #}
 
     ##-----------------------------------------------------------------------------
@@ -92,6 +95,21 @@ class UIManager(): #{
     ##-----------------------------------------------------------------------------
     def updateCarList(self, newList): #{
         self.parent.updateCarList(newList)
+        #TODO: Update the IP and Port if necessary in the EthernetInterface connection
+    #}
+
+    ##-----------------------------------------------------------------------------
+    ## Gets the a list of Control Systems
+    ##-----------------------------------------------------------------------------
+    def getControlSystems(self): #{
+        return self.parent.getControlSystems()
+    #}
+
+    ##-----------------------------------------------------------------------------
+    ## Gets the a list of Guidance Systems
+    ##-----------------------------------------------------------------------------
+    def getGuidanceSystems(self): #{
+        return self.parent.getGuidanceSystems()
     #}
 #}
 
