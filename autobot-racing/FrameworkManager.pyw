@@ -8,7 +8,7 @@ class FrameworkManager(): #{
     def __init__(self): #{
         self.UserInterface = UIManager(self)
         self.EthernetInterface = EthernetInterface(self)
-        self.carList = []
+        self.carList = [] #Stores all car objects
     #}
 
     ##-----------------------------------------------------------------------------
@@ -31,6 +31,13 @@ class FrameworkManager(): #{
     def updateCarList(self, newList): #{
         self.carList = newList
     #}
+
+    ##-----------------------------------------------------------------------------
+    ## Updates the list of cars
+    ##-----------------------------------------------------------------------------
+    def updateCarFrameColor(self, carName, status): #{
+        self.UserInterface.changeCarFrameColor(carName, status)
+    #}    
 #}
 
 if __name__ == "__main__":
