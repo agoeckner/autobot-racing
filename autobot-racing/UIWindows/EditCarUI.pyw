@@ -15,25 +15,29 @@ class EditCarUI(): #{
     ##-----------------------------------------------------------------------------
     ## Creates the Add New Car Window
     ##-----------------------------------------------------------------------------
-    def createWindow(self, carName, IP, port, frameToUpdate): #{
-        self.frameToUpdate = frameToUpdate
+    def createWindow(self, car): #{
+        self.car = car
         self.destroyWindow() #Called in case the user tries to open multiple windows
         self.window = Tk()
 
         #Sets the geometry and title on the window
-        self.window.geometry('500x200+200+50')
+        self.window.geometry('500x300+200+50')
         self.window.wm_iconbitmap('../ccs.ico')
         self.window.title('Edit Car')
         self.window.resizable(0, 0)
 
         self.createf1()
-        self.createf2(carName)
+        self.createf2(car.carName)
         self.createf3()
-        self.createf4(IP)
+        self.createf4(car.IP)
         self.createf5()
-        self.createf6(port)
+        self.createf6(car.port)
         self.createf7()
-        self.createf8()
+        self.createf8(car.controlSystem)
+        self.createf9()
+        self.createf10(car.guidanceSystem)
+        self.createf11()
+        self.createf12()
 
         self.carNameEntry.focus_force()
         self.window.mainloop()
@@ -138,23 +142,94 @@ class EditCarUI(): #{
     ##-----------------------------------------------------------------------------
     ## Creates the frame f8
     ##-----------------------------------------------------------------------------
-    def createf8(self): #{
+    def createf8(self, controlSystem): #{
         self.f8 = Frame(self.window)
         self.f8.pack(fill=X)
 
-        blankLabel = Label(self.f8, text='\t\t  ')
+        controlSystemLabel = Label(self.f8, text='   Select Control System:     ')
+        controlSystemLabel.config(font=("Tahoma", 11))
+        controlSystemLabel.grid(row=0,column=0)
+
+        #self.controlOptions = StringVar()
+        #self.controlOptions['values'] = self.parent.getControlSystems()
+
+        vals = self.parent.getControlSystems()
+        index = 0
+        for i in range(0, len(vals)):
+            if vals[i] == controlSystem:
+                index = i
+        
+        self.controlOptionList = ttk.Combobox(self.f8, values=vals)
+        self.controlOptionList.grid(row=0,column=1)
+        self.controlOptionList.current(index)
+    #}
+
+    ##-----------------------------------------------------------------------------
+    ## Creates the frame f9
+    ##-----------------------------------------------------------------------------
+    def createf9(self): #{
+        self.f9 = Frame(self.window)
+        self.f9.pack(fill=X)
+
+        blankLabel = Label(self.f9, text=' ')
+        blankLabel.config(font=("Tahoma", 11))
+        blankLabel.grid(row=0,column=0)
+    #}
+
+    ##-----------------------------------------------------------------------------
+    ## Creates the frame f10
+    ##-----------------------------------------------------------------------------
+    def createf10(self, guidanceSystem): #{
+        self.f10 = Frame(self.window)
+        self.f10.pack(fill=X)
+
+        guidanceSystemLabel = Label(self.f10, text='   Select Guidance System:  ')
+        guidanceSystemLabel.config(font=("Tahoma", 11))
+        guidanceSystemLabel.grid(row=0,column=0)
+
+        vals = self.parent.getGuidanceSystems()
+        index = 0
+        for i in range(0, len(vals)):
+            if vals[i] == guidanceSystem:
+                index = i
+        
+        self.guidanceOptionList = ttk.Combobox(self.f10, values=vals)
+        self.guidanceOptionList.grid(row=0,column=1)
+        self.guidanceOptionList.current(index)
+    #}
+
+    ##-----------------------------------------------------------------------------
+    ## Creates the frame f11
+    ##-----------------------------------------------------------------------------
+    def createf11(self): #{
+        self.f11 = Frame(self.window)
+        self.f11.pack(fill=X)
+
+        blankLabel = Label(self.f11, text=' ')
+        blankLabel.config(font=("Tahoma", 11))
+        blankLabel.grid(row=0,column=0)
+    #}
+
+    ##-----------------------------------------------------------------------------
+    ## Creates the frame f12
+    ##-----------------------------------------------------------------------------
+    def createf12(self): #{
+        self.f12 = Frame(self.window)
+        self.f12.pack(fill=X)
+
+        blankLabel = Label(self.f12, text='\t\t  ')
         blankLabel.config(font=("Tahoma", 8))
         blankLabel.grid(row=0,column=0)
 
-        self.saveChangesButton = Button(self.f8, text='Save Changes', command=self.saveCarSettings, width=15)
+        self.saveChangesButton = Button(self.f12, text='Save Changes', command=self.saveCarSettings, width=15)
         self.saveChangesButton.config(font=("Tahoma", 10))
         self.saveChangesButton.grid(row=0,column=1)
 
-        blankLabel1 = Label(self.f8, text='\t')
+        blankLabel1 = Label(self.f12, text='\t')
         blankLabel1.config(font=("Tahoma", 8))
         blankLabel1.grid(row=0,column=2)
 
-        self.deleteCarButton = Button(self.f8, text='Delete Car', command=self.deleteCarFrame, width=15)
+        self.deleteCarButton = Button(self.f12, text='Delete Car', command=self.deleteCarFrame, width=15)
         self.deleteCarButton.config(font=("Tahoma", 10))
         self.deleteCarButton.grid(row=0,column=3)
     #}
@@ -163,11 +238,11 @@ class EditCarUI(): #{
     ## Collects info from entries and sends back to config UI
     ##-----------------------------------------------------------------------------
     def saveCarSettings(self): #{
-        carName = self.carNameEntry.get()
-        IP = self.IPEntry.get()
-        port = self.portEntry.get()
+        self.car.carName = self.carNameEntry.get()
+        self.car.IP = self.IPEntry.get()
+        self.car.port = self.portEntry.get()
 
-        self.parent.updateCarFrame(carName,IP,port,self.frameToUpdate)
+        self.parent.updateCarFrame(self.car)
 
         self.destroyWindow()
     #}
@@ -176,7 +251,7 @@ class EditCarUI(): #{
     ## Sends back the car frame to delete
     ##-----------------------------------------------------------------------------
     def deleteCarFrame(self): #{
-        self.parent.deleteCarFrame(self.frameToUpdate)
+        self.parent.deleteCarFrame(self.car)
         self.destroyWindow()
     #}
 
