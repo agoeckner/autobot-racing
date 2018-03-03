@@ -3,7 +3,7 @@
 import socket
 import struct
 
-class Car:
+class comClient:
 
 	name = None
 	ip = None
