@@ -2,7 +2,7 @@
 
 import EthernetInterface
 
-class Vehical:
+class Vehicle:
 	
 	name = None
 	position = None
@@ -16,6 +16,6 @@ class Vehical:
 		self.laps = 0
 		self.control = control
 		self.navigation = navigation
-		self.interface = EthernetInterface(name, ip, port)
+		self.interface = PCConnection(name, ip, port)
 
 		
