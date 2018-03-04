@@ -35,8 +35,8 @@ class CarStatsUI(): #{
         self.createCameraFrames()
 
         #For Testing Remove Later----------------------------------------------------------------------------------------------------
-        self.addNewCarCallback('Car 1', '127.0.0.5', '457', 'Option 1', 'Option 1')
-        self.addNewCarCallback('Car 2', '127.0.0.6', '458', 'Option 1', 'Option 1')
+        self.addNewCarCallback('Car 1', '127.0.0.5', '457', 'Option 1', 'Option 2')
+        self.addNewCarCallback('Car 2', '127.0.0.6', '458', 'Option 2', 'Option 1')
         #----------------------------------------------------------------------------------------------------------------------------
 
         self.window.bind("<Configure>", self.updateWindow)
@@ -226,31 +226,22 @@ class CarStatsUI(): #{
     ##-----------------------------------------------------------------------------
     def openEditCarWindow(self, event, arg): #{
         cars = self.parent.getCarList()
+        numOfCars = len(cars)
 
-        
-        for car in cars: #{
-            if arg == car.carFrameID:
-                self.parent.openEditCarUI(car.carName, car.IP, car.port, car.frame)
-        #}
+        if numOfCars > 0:
+            for x in range(0,numOfCars): #{
+                car = cars[x]
+                if arg == car.carFrameID:
+                    self.parent.openEditCarUI(car)
+            #}
     #}
 
     ##-----------------------------------------------------------------------------
     ## Callback for the editCar UI to update a car frame
     ##-----------------------------------------------------------------------------
-    def editCarCallback(self, carName, IP, port, frame, controlSystem, guidanceSystem): #{
-        carFrame = None
-        cars = self.parent.getCarList()
-        print(str(cars))
-        car = None
-        children = []
+    def editCarCallback(self, car): #{
+        children = car.frame.winfo_children()
         
-        for i in cars: #{
-            if frame == i.frame:
-                carFrame = i.frame
-                car = i
-                cars.remove(i)
-                children = carFrame.winfo_children()
-        #}
         carNameFrame = children[0]
         IPFrame = children[1]
         portFrame = children[2]
@@ -263,32 +254,19 @@ class CarStatsUI(): #{
         IPLabel = IPChildren[0]
         portLabel = portChildren[0]
 
-        carLabel['text'] = carName
-        IPLabel['text'] = IP
-        portLabel['text'] = port
-
-        car.carName = carName
-        car.IP = IP
-        car.port = port
-        cars.append(car)
-
-        self.parent.updateCarList(cars)
+        carLabel['text'] = car.carName
+        IPLabel['text'] = car.IP
+        portLabel['text'] = car.port
     #}
 
     ##-----------------------------------------------------------------------------
     ## Callback for the editCar UI to delete a car frame
     ##-----------------------------------------------------------------------------
-    def deleteCarCallback(self, frame): #{
-        carFrame = None
+    def deleteCarCallback(self, car): #{
         cars = self.parent.getCarList()
         
-        for i in cars: #{
-            if frame == i.frame:
-                carFrame = i.frame
-                car = i
-        #}
         try:
-            carFrame.destroy()
+            car.frame.destroy()
             cars.remove(car)
             self.parent.updateCarList(cars)
         except:
