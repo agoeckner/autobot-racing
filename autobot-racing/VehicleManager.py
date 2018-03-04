@@ -1,15 +1,15 @@
 
-import Vehical
+import Car
 
-class VehicalManager:
+class VehicleManager:
 
 	cars = {}
 
 	def __init__():
 		pass
 		
-	def addCar(name, ip, port, control, navigation):
-		cars[name] = (Vehical(name, ip, port, control, navigation))
+	def addCar(carName, IP, port, carFrameID, frame, lapNum, place, lapTimes, controlSystem, guidanceSystem):
+		cars[name] = Car(carName, IP, port, carFrameID, frame, lapNum, place, lapTimes, controlSystem, guidanceSystem)
 		
 	def removeCar(name):
 		cars.pop(name)
