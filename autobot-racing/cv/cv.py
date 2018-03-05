@@ -2,21 +2,53 @@ import numpy as np
 import cv2
 
 class ComputerVision:
+	# The allowed vehicle colors.
 	ALLOWED_COLORS = (
 		(255, 0, 0),
 		(0, 255, 0),
 		(0, 0, 255),
+		# (255, 0, 255),
 	)
-
-	def __init__(self, videoDevice=0):
+	
+	# Used as a tuning constant for the epsilon value of approxPolyDP.
+	APPROX_ARCLEN_MULTIPLIER = 0.03
+	
+	# The boundary sizes (in pixels squared) of contours that are acceptable
+	# for further processing.
+	CONTOUR_AREA_MIN = 50
+	CONTOUR_AREA_MAX = 20000
+	
+	# The actual, measured ratio of the triangle targets placed on the vehicles.
+	TRIANGLE_RATIO = 0.363636
+	
+	# The tolerance used to check if triangles conform to TRIANGLE_RATIO.
+	TRIANGLE_RATIO_TOLERANCE = 0.07
+	
+	
+	# Initializes the computer vision system. Set videoDevice to 0 for camera.
+	def __init__(self, videoDevice = 0):
+		# Open video device.
 		self.cap = cv2.VideoCapture(videoDevice)
+		
+		# Test the camera.
+		ret, frame = self.cap.read()
+		if not ret:
+			raise CameraException("Unable to read from video device.")
+	
+	# Closes all devices, etc. This function should be called when done with CV.
+	def close(self):
+		self.cap.release()
+		cv2.destroyAllWindows()
 
-	def run(self, showFrame=True):
+	# The primary computer vision system loop. This polls the camera as fast as
+	# possible, processing each frame and sending the data to other modules.
+	def run(self, showFrame = True):
 		while(True):
 			# Capture frame-by-frame
 			ret, frame = self.cap.read()
+			if not ret:
+				raise CameraException("Unable to read from video device.")
 			height, width = frame.shape[:2]
-			area = height * width
 
 			# Preprocess the image.
 			# gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -27,41 +59,39 @@ class ComputerVision:
 			thresh = cv2.threshold(gray, 150, 255, cv2.THRESH_BINARY)[1]
 			
 			# Find all contours.
-			im2, contours, hierarchy = cv2.findContours(thresh,cv2.RETR_TREE,cv2.CHAIN_APPROX_NONE)
+			im2, contours, hierarchy = cv2.findContours(thresh,cv2.RETR_TREE,
+				cv2.CHAIN_APPROX_NONE)
 
-			# Loop over candidate contours.
-			candidates = list(filter(self.checkArea, contours))
-			# cv2.drawContours(frame, contours, -1, (0,0,255), 1)
+			# Loop over candidate contours (those that meet size limits).
+			candidates = list(filter(self.checkContourArea, contours))
 			for c in candidates:
-				epsilon = 0.03 * cv2.arcLength(c, True)
+				epsilon = self.APPROX_ARCLEN_MULTIPLIER * cv2.arcLength(c, True)
 				approx = cv2.approxPolyDP(c, epsilon, True)
 				
 				# Check its triangley-ness.
 				if len(approx) != 3:
 					continue
-				if not self.checkTriangle(approx):
+				# Check proportions of the triangle.
+				if not self.checkTriangleProportions(approx):
 					continue
 				
-				# Determine color.
 				M = cv2.moments(c)
 				cX = int(M["m10"] / M["m00"])
 				cY = int(M["m01"] / M["m00"])
-				
-				color = (int(frame[cY][cX][0]), int(frame[cY][cX][1]), int(frame[cY][cX][2]))
+				center = (cX, cY)
+
+				# Determine color of the pixel at the center of the contour.
+				pixel = frame[cY][cX]
+				color = (int(pixel[0]), int(pixel[1]), int(pixel[2]))
 				color = self.getClosestColor(color)
-				# mask = np.zeros(frame.shape,np.uint8)
-				# cv2.drawContours(mask, [c], 0, 255, -1)
-				# color = cv2.mean(frame, mask = mask)
-				# print("GOT COLOR: " + str(color))
 			 
-				cv2.drawContours(frame, [approx], -1, color, 3)
-				
-				# draw the contour and center of the shape on the image
-				cv2.circle(frame, (cX, cY), 7, (255, 255, 255), -1)
-				label = "(" + str(cX) + "," + str(cY) + ")"
-				cv2.putText(frame, label, (cX - 20, cY - 20),
-					cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
-				
+				# Draw the contour and center of the shape on the image.
+				if showFrame:
+					cv2.drawContours(frame, [approx], -1, color, 3)
+					cv2.circle(frame, (cX, cY), 7, (255, 255, 255), -1)
+					label = "(" + str(cX) + "," + str(cY) + ")"
+					cv2.putText(frame, label, (cX - 20, cY - 20),
+						cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
 
 			if showFrame:
 				# display = np.dstack((frame, gray))
@@ -69,17 +99,18 @@ class ComputerVision:
 				if cv2.waitKey(1) & 0xFF == ord('q'):
 					break
 		
-		# Cleanup. TODO: Move this elsewhere
-		self.cap.release()
-		cv2.destroyAllWindows()
+		# Shut down the CV system.
+		self.close()
 	
-	def checkArea(self, contour):
-		a = cv2.contourArea(contour)
-		return a > 50 and a < 20000
-		
+	# Identifies detected vehicles and acts on that information.
+	def processVehicle(self, color, position, heading):
+		pass
+	
+	# Uses NumPy to find the distance between two NumPy points.
 	def npDistance(self, a, b):
 		return np.linalg.norm(a-b)
-		
+	
+	# Returns the closest allowable color to the specified color.
 	def getClosestColor(self, color):
 		def distance(c1, c2):
 			(r1,g1,b1) = c1
@@ -87,8 +118,9 @@ class ComputerVision:
 			return ((r1 - r2)**2 + (g1 - g2) ** 2 + (b1 - b2) **2) ** 0.5
 		closest = sorted(self.ALLOWED_COLORS, key=lambda c: distance(c, color))
 		return closest[0]
-		
-	def checkTriangle(self, contour):
+	
+	# Checks that proportions of the triangle are within acceptable bounds.
+	def checkTriangleProportions(self, contour):
 		# Get the sides.
 		sides = ((contour[0], contour[1]),
 			(contour[1], contour[2]),
@@ -120,8 +152,14 @@ class ComputerVision:
 			return False
 			
 		ratio = minLen / max(lengths)
-		if abs(ratio - 0.363636) >= 0.07:
+		if abs(ratio - self.TRIANGLE_RATIO) >= self.TRIANGLE_RATIO_TOLERANCE:
 			return False
 		return True
-		
-ComputerVision().run()
+	
+	# Checks that the contour area is within acceptable bounds.
+	def checkContourArea(self, contour):
+		a = cv2.contourArea(contour)
+		return a > self.CONTOUR_AREA_MIN and a < self.CONTOUR_AREA_MAX
+
+class CameraException(Exception):
+	pass
