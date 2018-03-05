@@ -116,8 +116,8 @@ class ComputerVision:
 			(r1,g1,b1) = c1
 			(r2,g2,b2) = c2
 			return ((r1 - r2)**2 + (g1 - g2) ** 2 + (b1 - b2) **2) ** 0.5
-		closest = sorted(self.ALLOWED_COLORS, key=lambda c: distance(c, color))
-		return closest[0]
+		closest = min(self.ALLOWED_COLORS, key=lambda c: distance(c, color))
+		return closest
 	
 	# Checks that proportions of the triangle are within acceptable bounds.
 	def checkTriangleProportions(self, contour):
