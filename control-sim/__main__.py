@@ -8,7 +8,11 @@ from kivy.uix.button import Button
 from kivy.uix.label import Label
 from kivy.graphics import Color, Ellipse, Line
 
-from controls import *
+# Import control/guidance modules from the actual program.
+import sys
+import os
+sys.path.insert(1, os.path.join(sys.path[0], "..", "autobot-racing"))
+from controls.Controls import *
 
 Window.clearcolor = (1, 1, 1, 1)
 
