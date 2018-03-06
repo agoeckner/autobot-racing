@@ -1,5 +1,7 @@
 import numpy as np
 import cv2
+import math
+from math import pi
 
 class ComputerVision:
 	# The allowed vehicle colors.
@@ -22,7 +24,7 @@ class ComputerVision:
 	TRIANGLE_RATIO = 0.363636
 	
 	# The tolerance used to check if triangles conform to TRIANGLE_RATIO.
-	TRIANGLE_RATIO_TOLERANCE = 0.07
+	TRIANGLE_RATIO_TOLERANCE = 0.08
 	
 	
 	# Initializes the computer vision system. Set videoDevice to 0 for camera.
@@ -56,7 +58,7 @@ class ComputerVision:
 			blurred = cv2.GaussianBlur(frame, (5, 5), 0)
 			gray = cv2.cvtColor(blurred, cv2.COLOR_BGR2GRAY)
 			lab = cv2.cvtColor(blurred, cv2.COLOR_BGR2LAB)
-			thresh = cv2.threshold(gray, 150, 255, cv2.THRESH_BINARY)[1]
+			thresh = cv2.threshold(gray, 175, 255, cv2.THRESH_BINARY)[1]
 			
 			# Find all contours.
 			im2, contours, hierarchy = cv2.findContours(thresh,cv2.RETR_TREE,
@@ -75,10 +77,14 @@ class ComputerVision:
 				if not self.checkTriangleProportions(approx):
 					continue
 				
-				M = cv2.moments(c)
+				# Get the position of the triangle center.
+				M = cv2.moments(approx)
 				cX = int(M["m10"] / M["m00"])
 				cY = int(M["m01"] / M["m00"])
 				center = (cX, cY)
+				
+				# Get the heading of the triangle.
+				heading = self.getTriangleHeading(approx)
 
 				# Determine color of the pixel at the center of the contour.
 				pixel = frame[cY][cX]
@@ -89,7 +95,7 @@ class ComputerVision:
 				if showFrame:
 					cv2.drawContours(frame, [approx], -1, color, 3)
 					cv2.circle(frame, (cX, cY), 7, (255, 255, 255), -1)
-					label = "(" + str(cX) + "," + str(cY) + ")"
+					label = "({:d}, {:d}), {:.2f}".format(cX, cY, math.degrees(heading))
 					cv2.putText(frame, label, (cX - 20, cY - 20),
 						cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
 
@@ -155,6 +161,39 @@ class ComputerVision:
 		if abs(ratio - self.TRIANGLE_RATIO) >= self.TRIANGLE_RATIO_TOLERANCE:
 			return False
 		return True
+	
+	# Determines the heading in which a triangle is pointing.
+	def getTriangleHeading(self, triangle):
+		# Get the sides.
+		sides = ((triangle[0], triangle[1]),
+			(triangle[1], triangle[2]),
+			(triangle[2], triangle[0]))
+		oppositePoint = {
+			0: 2,
+			1: 0,
+			2: 1
+		}
+		
+		# Get lengths of each side.
+		lengths = [self.npDistance(s[0], s[1]) for s in sides]
+
+		# Determine which is shortest side.
+		minLen = 999999
+		minLenIdx = -1
+		for idx in range(0, len(lengths)):
+			l = lengths[idx]
+			if l < minLen:
+				minLen = l
+				minLenIdx = idx
+		short = sides[minLenIdx]
+		
+		# Get slope of shortest side.
+		diff = np.subtract(short[1], short[0])[0]
+		
+		# Get heading.
+		heading = np.arctan2(diff[0], diff[1])
+		
+		return heading		
 	
 	# Checks that the contour area is within acceptable bounds.
 	def checkContourArea(self, contour):
