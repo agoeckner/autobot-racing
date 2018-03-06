@@ -1,6 +1,6 @@
 
 #Car class to store car objects
-class Car(): #{
+class Vehicle(): #{
     def __init__(self, carName, IP, port, carFrameID, frame, lapNum, place, lapTimes, controlSystem, guidanceSystem): #{
         self.carName = carName
         self.IP = IP
