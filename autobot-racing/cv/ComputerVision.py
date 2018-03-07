@@ -44,7 +44,7 @@ class ComputerVision:
 
 	# The primary computer vision system loop. This polls the camera as fast as
 	# possible, processing each frame and sending the data to other modules.
-	def run(self, showFrame = True):
+	def run(self, showFrame = False):
 		while(True):
 			# Capture frame-by-frame
 			ret, frame = self.cap.read()
@@ -202,3 +202,7 @@ class ComputerVision:
 
 class CameraException(Exception):
 	pass
+
+if __name__ == "__main__":
+	# Debug mode
+	ComputerVision().run(showFrame=True)
