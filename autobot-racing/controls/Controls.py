@@ -1,6 +1,7 @@
 from math import *
 import numpy as np
 from numpy.linalg import *
+from Utilities import *
 
 class ControlSystem:
 	def __init__(self):
@@ -20,17 +21,26 @@ class ControlSystem:
 
 class GuidanceSystem:
 	def __init__(self, track):
-		self.innerWall = track.innerWall
+		self.track = track
 	
 	# Returns the desired heading at a specific position on the track.
 	def getDesiredHeading(self, pos):
-		((wall0, wall1), d) = self._getClosestPolyVertex(pos, self.innerWall)
+		((wall0, wall1), d) = self._getClosestPolyVertex(pos, self.track.innerWall)
 		heading = atan2(wall1[1] - wall0[1], wall1[0] - wall0[0])
 		return heading
 	
 	# Returns the desired speed at a specific position on the track.
+	# Returns None if speed control is disabled.
 	def getDesiredSpeed(self, pos):
-		pass
+		return None
+	
+	# Determines if a point is within the boundaries of the track.
+	def isPointOnTrack(self, point):
+		if isPointInPolygon(self.track.innerWall, point):
+			return False
+		if isPointInPolygon(self.track.outerWall, point):
+			return True
+		return False
 	
 	# Returns tuple of ((line0, line1), dist), where line0 and line1 are
 	# points on closest vertex, and dist is distance to closest point on line.
@@ -56,7 +66,7 @@ class WallFollowingGuidanceSystem(GuidanceSystem):
 	
 	# Returns the desired heading at a specific position on the track.
 	def getDesiredHeading(self, pos):
-		((wall0, wall1), d) = self._getClosestPolyVertex(pos, self.innerWall)
+		((wall0, wall1), d) = self._getClosestPolyVertex(pos, self.track.innerWall)
 		# Straight-line heading along wall.
 		ha = atan2(wall1[1] - wall0[1], wall1[0] - wall0[0])
 		# Heading that converges to correct distance from wall.
