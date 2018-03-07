@@ -162,12 +162,17 @@ class ControlSim(App):
 			deltaSpeed = vehicle.control.throttle(vehicle.speed, desiredSpeed)
 			
 			# Add some error.
-			# if randint(0, 5) == 5:
-				# deltaHeading = deltaHeading + 50 * (random() - 0.5)
+			if randint(0, 5) == 5:
+				deltaHeading = deltaHeading + 50 * (random() - 0.5)
 			
 			# Apply changes to vehicle.
 			vehicle.updateHeading(deltaHeading)
 			vehicle.updateSpeed(deltaSpeed)
+			
+			# Check for a wall collission.
+			if not vehicle.guidance.isPointOnTrack(vehicle.position):
+				vehicle.speed = 0
+			
 		return True #false to stop
 
 if __name__ == '__main__':
