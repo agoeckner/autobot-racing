@@ -12,7 +12,7 @@ from kivy.graphics import Color, Ellipse, Line
 import sys
 import os
 sys.path.insert(1, os.path.join(sys.path[0], "..", "autobot-racing"))
-from controls.Controls import *
+import controls as ngc
 
 Window.clearcolor = (1, 1, 1, 1)
 
@@ -123,19 +123,19 @@ class ControlSim(App):
 		# Add the vehicles.
 		self.vehicles = [
 			SimVehicle([600,120], pi, 7,
-				ControlSystem(),
-				WallFollowingGuidanceSystem(self.track,
+				ngc.ControlSystem(),
+				ngc.WallFollowingGuidanceSystem(self.track,
 					wallDistance = 10,
 					lookahead = 200),
 				color = (1, 0, 0, 1)),
 			SimVehicle([600,90], pi, 5,
-				ControlSystem(),
-				WallFollowingGuidanceSystem(self.track,
+				ngc.ControlSystem(),
+				ngc.WallFollowingGuidanceSystem(self.track,
 					lookahead = 20),
 				color = (0, 1, 0, 1)),
 			SimVehicle([600,60], pi, 5,
-				ControlSystem(),
-				WallFollowingGuidanceSystem(self.track,
+				ngc.ControlSystem(),
+				ngc.WallFollowingGuidanceSystem(self.track,
 					lookahead = 100),
 				color = (0, 0, 1, 1)),
 		]
