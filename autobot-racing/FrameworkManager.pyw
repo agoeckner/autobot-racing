@@ -1,5 +1,6 @@
 from EthernetInterface import EthernetInterface
 from UIManager import UIManager
+import thread
 
 class FrameworkManager(): #{
     ##-----------------------------------------------------------------------------
@@ -15,6 +16,7 @@ class FrameworkManager(): #{
     ## Opens the User Interface
     ##-----------------------------------------------------------------------------
     def startup(self): #{
+        #t = Thread(self.UserInterface.openCarStatsUI())
         self.UserInterface.openCarStatsUI()
     #}
 
