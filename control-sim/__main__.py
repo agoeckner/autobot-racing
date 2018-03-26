@@ -96,14 +96,15 @@ class SimVehicle:
 		self.speed = self.initialSpeed
 	
 	def updateHeading(self, delta):
-		# Clamp the turn rate.
-		if delta > 0:
-			self.heading += self.MIN_TURN_ANGLE #min(delta, self.MIN_TURN_ANGLE)
-		else:
-			self.heading += -self.MIN_TURN_ANGLE #max(delta, -self.MIN_TURN_ANGLE)
-		
-		# Clamp the heading.
-		self.heading = self.heading % (2 * pi)
+		if abs(delta) >= 0.05:
+			# Clamp the turn rate.
+			if delta > 0:
+				self.heading += self.MIN_TURN_ANGLE #min(delta, self.MIN_TURN_ANGLE)
+			else:
+				self.heading += -self.MIN_TURN_ANGLE #max(delta, -self.MIN_TURN_ANGLE)
+			
+			# Clamp the heading.
+			self.heading = self.heading % (2 * pi)
 	
 	def updateSpeed(self, delta):
 		self.speed += delta
@@ -141,14 +142,14 @@ class ControlSim(App):
 				ngc.PassingGuidanceSystem(self,
 					wallDistance = 10,
 					lookahead = 20),
-				color = (1, 0, 0, 1)))
+				color = (1, 0, 0, 0.5)))
 		self.vehicles.addVehicle(
 			SimVehicle([450,120], pi, 2,
 				ngc.ControlSystem(),
 				ngc.PassingGuidanceSystem(self,
 					wallDistance = 10,
 					lookahead = 100),
-				color = (1, 0, 1, 1)))
+				color = (0, 1, 0, 0.5)))
 		# self.vehicles.addVehicle(
 			# SimVehicle([600,90], pi, 5,
 				# ngc.ControlSystem(),
