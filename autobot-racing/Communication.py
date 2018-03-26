@@ -4,6 +4,7 @@ import socket
 import struct
 import time
 from subprocess import check_output as call
+import driver
 
 
 class PCConnection:
@@ -18,7 +19,7 @@ class PCConnection:
 		self.name = name
 		self.ip = ip
 		self.port = port
-		self.packer = struct.Struct('=h f')
+		self.packer = struct.Struct('=h h')
 		
 	#gets attributes in tuple form (name, ip, port)
 	def getAttr(self):
@@ -31,7 +32,7 @@ class PCConnection:
 		if attr[1]: self.ip = attr[1]
 		if attr[2]: self.port = attr[2]
 	
-	#We will send 8 bytes (2 byte short steering, 4 byte float speed)
+	#We will send 4 bytes (2 byte short steering, 2 byte short speed)
 	#Steering is designated as: -1 Left; 0 Straight; 1 Right
 	#Speed is designated as <0 Reverse; 0 Off; >1 Forward
 	def sendMsg(self, steering, speed):
@@ -124,11 +125,22 @@ class PiConnection:
 	#Cars event loop
 	#All Exception handling to be done here
 	def evt_loop(self):
-		print("starting loop")
-		while True:
-			try:
-				msg = self.getMsg()
-				print(msg)
-				#time.sleep(1)
-			except Exception:
-				self.connectToClient()
+
+
+                try:
+                        driver.init()
+                        print("Starting Event Loop")
+                        
+                        while True:
+                                data = self.getMsg()
+                                driver.setDirection(data[0])
+                                driver.setSpeed(data[1])
+
+                        
+                except Exception:
+                        pass
+                
+                finally:
+                        driver.deinit()
+
+                
