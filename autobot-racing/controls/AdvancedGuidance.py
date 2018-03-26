@@ -5,7 +5,7 @@ from Utilities import *
 from .Controls import *
 
 class PassingGuidanceSystem(WallFollowingGuidanceSystem):
-	FOLLOW_PASS_THRESHOLD_DIST = 40
+	FOLLOW_PASS_THRESHOLD_DIST = 60
 	MIN_PASS_SPACING = 15
 	
 	def __init__(self, *args, **kwargs):
@@ -43,7 +43,9 @@ class PassingGuidanceSystem(WallFollowingGuidanceSystem):
 			if v.speed >= vehicle.speed:
 				continue
 			# print("PASSING")
-			if abs(v.guidance.actualWallDist - self.desiredWallDist) >= self.MIN_PASS_SPACING:
+			# if abs(v.guidance.actualWallDist - self.desiredWallDist) >= self.MIN_PASS_SPACING:
+				# return self.desiredWallDist
+			if abs(v.guidance.actualWallDist - self.actualWallDist) >= self.MIN_PASS_SPACING:
 				return self.desiredWallDist
 			return v.guidance.actualWallDist + self.MIN_PASS_SPACING
 		# print("NOT PASSING")
