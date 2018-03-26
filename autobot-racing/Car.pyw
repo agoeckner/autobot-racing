@@ -12,6 +12,6 @@ class Car(): #{
         self.lapTimes = lapTimes
         self.controlSystem = controlSystem
         self.guidanceSystem = guidanceSystem
-		self.interface = PCConnection(carName, IP, port)
+	self.interface = PCConnection(carName, IP, port)
     #}
 #}
