@@ -76,6 +76,8 @@ class SimVehicleManager:
 		return self.vehicles[index]
 
 class SimVehicle:
+	# Turning radius measured to be ~1.5 feet
+	# TODO: Properly implement turning radius.
 	MIN_TURN_ANGLE = pi / 24
 
 	def __init__(self, initialPosition, initialHeading, initialSpeed,
