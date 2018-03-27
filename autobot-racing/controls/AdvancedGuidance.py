@@ -7,10 +7,27 @@ from .Controls import *
 class PassingGuidanceSystem(WallFollowingGuidanceSystem):
 	FOLLOW_PASS_THRESHOLD_DIST = 60
 	MIN_PASS_SPACING = 15
+	CAUTION_DISTANCE = 10
+	CAUTION_SPEED_PERCENTAGE = 0.5
 	
 	def __init__(self, *args, **kwargs):
 		super(PassingGuidanceSystem, self).__init__(*args, **kwargs)
 		self.origWallDist = self.desiredWallDist
+	
+	def getDesiredSpeed(self, pos):
+		vehicle = self.vehicle
+		vehicles = self.environment.vehicles
+		for v in vehicles:
+			if v == vehicle:
+				continue
+			if vehicle.speed < v.speed or v.speed == 0:
+				continue
+			d = euclideanDistance(pos, v.position)
+			if d < 5:
+				raise Exception("COLLISION")
+			if d < self.CAUTION_DISTANCE:
+				return (vehicle.speed + v.speed) * self.CAUTION_SPEED_PERCENTAGE
+		return self.vehicle.initialSpeed
 	
 	# Returns the desired heading at a specific position on the track.
 	def getDesiredHeading(self, pos):
