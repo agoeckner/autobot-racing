@@ -48,7 +48,11 @@ class PassingGuidanceSystem(WallFollowingGuidanceSystem):
 			spacing = abs(v.guidance.actualWallDist - self.actualWallDist)
 			if spacing >= self.MIN_PASS_SPACING:
 				return self.desiredWallDist
+				
+			# Do we pass on the inside or the outside?
 			adjust = max(self.MIN_PASS_SPACING, spacing)
+			if v.guidance.actualWallDist > 2 * self.MIN_PASS_SPACING:
+				adjust *= -1
 			return v.guidance.actualWallDist + adjust
 		# print("NOT PASSING")
 		return self.origWallDist
