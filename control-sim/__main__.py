@@ -8,7 +8,11 @@ from kivy.uix.button import Button
 from kivy.uix.label import Label
 from kivy.graphics import Color, Ellipse, Line
 
-from controls import *
+# Import control/guidance modules from the actual program.
+import sys
+import os
+sys.path.insert(1, os.path.join(sys.path[0], "..", "autobot-racing"))
+import controls as ngc
 
 Window.clearcolor = (1, 1, 1, 1)
 
@@ -119,19 +123,19 @@ class ControlSim(App):
 		# Add the vehicles.
 		self.vehicles = [
 			SimVehicle([600,120], pi, 7,
-				ControlSystem(),
-				WallFollowingGuidanceSystem(self.track,
+				ngc.ControlSystem(),
+				ngc.WallFollowingGuidanceSystem(self.track,
 					wallDistance = 10,
 					lookahead = 200),
 				color = (1, 0, 0, 1)),
 			SimVehicle([600,90], pi, 5,
-				ControlSystem(),
-				WallFollowingGuidanceSystem(self.track,
+				ngc.ControlSystem(),
+				ngc.WallFollowingGuidanceSystem(self.track,
 					lookahead = 20),
 				color = (0, 1, 0, 1)),
 			SimVehicle([600,60], pi, 5,
-				ControlSystem(),
-				WallFollowingGuidanceSystem(self.track,
+				ngc.ControlSystem(),
+				ngc.WallFollowingGuidanceSystem(self.track,
 					lookahead = 100),
 				color = (0, 0, 1, 1)),
 		]
@@ -158,12 +162,17 @@ class ControlSim(App):
 			deltaSpeed = vehicle.control.throttle(vehicle.speed, desiredSpeed)
 			
 			# Add some error.
-			# if randint(0, 5) == 5:
-				# deltaHeading = deltaHeading + 50 * (random() - 0.5)
+			if randint(0, 5) == 5:
+				deltaHeading = deltaHeading + 50 * (random() - 0.5)
 			
 			# Apply changes to vehicle.
 			vehicle.updateHeading(deltaHeading)
 			vehicle.updateSpeed(deltaSpeed)
+			
+			# Check for a wall collission.
+			if not vehicle.guidance.isPointOnTrack(vehicle.position):
+				vehicle.speed = 0
+			
 		return True #false to stop
 
 if __name__ == '__main__':
