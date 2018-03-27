@@ -17,7 +17,7 @@ class ControlSystem:
 	
 	# Given an actual and a desired throttle, returns new delta speed value.
 	def throttle(self, actual, desired):
-		return 0 #TODO
+		return desired - actual
 
 class GuidanceSystem:
 	def __init__(self, environment):
@@ -34,7 +34,7 @@ class GuidanceSystem:
 	# Returns the desired speed at a specific position on the track.
 	# Returns None if speed control is disabled.
 	def getDesiredSpeed(self, pos):
-		return None
+		return self.vehicle.initialSpeed
 	
 	# Determines if a point is within the boundaries of the track.
 	def isPointOnTrack(self, point):
