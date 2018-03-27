@@ -54,7 +54,7 @@ class SimDisplay(Widget):
 				
 				# Vehicle dot.
 				Color(0, 0, 0, 1, mode='rgba')
-				d = 20. #5.
+				d = 10. #5.
 				Ellipse(pos=(pos[0] - d / 2, pos[1] - d / 2), size=(d, d), width=5)
 
 class SimTrack:
@@ -134,7 +134,7 @@ class ControlSim(App):
 		# Add the track.
 		self.track = SimTrack(
 			[(200, 220), (460, 280), (600, 220), (600, 150), (200, 150), (200, 220)],
-			[(100, 320), (450, 370), (700, 320), (700, 50), (100, 50), (100, 320)])
+			[(100, 320), (450, 370), (700, 320), (700, 50), (100, 50), (80, 200), (100, 320)])
 		
 		# Add the vehicles.
 		self.vehicles = SimVehicleManager(self)
