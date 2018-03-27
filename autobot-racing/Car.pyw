@@ -1,4 +1,4 @@
-
+from Communication import PCConnection
 #Car class to store car objects
 class Car(): #{
     def __init__(self, carName, IP, port, carFrameID, frame, lapNum, place, lapTimes, controlSystem, guidanceSystem): #{
@@ -12,6 +12,6 @@ class Car(): #{
         self.lapTimes = lapTimes
         self.controlSystem = controlSystem
         self.guidanceSystem = guidanceSystem
-		self.interface = PCConnection(carName, IP, port)
+        self.interface = PCConnection(carName, IP, port)
     #}
 #}
