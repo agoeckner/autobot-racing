@@ -126,7 +126,7 @@ class ControlSim(App):
 		parent.add_widget(restartBtn)
 		
 		# Set up event loop.
-		Clock.schedule_interval(self.step, 1 / 20)
+		Clock.schedule_interval(self.step, 1 / 50)
 		
 		return parent
 	
@@ -134,7 +134,7 @@ class ControlSim(App):
 		# Add the track.
 		self.track = SimTrack(
 			[(200, 220), (460, 280), (600, 220), (600, 150), (200, 150), (200, 220)],
-			[(100, 320), (450, 370), (700, 320), (700, 50), (100, 50), (80, 200), (100, 320)])
+			[(100, 320), (450, 370), (700, 320), (700, 50), (100, 50), (100, 320)])
 		
 		# Add the vehicles.
 		self.vehicles = SimVehicleManager(self)
@@ -142,14 +142,14 @@ class ControlSim(App):
 			SimVehicle([600,120], pi, 7,
 				ngc.ControlSystem(),
 				ngc.PassingGuidanceSystem(self,
-					wallDistance = 10,
+					wallDistance = 12,
 					lookahead = 20),
 				color = (1, 0, 0, 0.5)))
 		self.vehicles.addVehicle(
 			SimVehicle([450,120], pi, 2,
 				ngc.ControlSystem(),
 				ngc.PassingGuidanceSystem(self,
-					wallDistance = 10,
+					wallDistance = 12,
 					lookahead = 100),
 				color = (0, 1, 0, 0.5)))
 		# self.vehicles.addVehicle(
