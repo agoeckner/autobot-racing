@@ -1,5 +1,5 @@
 
-import Car
+import Vehicle
 
 class VehicleManager:
 
@@ -9,7 +9,7 @@ class VehicleManager:
 		pass
 		
 	def addCar(carName, IP, port, carFrameID, frame, lapNum, place, lapTimes, controlSystem, guidanceSystem):
-		cars[name] = Car(carName, IP, port, carFrameID, frame, lapNum, place, lapTimes, controlSystem, guidanceSystem)
+		cars[name] = Vehicle(carName, IP, port, carFrameID, frame, lapNum, place, lapTimes, controlSystem, guidanceSystem)
 		
 	def removeCar(name):
 		cars.pop(name)
