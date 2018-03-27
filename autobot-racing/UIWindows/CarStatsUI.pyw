@@ -4,7 +4,7 @@ import tkinter as tk
 import tkinter.font as tkFont
 import cv2
 from PIL import Image, ImageTk
-from Car import Car
+from Vehicle import Vehicle
 
 class CarStatsUI(): #{
     ##-----------------------------------------------------------------------------
@@ -208,7 +208,7 @@ class CarStatsUI(): #{
         carFrame3.grid(row=0,column=2,sticky=W)
 
         newCarFrame.bind("<Button-1>", lambda event, arg=newCarFrame.winfo_id(): self.openEditCarWindow(event, arg))
-        car = Car(carName, IP, port, newCarFrame.winfo_id(), newCarFrame, None, None, None, controlSystem, guidanceSystem)
+        car = Vehicle(carName, IP, port, newCarFrame.winfo_id(), newCarFrame, None, None, None, controlSystem, guidanceSystem)
         #print(str(controlSystem)+'\n'+str(guidanceSystem))
         self.parent.addNewCarObj(car)
     #}
