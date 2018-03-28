@@ -146,14 +146,7 @@ class CarStatsUI(): #{
         self.CameraFeed.pack(side='top',fill=BOTH, expand=True, padx=2, pady=2)
         self.image_label = Label(self.CameraFeed)
         self.image_label.pack()
-        vidInput = cv2.VideoCapture(0)
-        im = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        a = Image.fromarray(im)
-        b = ImageTk.PhotoImage(image=a)
-        self.image_label.configure(image=b)
-        self.image_label._image_cache = b
         
-        #vidFile = cv2.VideoCapture(0)
     #}
 
     ##-----------------------------------------------------------------------------
@@ -304,6 +297,18 @@ class CarStatsUI(): #{
             carFrame.config(highlightbackground='green')
         else:
             carFrame.config(highlightbackground='red')
+    #}
+
+    ##-----------------------------------------------------------------------------
+    ## Updates the Camera Feed frame
+    ##-----------------------------------------------------------------------------
+    def updateCameraFeedFrame(self, frame): #{
+        im = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        a = Image.fromarray(im)
+        b = ImageTk.PhotoImage(image=a)
+        self.image_label.configure(image=b)
+        self.image_label._image_cache = b
+        self.CameraFeed.update()
     #}
 
     ##-----------------------------------------------------------------------------
