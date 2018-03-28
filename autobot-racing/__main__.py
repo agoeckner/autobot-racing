@@ -1,26 +1,27 @@
 from EthernetInterface import EthernetInterface
 from UIManager import UIManager
 from cv.ComputerVision import *
-import _thread
 import threading
+from MessageQueue import MessageQueue
 
 class FrameworkManager(): #{
         ##-----------------------------------------------------------------------------
         ## Constructor
         ##-----------------------------------------------------------------------------
         def __init__(self): #{
-                self.cv = ComputerVision()
+                self.cv = ComputerVision(self)
                 self.UserInterface = UIManager(self)
                 self.EthernetInterface = EthernetInterface(self)
                 self.carList = [] #Stores all car objects
+                self.UIQueue = MessageQueue(self)
         #}
 
         ##-----------------------------------------------------------------------------
-        ## Opens the User Interface
+        ## Starts the program
         ##-----------------------------------------------------------------------------
         def startup(self): #{
                 tUI = threading.Thread(target=self.UserInterface.openCarStatsUI)
-                tCV = threading.Thread(target=self.cv.run, args=(True,))
+                tCV = threading.Thread(target=self.cv.run, args=(False,))
                 tUI.start()
                 tCV.start()
         #}

@@ -5,6 +5,7 @@ from ConfigUI import ConfigUI
 from AddNewCarUI import AddNewCarUI
 from EditCarUI import EditCarUI
 from CarStatsUI import CarStatsUI
+import threading
 
 class UIManager(): #{
     ##-----------------------------------------------------------------------------
@@ -43,7 +44,16 @@ class UIManager(): #{
     ## Opens the Car Statistics Window
     ##-----------------------------------------------------------------------------
     def openCarStatsUI(self): #{
+        tQueue = threading.Thread(target=self.parent.UIQueue.worker)
+        tQueue.start()
         self.carStatsUI.createWindow()
+    #}
+
+    ##-----------------------------------------------------------------------------
+    ## Updates the Camera Feed
+    ##-----------------------------------------------------------------------------
+    def updateCameraFrame(self, feed): #{
+        self.carStatsUI.updateCameraFeedFrame(feed)
     #}
 
     ##-----------------------------------------------------------------------------
