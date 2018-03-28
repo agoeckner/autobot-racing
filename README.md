@@ -10,7 +10,7 @@ Before installing any Python packges, install the Microsoft Kinect SDK, version 
 Autobot Racing uses Python 3, along with a variety of packages:
 
  * opencv-python
- * pykinect
+ * pykinect (manually install from https://github.com/ShrirangaKadam/pykinect-python3.6)
  * Kivy (for simulator only)
  * requests
  * numpy
