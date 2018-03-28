@@ -44,7 +44,7 @@ class UIManager(): #{
     ## Opens the Car Statistics Window
     ##-----------------------------------------------------------------------------
     def openCarStatsUI(self): #{
-        tQueue = threading.Thread(target=self.parent.UIQueue.worker)
+        tQueue = threading.Thread(target=self.parent.UIQueue.workerUI)
         tQueue.start()
         self.carStatsUI.createWindow()
     #}

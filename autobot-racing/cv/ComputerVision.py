@@ -48,9 +48,6 @@ class ComputerVision:
                 while(True):
                         # Capture frame-by-frame
                         ret, frame = self.cap.read()
-                        #Put the frame in the queue for the UI
-                        tup = ('CamFeed', frame)
-                        self.parent.UIQueue.q.put(tup)
                         
                         if not ret:
                                 raise CameraException("Unable to read from video device.")
@@ -103,11 +100,14 @@ class ComputerVision:
                                         cv2.putText(frame, label, (cX - 20, cY - 20),
                                                 cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
 
-                        if showFrame:
-                                # display = np.dstack((frame, gray))
-                                cv2.imshow('frame', frame)
-                                if cv2.waitKey(1) & 0xFF == ord('q'):
-                                        break
+                        #Put the frame in the queue for the UI
+                        tup = ('CamFeed', frame)
+                        self.parent.UIQueue.q.put(tup)
+##                        if showFrame:
+##                                # display = np.dstack((frame, gray))
+##                                cv2.imshow('frame', frame)
+##                                if cv2.waitKey(1) & 0xFF == ord('q'):
+##                                        break
                 #threading.Thread(target=self.sendCamFeedToUI, args=(frame,))
                 # Shut down the CV system.
                 self.close()
