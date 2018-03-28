@@ -21,7 +21,7 @@ class FrameworkManager(): #{
         ##-----------------------------------------------------------------------------
         def startup(self): #{
                 tUI = threading.Thread(target=self.UserInterface.openCarStatsUI)
-                tCV = threading.Thread(target=self.cv.run, args=(False,))
+                tCV = threading.Thread(target=self.cv.run, args=(True,))
                 tUI.start()
                 tCV.start()
         #}

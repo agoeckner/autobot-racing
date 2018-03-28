@@ -9,11 +9,20 @@ class MessageQueue(): #{
         self.parent = parent
     #}
 
-    def worker(self): #{
+    ##-----------------------------------------------------------------------------
+    ## Sends the Camera Feed to the UI
+    ##-----------------------------------------------------------------------------
+    def workerUI(self): #{
         while True:
             message = self.q.get()
-            if message[0] == 'CamFeed':
-                self.updateUI(message[1])
+            self.updateUI(message[1])
+    #}
+
+    
+    def workerCV(self): #{
+        while True:
+            message = self.q.get()
+            
     #}
 
     def updateUI(self, feed): #{
