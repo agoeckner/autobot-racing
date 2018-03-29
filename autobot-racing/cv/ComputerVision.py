@@ -29,7 +29,8 @@ class ComputerVision:
 	
 	
 	# Initializes the computer vision system. Set videoDevice to 0 for camera, -1 for Kinect.
-	def __init__(self, videoDevice = -1):
+	def __init__(self, queue, videoDevice = -1):
+		self.queue = queue
 	
 		# Run in Kinect mode.
 		if videoDevice == -1:
@@ -38,9 +39,9 @@ class ComputerVision:
 			try:
 				self.kinect = nui.Runtime()
 				self.kinect.video_frame_ready += self._processKinectFrame
-				self.kinect.video_stream.open(nui.ImageStreamType.Video, 2, nui.ImageResolution.Resolution640x480, nui.ImageType.Color)
 			except OSError as e:
 				print("OOPS: " + str(e))
+				raise e
 		else:
 			self.mode = "CAMERA"
 			# Open video device.
@@ -74,6 +75,13 @@ class ComputerVision:
 				if not self.processFrame(frame):
 					break
 		else:
+			# Start the Kinect stream.
+			try:
+				self.kinect.video_stream.open(nui.ImageStreamType.Video, 2, nui.ImageResolution.Resolution640x480, nui.ImageType.Color)
+			except OSError as e:
+				print("OOPS2: " + str(e))
+				raise e
+			
 			while True:
 				key = cv2.waitKey(1)
 				if key == 27: break
@@ -125,6 +133,10 @@ class ComputerVision:
 			pixel = frame[cY][cX]
 			color = (int(pixel[0]), int(pixel[1]), int(pixel[2]))
 			color = self.getClosestColor(color)
+			
+			# Push the data out to the main thread.
+			if self.queue != None:
+				self.queue.push((center, heading, color))
 		 
 			# Draw the contour and center of the shape on the image.
 			if showFrame:
@@ -238,4 +250,4 @@ class CameraException(Exception):
 
 if __name__ == "__main__":
 	# Debug mode
-	ComputerVision().run(showFrame=True)
+	ComputerVision(None).run(showFrame=True)
