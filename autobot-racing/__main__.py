@@ -2,6 +2,9 @@ import queue
 from EthernetInterface import EthernetInterface
 from UIManager import UIManager
 from cv.ComputerVision import *
+import threading
+from MessageQueue import MessageQueue
+
 
 class FrameworkManager():
 	##-----------------------------------------------------------------------------
@@ -10,6 +13,8 @@ class FrameworkManager():
 	def __init__(self):
 		# Create message queues.
 		self.telemetryQueue = queue.Queue()
+		self.UIQueue = MessageQueue(self)
+
 	
 		# Set up components.
 		self.cv = ComputerVision(self.telemetryQueue)
@@ -21,11 +26,10 @@ class FrameworkManager():
 	## Start the program.
 	##-----------------------------------------------------------------------------
 	def run(self):
-		# TODO: Isn't the UI a separate thread?
-		# self.UserInterface.openCarStatsUI()
-		
-		# TODO: Start computer vision system in a separate thread.
-		# self.cv.run()
+		tUI = threading.Thread(target=self.UserInterface.openCarStatsUI)
+		tCV = threading.Thread(target=self.cv.run, args=(True,))
+		tUI.start()
+		tCV.start()
 		
 		# Program main loop.
 		while True:

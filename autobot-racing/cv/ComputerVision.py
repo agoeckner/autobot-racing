@@ -29,8 +29,9 @@ class ComputerVision:
 	
 	
 	# Initializes the computer vision system. Set videoDevice to 0 for camera, -1 for Kinect.
-	def __init__(self, queue, videoDevice = 0):
-		self.queue = queue
+	def __init__(self, parent, videoDevice = 0):
+		self.parent = parent
+		self.queue = parent.telemetryQueue
 	
 		# Run in Kinect mode.
 		if videoDevice == -1:
