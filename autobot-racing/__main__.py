@@ -11,13 +11,15 @@ class FrameworkManager():
 	## Constructor
 	##-----------------------------------------------------------------------------
 	def __init__(self):
+		self._run = True
+	
 		# Create message queues.
 		self.telemetryQueue = queue.Queue()
 		self.UIQueue = MessageQueue(self)
 
 	
 		# Set up components.
-		self.cv = ComputerVision(self.telemetryQueue)
+		self.cv = ComputerVision(self, -1)
 		self.UserInterface = UIManager(self)
 		self.EthernetInterface = EthernetInterface(self)
 		self.carList = [] #Stores all car objects
@@ -27,17 +29,26 @@ class FrameworkManager():
 	##-----------------------------------------------------------------------------
 	def run(self):
 		tUI = threading.Thread(target=self.UserInterface.openCarStatsUI)
-		tCV = threading.Thread(target=self.cv.run, args=(True,))
+		tCV = threading.Thread(target=self.cv.run, args=(False,))
+		tCV.daemon = True
+		tUI.daemon = True
 		tUI.start()
 		tCV.start()
 		
 		# Program main loop.
-		while True:
-			self.getLatestTelemetry()
+		try:
+			while self._run:
+				self.getLatestTelemetry()
+		except KeyboardInterrupt as e:
+			exit(0)
 	
 	# Pulls the latest telemetry from the telemetry queue.
-	def getLatestTelemetry():
-		pass
+	def getLatestTelemetry(self):
+		try:
+			(position, heading, color) = self.telemetryQueue.get(True, 1)
+			print("VEHICLE WITH COLOR " + str(color) + " DETECTED AT " + str(position) + " IN DIRECTION " + str(heading))
+		except queue.Empty:
+			pass
 
 ##Car Methods-----------------------------------------------------------------------------------------------------------------------------------------
 	##-----------------------------------------------------------------------------

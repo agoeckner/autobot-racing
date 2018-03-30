@@ -95,7 +95,7 @@ class ComputerVision:
 		frame.image.copy_bits(video.ctypes.data)
 		self.processFrame(video)
 	
-	def processFrame(self, frame, showFrame = True):
+	def processFrame(self, frame, showFrame = False):
 		# Preprocess the image.
 		# gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 		# ret,thresh = cv2.threshold(gray,120,255,0)
@@ -146,6 +146,9 @@ class ComputerVision:
 				label = "({:d}, {:d}), {:.2f}".format(cX, cY, math.degrees(heading))
 				cv2.putText(frame, label, (cX - 20, cY - 20),
 					cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+		
+		#Put the frame in the queue for the UI
+		self.parent.UIQueue.q.put(('CamFeed', frame))
 
 		if showFrame:
 			# display = np.dstack((frame, gray))
