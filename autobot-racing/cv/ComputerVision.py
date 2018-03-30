@@ -101,7 +101,7 @@ class ComputerVision:
 		blurred = cv2.GaussianBlur(frame, (5, 5), 0)
 		gray = cv2.cvtColor(blurred, cv2.COLOR_BGR2GRAY)
 		lab = cv2.cvtColor(blurred, cv2.COLOR_BGR2LAB)
-		thresh = cv2.threshold(gray, 200, 255, cv2.THRESH_BINARY)[1]
+		thresh = cv2.threshold(gray, 160, 255, cv2.THRESH_BINARY)[1]
 		
 		# Find all contours.
 		im2, contours, hierarchy = cv2.findContours(thresh,cv2.RETR_TREE,
