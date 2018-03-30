@@ -12,7 +12,7 @@ class CarStatsUI(): #{
     ##-----------------------------------------------------------------------------
     def __init__(self, parent): #{
         self.parent = parent
-        #self.carDisplayFrames = [] # Used to store the car frames and their info
+        
     #}
 
     ##-----------------------------------------------------------------------------
@@ -32,6 +32,7 @@ class CarStatsUI(): #{
         self.createf3()
 
         self.createCarConfigTitle()
+        self.createCarLeaderBoardTitle()
         self.createCameraFrames()
 
         #For Testing Remove Later----------------------------------------------------------------------------------------------------
@@ -86,10 +87,15 @@ class CarStatsUI(): #{
         nb.add(self.LeaderBoard, text="  LeaderBoard  ")
 
         self.CarConfigCarsFrame = Frame(self.CarConfig)
+        self.CarLeaderBoardFrame = Frame(self.LeaderBoard)
 
         self.CarConfigCarsFrame.pack(side='top', fill=BOTH, expand=True)
         scrollY = ttk.Scrollbar(self.CarConfigCarsFrame)
         scrollY.pack(side='right', fill=Y)
+
+        self.CarLeaderBoardFrame.pack(side='top', fill=BOTH, expand=True)
+        scrollY1 = ttk.Scrollbar(self.CarLeaderBoardFrame)
+        scrollY1.pack(side='right', fill=Y)
 
         self.addCarButton = Button(self.CarConfigButtonFrame, text='Add Car', command=self.addNewCar, width=12)
         self.addCarButton.config(font=("Tahoma", 9))
@@ -125,6 +131,35 @@ class CarStatsUI(): #{
         portLabel.config(font=("Tahoma", 9))
         portLabel.pack(padx=2)
         titleFrame3.grid(row=0,column=2,sticky=W)
+    #}
+
+    ##-----------------------------------------------------------------------------
+    ## Creates the frames for the Camera Feed
+    ##-----------------------------------------------------------------------------
+    def createCarLeaderBoardTitle(self): #{
+        titleFrame = Frame(self.CarLeaderBoardFrame)
+        titleFrame.pack(side='top', fill=X)
+
+        titleFrame.columnconfigure(1, weight=3)
+
+        titleFrame1 = Frame(titleFrame)
+        carLabel = Label(titleFrame1, text='Car Name')
+        carLabel.config(font=("Tahoma", 9))
+        carLabel.pack()
+        titleFrame1.grid(row=0,column=0,sticky=E)
+
+        titleFrame2 = Frame(titleFrame)
+        IPLabel = Label(titleFrame2, text='Place')
+        IPLabel.config(font=("Tahoma", 9))
+        IPLabel.pack()
+        titleFrame2.grid(row=0,column=1)
+
+        titleFrame3 = Frame(titleFrame)
+        portLabel = Label(titleFrame3, text='Lap Number')
+        portLabel.config(font=("Tahoma", 9))
+        portLabel.pack(padx=2)
+        titleFrame3.grid(row=0,column=2,sticky=W)
+        
     #}
 
     ##-----------------------------------------------------------------------------
@@ -303,6 +338,7 @@ class CarStatsUI(): #{
     ## Updates the Camera Feed frame
     ##-----------------------------------------------------------------------------
     def updateCameraFeedFrame(self, frame): #{
+        #if frame != None:
         im = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         a = Image.fromarray(im)
         b = ImageTk.PhotoImage(image=a)
