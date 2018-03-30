@@ -54,15 +54,30 @@ class SimDisplay(Widget):
 				
 				# Vehicle dot.
 				Color(0, 0, 0, 1, mode='rgba')
-				d = 5.
+				d = 10. #5.
 				Ellipse(pos=(pos[0] - d / 2, pos[1] - d / 2), size=(d, d), width=5)
 
 class SimTrack:
 	def __init__(self, innerWall, outerWall):
 		self.innerWall = innerWall
 		self.outerWall = outerWall
-			
+
+class SimVehicleManager:
+	def __init__(self, environment):
+		self.environment = environment
+		self.vehicles = []
+	
+	def addVehicle(self, vehicle): #*args, **kwargs):
+		# vehicle = SimVehicle(args, kwargs)
+		vehicle.guidance.vehicle = vehicle
+		self.vehicles.append(vehicle)
+
+	def __getitem__(self, index):
+		return self.vehicles[index]
+
 class SimVehicle:
+	# Turning radius measured to be ~1.5 feet
+	# TODO: Properly implement turning radius.
 	MIN_TURN_ANGLE = pi / 24
 
 	def __init__(self, initialPosition, initialHeading, initialSpeed,
@@ -83,14 +98,15 @@ class SimVehicle:
 		self.speed = self.initialSpeed
 	
 	def updateHeading(self, delta):
-		# Clamp the turn rate.
-		if delta > 0:
-			self.heading += min(delta, self.MIN_TURN_ANGLE)
-		else:
-			self.heading += max(delta, -self.MIN_TURN_ANGLE)
-		
-		# Clamp the heading.
-		self.heading = self.heading % (2 * pi)
+		if abs(delta) >= 0.05:
+			# Clamp the turn rate.
+			if delta > 0:
+				self.heading += self.MIN_TURN_ANGLE #min(delta, self.MIN_TURN_ANGLE)
+			else:
+				self.heading += -self.MIN_TURN_ANGLE #max(delta, -self.MIN_TURN_ANGLE)
+			
+			# Clamp the heading.
+			self.heading = self.heading % (2 * pi)
 	
 	def updateSpeed(self, delta):
 		self.speed += delta
@@ -110,7 +126,7 @@ class ControlSim(App):
 		parent.add_widget(restartBtn)
 		
 		# Set up event loop.
-		Clock.schedule_interval(self.step, 1 / 20)
+		Clock.schedule_interval(self.step, 1 / 50)
 		
 		return parent
 	
@@ -121,29 +137,38 @@ class ControlSim(App):
 			[(100, 320), (450, 370), (700, 320), (700, 50), (100, 50), (100, 320)])
 		
 		# Add the vehicles.
-		self.vehicles = [
+		self.vehicles = SimVehicleManager(self)
+		self.vehicles.addVehicle(
 			SimVehicle([600,120], pi, 7,
 				ngc.ControlSystem(),
-				ngc.WallFollowingGuidanceSystem(self.track,
-					wallDistance = 10,
-					lookahead = 200),
-				color = (1, 0, 0, 1)),
-			SimVehicle([600,90], pi, 5,
-				ngc.ControlSystem(),
-				ngc.WallFollowingGuidanceSystem(self.track,
+				ngc.PassingGuidanceSystem(self,
+					wallDistance = 12,
 					lookahead = 20),
-				color = (0, 1, 0, 1)),
-			SimVehicle([600,60], pi, 5,
+				color = (1, 0, 0, 0.5)))
+		self.vehicles.addVehicle(
+			SimVehicle([450,120], pi, 2,
 				ngc.ControlSystem(),
-				ngc.WallFollowingGuidanceSystem(self.track,
+				ngc.PassingGuidanceSystem(self,
+					wallDistance = 12,
 					lookahead = 100),
-				color = (0, 0, 1, 1)),
-		]
+				color = (0, 1, 0, 0.5)))
+		# self.vehicles.addVehicle(
+			# SimVehicle([600,90], pi, 5,
+				# ngc.ControlSystem(),
+				# ngc.WallFollowingGuidanceSystem(self,
+					# lookahead = 20),
+				# color = (0, 1, 0, 1)))
+		# self.vehicles.addVehicle(
+			# SimVehicle([600,60], pi, 5,
+				# ngc.ControlSystem(),
+				# ngc.WallFollowingGuidanceSystem(self,
+					# lookahead = 100),
+				# color = (0, 0, 1, 1)))
 
 	def restart(self, obj):
 		for vehicle in self.vehicles:
-			self.display.traj[vehicle] = None
 			vehicle.reset()
+			self.display.traj[vehicle] = None
 	
 	def step(self, dt):
 		self.display.on_step(self.vehicles)
@@ -162,8 +187,8 @@ class ControlSim(App):
 			deltaSpeed = vehicle.control.throttle(vehicle.speed, desiredSpeed)
 			
 			# Add some error.
-			if randint(0, 5) == 5:
-				deltaHeading = deltaHeading + 50 * (random() - 0.5)
+			# if randint(0, 5) == 5:
+				# deltaHeading = deltaHeading + 50 * (random() - 0.5)
 			
 			# Apply changes to vehicle.
 			vehicle.updateHeading(deltaHeading)
