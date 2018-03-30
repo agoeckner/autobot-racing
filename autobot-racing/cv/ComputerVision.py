@@ -29,7 +29,7 @@ class ComputerVision:
 	
 	
 	# Initializes the computer vision system. Set videoDevice to 0 for camera, -1 for Kinect.
-	def __init__(self, queue, videoDevice = -1):
+	def __init__(self, queue, videoDevice = 0):
 		self.queue = queue
 	
 		# Run in Kinect mode.
@@ -136,7 +136,7 @@ class ComputerVision:
 			
 			# Push the data out to the main thread.
 			if self.queue != None:
-				self.queue.push((center, heading, color))
+				self.queue.put((center, heading, color))
 		 
 			# Draw the contour and center of the shape on the image.
 			if showFrame:
