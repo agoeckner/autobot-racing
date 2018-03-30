@@ -1,32 +1,25 @@
-
-import Vehicle
+from Vehicle import Vehicle
 
 class VehicleManager:
 
-	cars = {}
+	COLORS = [
+		(255, 0, 0),
+		(0, 255, 0),
+		(0, 0, 255)]
+	vehicleByColor = {}
+	vehicleList = []
 
-	def __init__():
+	def __init__(self):
 		pass
 		
-	def addCar(carName, IP, port, carFrameID, frame, lapNum, place, lapTimes, controlSystem, guidanceSystem):
-		cars[carName] = Vehicle(carName, IP, port, carFrameID, frame, lapNum, place, lapTimes, controlSystem, guidanceSystem)
+	def addVehicle(self, vehicle):
 		
-	def removeCar(carName):
-		cars.pop(carName)
+		# TODO: THIS IS TEMPORARY CODE, REMOVE ONCE COLOR CAN BE SPECIFIED IN UI
+		vehicle.color = self.COLORS[len(self.vehicleList)]
+	
+		self.vehicleByColor[vehicle.color] = vehicle
+		self.vehicleList.append(vehicle)
 		
-	def connect(carName):
-		try:
-			self.cars[carName].interface.connectToHost()
-			return True
-		except (ConnectionError, OSError) as e:
-			return False
-			
-	def disconnect(carName):
-		self.cars[carName].interface.disconnectFromHost()
-		
-	def sendMsg(carName, direction, speed):
-		try:
-			self.cars[carName].interface.sendMsg(direction, speed)
-			return True
-		except (ConnectionError, OSError) as e:
-			return False
+	def removeVehicle(self, vehicle):
+		self.vehicleByColor[vehicle.color] = None
+		vehicleList.remove(vehicle)
