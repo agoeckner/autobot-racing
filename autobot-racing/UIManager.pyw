@@ -1,4 +1,5 @@
 import sys
+import threading
 
 sys.path.insert(0, './UIWindows')
 from ConfigUI import ConfigUI
@@ -23,7 +24,8 @@ class UIManager(): #{
     ## Opens the Car Configuration Menu Window
     ##-----------------------------------------------------------------------------
     def openConfigurationWindow(self): #{
-        self.configWindow.createWindow()
+        thread.start_new_thread(self.configWindow.createWindow)
+        #self.configWindow.createWindow()
     #}
 
     ##-----------------------------------------------------------------------------

@@ -5,6 +5,7 @@ import tkinter.font as tkFont
 import cv2
 from PIL import Image, ImageTk
 from Vehicle import Vehicle
+import _thread
 
 class CarStatsUI(): #{
     ##-----------------------------------------------------------------------------
@@ -36,12 +37,14 @@ class CarStatsUI(): #{
         self.createCameraFrames()
 
         #For Testing Remove Later----------------------------------------------------------------------------------------------------
-        self.addNewCarCallback('Car 1', '127.0.0.5', '457', 'Option 1', 'Option 2')
-        self.addNewCarCallback('Car 2', '127.0.0.6', '458', 'Option 2', 'Option 1')
+        # self.addNewCarCallback('Car 1', '127.0.0.5', '457', 'Option 1', 'Option 2')
+        # self.addNewCarCallback('Car 2', '127.0.0.6', '458', 'Option 2', 'Option 1')
         #----------------------------------------------------------------------------------------------------------------------------
 
         self.window.bind("<Configure>", self.updateWindow)
         self.window.mainloop()
+        _thread.interrupt_main()
+        exit(0)
     #}
 
     ##-----------------------------------------------------------------------------
