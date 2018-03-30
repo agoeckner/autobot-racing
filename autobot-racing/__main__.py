@@ -4,6 +4,14 @@ from UIManager import UIManager
 from cv.ComputerVision import *
 import threading
 from MessageQueue import MessageQueue
+import controls as ngc
+from Vehicle import Vehicle
+
+#TODO: TEMPORARY!
+class Track:
+	def __init__(self, innerWall, outerWall):
+		self.innerWall = innerWall
+		self.outerWall = outerWall
 
 
 class FrameworkManager():
@@ -20,6 +28,23 @@ class FrameworkManager():
 		self.UserInterface = UIManager(self)
 		self.EthernetInterface = EthernetInterface(self)
 		self.carList = [] #Stores all car objects
+		
+		# TODO: ADD A BOGUS CAR
+		track = Track([(100, 100), (100, 200), (200, 200), (200, 100), (100, 100)], [])
+		self.carList.append(Vehicle(
+			"TESTING",
+			"128.10.120.200",
+			4000,
+			None,
+			None,
+			0,
+			0,
+			0,
+			ngc.ControlSystem(),
+			ngc.WallFollowingGuidanceSystem(track,
+					wallDistance = 10,
+					lookahead = 80)
+			))
 
 	##-----------------------------------------------------------------------------
 	## Start the program.
@@ -56,7 +81,6 @@ class FrameworkManager():
 	
 	def runNavGuidanceControl(self):
 		for vehicle in self.carList:
-			
 		
 			# Determine guidance.
 			desiredHeading = vehicle.guidance.getDesiredHeading(vehicle.position[0])
@@ -68,6 +92,11 @@ class FrameworkManager():
 			
 			# Send commands to vehicle.
 			vehicle.updateHeading(deltaHeading)
+			hdg = 0
+			if hdg < 0: hdg = -1
+			elif hdg > 0: hdg = 1
+			# TODO: hardcoded speed
+			vehicle.sendMsg(hdg, 1)
 			# vehicle.updateSpeed(deltaSpeed)
 
 ##Car Methods-----------------------------------------------------------------------------------------------------------------------------------------

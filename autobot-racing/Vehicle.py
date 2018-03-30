@@ -27,6 +27,9 @@ class Vehicle():
 		# Store the most recent position/heading data.
 		self.position = deque(maxlen = self.POSITION_HISTORY_POINTS)
 		self.heading = deque(maxlen = self.HEADING_HISTORY_POINTS)
+		
+		self.position.append((0,0))
+		self.heading.append(0)
 
 	def updateHeading(self, deltaHeading):
 		print("UPDATE HEADING BY " + str(deltaHeading))
