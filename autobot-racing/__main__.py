@@ -39,6 +39,7 @@ class FrameworkManager():
 		try:
 			while self._run:
 				self.getLatestTelemetry()
+				self.runNavGuidanceControl()
 		except KeyboardInterrupt as e:
 			exit(0)
 	
@@ -46,9 +47,30 @@ class FrameworkManager():
 	def getLatestTelemetry(self):
 		try:
 			(position, heading, color) = self.telemetryQueue.get(True, 1)
-			print("VEHICLE WITH COLOR " + str(color) + " DETECTED AT " + str(position) + " IN DIRECTION " + str(heading))
+			
+			# TODO, determine correct car based on color and then do this
+			vehicle = self.carList[0]
+			vehicle.position.append(position)
+			vehicle.heading.append(heading)
+			
 		except queue.Empty:
 			pass
+	
+	def runNavGuidanceControl(self):
+		for vehicle in self.carList:
+			
+		
+			# Determine guidance.
+			desiredHeading = vehicle.guidance.getDesiredHeading(vehicle.position[0])
+			# desiredSpeed = vehicle.guidance.getDesiredSpeed(vehicle.position)
+			
+			# Run control algorithm.
+			deltaHeading = vehicle.control.heading(vehicle.heading[0], desiredHeading)
+			# deltaSpeed = vehicle.control.throttle(vehicle.speed, desiredSpeed)
+			
+			# Send commands to vehicle.
+			vehicle.updateHeading(deltaHeading)
+			# vehicle.updateSpeed(deltaSpeed)
 
 ##Car Methods-----------------------------------------------------------------------------------------------------------------------------------------
 	##-----------------------------------------------------------------------------
