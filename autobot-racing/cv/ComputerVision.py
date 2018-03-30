@@ -95,7 +95,7 @@ class ComputerVision:
 		frame.image.copy_bits(video.ctypes.data)
 		self.processFrame(video)
 	
-	def processFrame(self, frame, showFrame = False):
+	def processFrame(self, frame, showFrame = False, draw = True):
 		# Preprocess the image.
 		# gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 		# ret,thresh = cv2.threshold(gray,120,255,0)
@@ -140,7 +140,7 @@ class ComputerVision:
 				self.queue.put((center, heading, color))
 		 
 			# Draw the contour and center of the shape on the image.
-			if showFrame:
+			if draw:
 				cv2.drawContours(frame, [approx], -1, color, 3)
 				cv2.circle(frame, (cX, cY), 7, (255, 255, 255), -1)
 				label = "({:d}, {:d}), {:.2f}".format(cX, cY, math.degrees(heading))
