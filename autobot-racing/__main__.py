@@ -3,6 +3,8 @@ from UIManager import UIManager
 from cv.ComputerVision import *
 import threading
 from MessageQueue import MessageQueue
+import time
+import sys
 
 class FrameworkManager(): #{
         ##-----------------------------------------------------------------------------
@@ -14,6 +16,7 @@ class FrameworkManager(): #{
                 self.EthernetInterface = EthernetInterface(self)
                 self.carList = [] #Stores all car objects
                 self.UIQueue = MessageQueue(self)
+                self.leaderBoardQueue = MessageQueue(self)
         #}
 
         ##-----------------------------------------------------------------------------
@@ -21,15 +24,23 @@ class FrameworkManager(): #{
         ##-----------------------------------------------------------------------------
         def startup(self): #{
                 tUI = threading.Thread(target=self.UserInterface.openCarStatsUI)
-                tCV = threading.Thread(target=self.cv.run, args=(True,))
-                tCV.setDaemon(True)
+                tCV = threading.Thread(target=self.cv.run, args=(False,))
+                tQueue = threading.Thread(target=self.UIQueue.workerUI)
+                tCV.daemon = True
+                tUI.daemon = True
+                tQueue.daemon = True
+                tQueue.start()
                 tUI.start()
                 tCV.start()
-
-                while True: #{
-                        if not tUI.isAlive():
-                                break
-                #}
+                
+                # Program main loop.
+                try:
+                        while True:
+                                x = 1
+                                #self.getLatestTelemetry()
+                                #self.runNavGuidanceControl()
+                except KeyboardInterrupt as e:
+                        exit(0)
         #}
 
 ##Car Methods-----------------------------------------------------------------------------------------------------------------------------------------

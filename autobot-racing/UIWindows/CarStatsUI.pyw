@@ -32,7 +32,7 @@ class CarStatsUI(): #{
         self.createf3()
 
         self.createCarConfigTitle()
-        self.createCarLeaderBoardTitle()
+        #self.createCarLeaderBoardTitle()
         self.createCameraFrames()
 
         #For Testing Remove Later----------------------------------------------------------------------------------------------------
@@ -133,34 +133,34 @@ class CarStatsUI(): #{
         titleFrame3.grid(row=0,column=2,sticky=W)
     #}
 
-    ##-----------------------------------------------------------------------------
-    ## Creates the frames for the Camera Feed
-    ##-----------------------------------------------------------------------------
-    def createCarLeaderBoardTitle(self): #{
-        titleFrame = Frame(self.CarLeaderBoardFrame)
-        titleFrame.pack(side='top', fill=X)
-
-        titleFrame.columnconfigure(1, weight=3)
-
-        titleFrame1 = Frame(titleFrame)
-        carLabel = Label(titleFrame1, text='Car Name')
-        carLabel.config(font=("Tahoma", 9))
-        carLabel.pack()
-        titleFrame1.grid(row=0,column=0,sticky=E)
-
-        titleFrame2 = Frame(titleFrame)
-        IPLabel = Label(titleFrame2, text='Place')
-        IPLabel.config(font=("Tahoma", 9))
-        IPLabel.pack()
-        titleFrame2.grid(row=0,column=1)
-
-        titleFrame3 = Frame(titleFrame)
-        portLabel = Label(titleFrame3, text='Lap Number')
-        portLabel.config(font=("Tahoma", 9))
-        portLabel.pack(padx=2)
-        titleFrame3.grid(row=0,column=2,sticky=W)
-        
-    #}
+##    ##-----------------------------------------------------------------------------
+##    ## Creates the title frame for the Leaderboard
+##    ##-----------------------------------------------------------------------------
+##    def createCarLeaderBoardTitle(self): #{
+##        self.leaderBoardTitleFrame = Frame(self.CarLeaderBoardFrame)
+##        self.leaderBoardTitleFrame.pack(side='top', fill=X)
+##
+##        self.leaderBoardTitleFrame.columnconfigure(1, weight=3)
+##
+##        titleFrame1 = Frame(self.leaderBoardTitleFrame)
+##        carLabel = Label(titleFrame1, text='Car Name')
+##        carLabel.config(font=("Tahoma", 9))
+##        carLabel.pack()
+##        titleFrame1.grid(row=0,column=0,sticky=E)
+##
+##        titleFrame2 = Frame(self.leaderBoardTitleFrame)
+##        IPLabel = Label(titleFrame2, text='Place')
+##        IPLabel.config(font=("Tahoma", 9))
+##        IPLabel.pack()
+##        titleFrame2.grid(row=0,column=1)
+##
+##        titleFrame3 = Frame(self.leaderBoardTitleFrame)
+##        portLabel = Label(titleFrame3, text='Lap Number')
+##        portLabel.config(font=("Tahoma", 9))
+##        portLabel.pack(padx=2)
+##        titleFrame3.grid(row=0,column=2,sticky=W)
+##        
+##    #}
 
     ##-----------------------------------------------------------------------------
     ## Creates the frames for the Camera Feed
@@ -243,8 +243,9 @@ class CarStatsUI(): #{
         portLabel.config(font=("Tahoma", 9))
         portLabel.pack()
         carFrame3.grid(row=0,column=2,sticky=W)
-
+        
         newCarFrame.bind("<Button-1>", lambda event, arg=newCarFrame.winfo_id(): self.openEditCarWindow(event, arg))
+        
         car = Vehicle(carName, IP, port, newCarFrame.winfo_id(), newCarFrame, None, None, None, controlSystem, guidanceSystem)
         #print(str(controlSystem)+'\n'+str(guidanceSystem))
         self.parent.addNewCarObj(car)
@@ -346,6 +347,46 @@ class CarStatsUI(): #{
         self.image_label._image_cache = b
         self.CameraFeed.update()
     #}
+
+##    ##-----------------------------------------------------------------------------
+##    ## Updates the Leaderboard Frame
+##    ##-----------------------------------------------------------------------------
+##    def updateLeaderBoard(self, carList): #{
+##        self.leaderBoardTitleFrame.destroy()
+##        self.createCarLeaderBoardTitle()
+##        
+##        for car in carList:
+##            self.addLeaderBoardCar(car)
+##    #}
+##
+##    ##-----------------------------------------------------------------------------
+##    ## Creates a new car frame for the leaderboard
+##    ##-----------------------------------------------------------------------------
+##    def addLeaderBoardCar(self, car): #{
+##        newLeaderBoardFrame = Frame(self.CarLeaderBoardFrame, height=10, borderwidth=5,highlightbackground="green", highlightthickness=1)
+##        newLeaderBoardFrame.pack(side='top', padx=5, pady=3, fill=X)
+##
+##        newLeaderBoardFrame.columnconfigure(1, weight=3)
+##
+##        carFrame1 = Frame(newLeaderBoardFrame)
+##        carLabel = Label(carFrame1, text=str(car.carName))
+##        carLabel.config(font=("Tahoma", 9))
+##        carLabel.pack()
+##
+##        carFrame1.grid(row=0,column=0,sticky=E)
+##
+##        carFrame2 = Frame(newLeaderBoardFrame)
+##        placeLabel = Label(carFrame2, text=str(car.place))
+##        placeLabel.config(font=("Tahoma", 9))
+##        placeLabel.pack(padx=2)
+##        carFrame2.grid(row=0,column=1)
+##
+##        carFrame3 = Frame(newLeaderBoardFrame)
+##        lapNumLabel = Label(carFrame3, text=str(car.lapNum))
+##        lapNumLabel.config(font=("Tahoma", 9))
+##        lapNumLabel.pack()
+##        carFrame3.grid(row=0,column=2,sticky=W)
+##    #}
 
     ##-----------------------------------------------------------------------------
     ## Starts the Race
