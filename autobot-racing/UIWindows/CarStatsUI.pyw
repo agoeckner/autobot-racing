@@ -5,6 +5,7 @@ import tkinter.font as tkFont
 import cv2
 from PIL import Image, ImageTk
 from Vehicle import Vehicle
+import _thread
 
 class CarStatsUI(): #{
     ##-----------------------------------------------------------------------------
@@ -41,6 +42,8 @@ class CarStatsUI(): #{
 
         self.window.bind("<Configure>", self.updateWindow)
         self.window.mainloop()
+        _thread.interrupt_main()
+        exit(0)
     #}
 
     ##-----------------------------------------------------------------------------
