@@ -19,7 +19,7 @@ class FrameworkManager():
 		self.UIQueue = MessageQueue(self)
 
 		# Set up components.
-		self.cv = ComputerVision(self, 0)
+		self.cv = ComputerVision(self, -1)
 		self.UserInterface = UIManager(self)
 		self.EthernetInterface = EthernetInterface(self)
 		self.carList = [] #Stores all car objects
@@ -30,10 +30,13 @@ class FrameworkManager():
 	def run(self):
 		tUI = threading.Thread(target=self.UserInterface.openCarStatsUI)
 		tCV = threading.Thread(target=self.cv.run, args=(False,))
+		tQueue = threading.Thread(target=self.UIQueue.workerUI)
 		tCV.daemon = True
 		tUI.daemon = True
+		tQueue.daemon = True
 		tUI.start()
 		tCV.start()
+		tQueue.start()
 		
 		# Program main loop.
 		try:
