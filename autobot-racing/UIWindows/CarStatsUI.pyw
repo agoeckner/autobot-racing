@@ -5,6 +5,7 @@ import tkinter.font as tkFont
 import cv2
 from PIL import Image, ImageTk
 from Vehicle import Vehicle
+import _thread
 
 class CarStatsUI(): #{
     ##-----------------------------------------------------------------------------
@@ -41,6 +42,8 @@ class CarStatsUI(): #{
 
         self.window.bind("<Configure>", self.updateWindow)
         self.window.mainloop()
+        _thread.interrupt_main()
+        exit(0)
     #}
 
     ##-----------------------------------------------------------------------------
@@ -144,7 +147,9 @@ class CarStatsUI(): #{
 
         self.CameraFeed = Frame(self.CameraFeedTitleFrame)#, highlightbackground="green", highlightthickness=1)
         self.CameraFeed.pack(side='top',fill=BOTH, expand=True, padx=2, pady=2)
-        #vidFile = cv2.VideoCapture(0)
+        self.image_label = Label(self.CameraFeed)
+        self.image_label.pack()
+        
     #}
 
     ##-----------------------------------------------------------------------------
@@ -295,6 +300,18 @@ class CarStatsUI(): #{
             carFrame.config(highlightbackground='green')
         else:
             carFrame.config(highlightbackground='red')
+    #}
+
+    ##-----------------------------------------------------------------------------
+    ## Updates the Camera Feed frame
+    ##-----------------------------------------------------------------------------
+    def updateCameraFeedFrame(self, frame): #{
+        im = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        a = Image.fromarray(im)
+        b = ImageTk.PhotoImage(image=a)
+        self.image_label.configure(image=b)
+        self.image_label._image_cache = b
+        self.CameraFeed.update()
     #}
 
     ##-----------------------------------------------------------------------------
