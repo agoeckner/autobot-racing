@@ -1,5 +1,5 @@
 from collections import deque
-from Communication import PCConnection
+import EthernetInterface
 
 import controls as ngc
 
@@ -22,7 +22,7 @@ class Vehicle():
 					None,#TODO: TRACK HERE, self.track,
 					wallDistance = 10,
 					lookahead = 200) #TODO: guidanceSystem
-		self.interface = PCConnection(carName, IP, port)
+		self.interface = EthernetInterface(carName, IP, port)
 		
 		# Store the most recent position/heading data.
 		self.position = deque(maxlen = self.POSITION_HISTORY_POINTS)
