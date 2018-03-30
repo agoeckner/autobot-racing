@@ -1,16 +1,31 @@
-import thread
+import queue
 
 class MessageQueue(): #{
     ##-----------------------------------------------------------------------------
     ## Constructor
     ##-----------------------------------------------------------------------------
-    def __init__(self): #{
-        self.q = Queue()
+    def __init__(self, parent): #{
+        self.q = queue.Queue()
+        self.parent = parent
     #}
 
-    def worker(self): #{
+    ##-----------------------------------------------------------------------------
+    ## Sends the Camera Feed to the UI
+    ##-----------------------------------------------------------------------------
+    def workerUI(self): #{
         while True:
             message = self.q.get()
-            #updateInformation(message)
+            self.updateUI(message[1])
+    #}
+
+    
+    def workerCV(self): #{
+        while True:
+            message = self.q.get()
+            
+    #}
+
+    def updateUI(self, feed): #{
+        self.parent.UserInterface.updateCameraFrame(feed)
     #}
 #}

@@ -1,4 +1,5 @@
 from collections import deque
+from Communication import PCConnection
 
 #Car class to store car objects
 class Vehicle():
