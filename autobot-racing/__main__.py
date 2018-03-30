@@ -4,9 +4,15 @@ from UIManager import UIManager
 from cv.ComputerVision import *
 import threading
 from MessageQueue import MessageQueue
-import time
-import sys
+import controls as ngc
+from Vehicle import Vehicle
 
+#TODO: TEMPORARY!
+class Track:
+	def __init__(self, innerWall, outerWall):
+		self.innerWall = innerWall
+		self.outerWall = outerWall
+		self.track = self
 
 
 class FrameworkManager():
@@ -21,8 +27,30 @@ class FrameworkManager():
 		# Set up components.
 		self.cv = ComputerVision(self, -1)
 		self.UserInterface = UIManager(self)
-		self.EthernetInterface = EthernetInterface(self)
+		# self.EthernetInterface = EthernetInterface(self)
 		self.carList = [] #Stores all car objects
+		
+		# TODO: ADD A BOGUS CAR
+		self.track = Track([(100, 100), (100, 200), (200, 200), (200, 100), (100, 100)], [])
+		veh = Vehicle(
+			"TESTING",
+			"128.10.120.200",
+			4000,
+			None,
+			None,
+			0,
+			0,
+			0,
+			ngc.ControlSystem(),
+			ngc.WallFollowingGuidanceSystem(self,
+					wallDistance = 10,
+					lookahead = 80)
+			)
+		self.carList.append(veh)
+		if veh.connect():
+			print("CONNECTED")
+		else:
+			print("CONNECTION FAILED")
 
 	##-----------------------------------------------------------------------------
 	## Start the program.
@@ -30,7 +58,6 @@ class FrameworkManager():
 	def run(self):
 		tUI = threading.Thread(target=self.UserInterface.openCarStatsUI)
 		tCV = threading.Thread(target=self.cv.run, args=(False,))
-		tQueue = threading.Thread(target=self.UIQueue.workerUI)
 		tCV.daemon = True
 		tUI.daemon = True
 		tQueue.daemon = True
@@ -62,7 +89,6 @@ class FrameworkManager():
 	
 	def runNavGuidanceControl(self):
 		for vehicle in self.carList:
-			
 		
 			# Determine guidance.
 			desiredHeading = vehicle.guidance.getDesiredHeading(vehicle.position[0])
@@ -74,6 +100,11 @@ class FrameworkManager():
 			
 			# Send commands to vehicle.
 			vehicle.updateHeading(deltaHeading)
+			hdg = 0
+			if hdg < 0: hdg = -1
+			elif hdg > 0: hdg = 1
+			# TODO: hardcoded speed
+			vehicle.sendMsg(hdg, 1)
 			# vehicle.updateSpeed(deltaSpeed)
 
 ##Car Methods-----------------------------------------------------------------------------------------------------------------------------------------
