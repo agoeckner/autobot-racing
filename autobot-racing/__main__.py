@@ -12,6 +12,7 @@ class Track:
 	def __init__(self, innerWall, outerWall):
 		self.innerWall = innerWall
 		self.outerWall = outerWall
+		self.track = self
 
 
 class FrameworkManager():
@@ -24,14 +25,14 @@ class FrameworkManager():
 		self.UIQueue = MessageQueue(self)
 
 		# Set up components.
-		self.cv = ComputerVision(self, 0)
+		self.cv = ComputerVision(self, -1)
 		self.UserInterface = UIManager(self)
-		self.EthernetInterface = EthernetInterface(self)
+		# self.EthernetInterface = EthernetInterface(self)
 		self.carList = [] #Stores all car objects
 		
 		# TODO: ADD A BOGUS CAR
-		track = Track([(100, 100), (100, 200), (200, 200), (200, 100), (100, 100)], [])
-		self.carList.append(Vehicle(
+		self.track = Track([(100, 100), (100, 200), (200, 200), (200, 100), (100, 100)], [])
+		veh = Vehicle(
 			"TESTING",
 			"128.10.120.200",
 			4000,
@@ -41,10 +42,15 @@ class FrameworkManager():
 			0,
 			0,
 			ngc.ControlSystem(),
-			ngc.WallFollowingGuidanceSystem(track,
+			ngc.WallFollowingGuidanceSystem(self,
 					wallDistance = 10,
 					lookahead = 80)
-			))
+			)
+		self.carList.append(veh)
+		if veh.connect():
+			print("CONNECTED")
+		else:
+			print("CONNECTION FAILED")
 
 	##-----------------------------------------------------------------------------
 	## Start the program.

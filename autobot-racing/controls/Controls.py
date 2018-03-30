@@ -17,11 +17,13 @@ class ControlSystem:
 	
 	# Given an actual and a desired throttle, returns new delta speed value.
 	def throttle(self, actual, desired):
-		return 0 #TODO
+		return desired - actual
 
 class GuidanceSystem:
-	def __init__(self, track):
-		self.track = track
+	def __init__(self, environment):
+		self.environment = environment
+		self.vehicle = None #will be set by VehicleManager
+		self.track = environment.track
 	
 	# Returns the desired heading at a specific position on the track.
 	def getDesiredHeading(self, pos):
@@ -32,7 +34,7 @@ class GuidanceSystem:
 	# Returns the desired speed at a specific position on the track.
 	# Returns None if speed control is disabled.
 	def getDesiredSpeed(self, pos):
-		return None
+		return self.vehicle.initialSpeed
 	
 	# Determines if a point is within the boundaries of the track.
 	def isPointOnTrack(self, point):
@@ -60,16 +62,18 @@ class GuidanceSystem:
 class WallFollowingGuidanceSystem(GuidanceSystem):	
 	def __init__(self, *args, wallDistance = 20, lookahead = 45, **kwargs):
 		super(WallFollowingGuidanceSystem, self).__init__(*args, **kwargs)
-		self.distWall = wallDistance
+		self.desiredWallDist = wallDistance
+		self.actualWallDist = 0
 		self.distLookahead = lookahead
 
 	
 	# Returns the desired heading at a specific position on the track.
 	def getDesiredHeading(self, pos):
 		((wall0, wall1), d) = self._getClosestPolyVertex(pos, self.track.innerWall)
+		self.actualWallDist = d
 		# Straight-line heading along wall.
 		ha = atan2(wall1[1] - wall0[1], wall1[0] - wall0[0])
 		# Heading that converges to correct distance from wall.
-		hd = atan2(d - self.distWall, self.distLookahead)
+		hd = atan2(d - self.desiredWallDist, self.distLookahead)
 		heading = ha - hd
 		return heading

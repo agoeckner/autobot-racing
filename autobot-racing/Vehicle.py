@@ -1,5 +1,5 @@
 from collections import deque
-from Communication import PCConnection
+from EthernetInterface import EthernetInterface
 
 import controls as ngc
 
@@ -17,12 +17,9 @@ class Vehicle():
 		self.lapNum = lapNum
 		self.place = place
 		self.lapTimes = lapTimes
-		self.control = ngc.ControlSystem() #TODO: controlSystem
-		self.guidance = ngc.WallFollowingGuidanceSystem(
-					None,#TODO: TRACK HERE, self.track,
-					wallDistance = 10,
-					lookahead = 200) #TODO: guidanceSystem
-		self.interface = PCConnection(carName, IP, port)
+		self.control = controlSystem
+		self.guidance = guidanceSystem
+		self.interface = EthernetInterface(carName, IP, port)
 		
 		# Store the most recent position/heading data.
 		self.position = deque(maxlen = self.POSITION_HISTORY_POINTS)
