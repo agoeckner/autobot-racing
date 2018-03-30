@@ -52,8 +52,9 @@ class EthernetInterface():
 		#Will raise a socket.timeout exception after 5 seconds if connection is not made
 		try:
 			self.connection = socket.create_connection((self.ip, self.port), 5)
-		except Exception:
+		except Exception as e:
 			self.connection = None
+			raise e
 		
 	def disconnectFromHost(self):
 		self.connection.close()
