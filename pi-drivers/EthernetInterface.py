@@ -53,7 +53,7 @@ class EthernetInterface:
 			if len(bin) != self.unpacker.size:
 				raise ConnectionError("Unexpected bytes from pipe: expected %i, received %i" % (self.unpacker.size, len(bin)))
 				
-			data = self.unpacker.unpack(bin)		
+			data = self.unpacker.unpack(bin)
 			return data
 			
 		except Exception:
@@ -64,22 +64,25 @@ class EthernetInterface:
 			
 #Cars event loop
 #All Exception handling to be done here
-try:
-	interface = EthernetInterface()
-	interface.connectToClient()
-	RCDriver.init()
-	
-	print("Starting Event Loop")
-	while True:
-			data = interface.getMsg()
-			RCDriver.setDirection(data[0])
-			RCDriver.setSpeed(data[1])
 
+while True:
+
+	try:
+		interface = EthernetInterface()
+		interface.connectToClient()
+		RCDriver.init()
 		
-except Exception:
-		pass
+		print("Starting Event Loop")
+		while True:
+				data = interface.getMsg()
+				RCDriver.setDirection(data[0])
+				RCDriver.setSpeed(data[1])
 
-finally:
-		RCDriver.deinit()
+			
+	except Exception:
+			pass
+
+	finally:
+			RCDriver.deinit()
 
 

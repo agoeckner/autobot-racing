@@ -5,7 +5,7 @@ import time
 from subprocess import check_output as call
 
 class EthernetInterface():
-    name = None
+	name = None
 	ip = None
 	port = None
 	connection = None
