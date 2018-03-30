@@ -22,8 +22,14 @@ class FrameworkManager(): #{
         def startup(self): #{
                 tUI = threading.Thread(target=self.UserInterface.openCarStatsUI)
                 tCV = threading.Thread(target=self.cv.run, args=(True,))
+                tCV.setDaemon(True)
                 tUI.start()
                 tCV.start()
+
+                while True: #{
+                        if not tUI.isAlive():
+                                break
+                #}
         #}
 
 ##Car Methods-----------------------------------------------------------------------------------------------------------------------------------------

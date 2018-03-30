@@ -47,6 +47,8 @@ class UIManager(): #{
         tQueue = threading.Thread(target=self.parent.UIQueue.workerUI)
         tQueue.start()
         self.carStatsUI.createWindow()
+
+        #TODO: Create a thread to constantly retrieve the car list and update the car stats frame
     #}
 
     ##-----------------------------------------------------------------------------
