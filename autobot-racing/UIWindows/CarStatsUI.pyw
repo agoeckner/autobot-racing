@@ -36,8 +36,8 @@ class CarStatsUI(): #{
         self.createCameraFrames()
 
         #For Testing Remove Later----------------------------------------------------------------------------------------------------
-        self.addNewCarCallback('Car 1', '127.0.0.5', '457', 'Option 1', 'Option 2')
-        self.addNewCarCallback('Car 2', '127.0.0.6', '458', 'Option 2', 'Option 1')
+        # self.addNewCarCallback('Car 1', '127.0.0.5', '457', 'Option 1', 'Option 2')
+        # self.addNewCarCallback('Car 2', '127.0.0.6', '458', 'Option 2', 'Option 1')
         #----------------------------------------------------------------------------------------------------------------------------
 
         self.window.bind("<Configure>", self.updateWindow)

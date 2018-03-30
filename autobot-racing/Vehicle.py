@@ -30,3 +30,20 @@ class Vehicle():
 
 	def updateHeading(self, deltaHeading):
 		print("UPDATE HEADING BY " + str(deltaHeading))
+
+	def connect(self):
+		try:
+			self.interface.connectToHost()
+			return True
+		except (ConnectionError, OSError) as e:
+			return False
+			
+	def disconnect(self):
+		self.interface.disconnectFromHost()
+		
+	def sendMsg(self, direction, speed):
+		try:
+			self.interface.sendMsg(direction, speed)
+			return True
+		except (ConnectionError, OSError) as e:
+			return False

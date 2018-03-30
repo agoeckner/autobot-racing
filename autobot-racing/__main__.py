@@ -11,15 +11,12 @@ class FrameworkManager():
 	## Constructor
 	##-----------------------------------------------------------------------------
 	def __init__(self):
-		self._run = True
-	
 		# Create message queues.
 		self.telemetryQueue = queue.Queue()
 		self.UIQueue = MessageQueue(self)
 
-	
 		# Set up components.
-		self.cv = ComputerVision(self, -1)
+		self.cv = ComputerVision(self, 0)
 		self.UserInterface = UIManager(self)
 		self.EthernetInterface = EthernetInterface(self)
 		self.carList = [] #Stores all car objects
@@ -37,21 +34,22 @@ class FrameworkManager():
 		
 		# Program main loop.
 		try:
-			while self._run:
+			while True:
 				self.getLatestTelemetry()
-				self.runNavGuidanceControl()
+				# self.runNavGuidanceControl()
 		except KeyboardInterrupt as e:
 			exit(0)
 	
 	# Pulls the latest telemetry from the telemetry queue.
 	def getLatestTelemetry(self):
 		try:
-			(position, heading, color) = self.telemetryQueue.get(True, 1)
-			
-			# TODO, determine correct car based on color and then do this
-			vehicle = self.carList[0]
-			vehicle.position.append(position)
-			vehicle.heading.append(heading)
+			while True:
+				(position, heading, color) = self.telemetryQueue.get(True, 1)
+				
+				# TODO, determine correct car based on color and then do this
+				vehicle = self.carList[0]
+				vehicle.position.append(position)
+				vehicle.heading.append(heading)
 			
 		except queue.Empty:
 			pass
