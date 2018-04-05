@@ -14,8 +14,10 @@ class MessageQueue(): #{
     ##-----------------------------------------------------------------------------
     def workerUI(self): #{
         while True:
+            #print('CAlling')
             message = self.q.get()
             self.updateUI(message[1])
+            #self.parent.UserInterface.carStatsUI.updateLeaderBoard(self.parent.carList)
     #}
 
     
