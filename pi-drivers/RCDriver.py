@@ -25,6 +25,7 @@ def init():
 def deinit():
 	global spi
 	
+	setPower(False)	
 	GPIO.cleanup()
 	spi.close()
 	spi = None
