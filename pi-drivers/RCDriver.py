@@ -20,6 +20,7 @@ def init():
 	spi.open(0, 0)
 	spi.max_speed_hz = 244000 
 	write_pot(POT_INIT)
+	setPower(True)
 	
 def deinit():
 	global spi
