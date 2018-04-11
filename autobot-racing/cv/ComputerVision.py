@@ -149,11 +149,11 @@ class ComputerVision:
 					totalB += int(pixel[0])
 			
 			
-			# This is the color in OpenCV format, BGR
+			# This is the color in normal format, RGB.
 			color = (totalR / 9.0, totalG / 9.0, totalB / 9.0)
 			color = self.getClosestColor(color)
 			
-			# This is the color in normal format, RGB.
+			# This is the color in OpenCV format, BGR
 			colorCV = (color[2], color[1], color[0])
 			
 			# Push the data out to the main thread.
