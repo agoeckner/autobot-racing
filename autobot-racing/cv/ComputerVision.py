@@ -3,6 +3,7 @@ import numpy as np
 import cv2
 import math
 from math import pi
+import time
 
 class ComputerVision:
 	# The allowed vehicle colors.
@@ -36,6 +37,9 @@ class ComputerVision:
 		self.parent = parent
 		if parent != None:
 			self.queue = parent.telemetryQueue
+		
+		# Set up FPS counter.
+		self.lastFrameTime = time.time()
 	
 		# Run in Kinect mode.
 		if videoDevice == -1:
@@ -168,6 +172,15 @@ class ComputerVision:
 				# label = str(cv2.contourArea(c))
 				cv2.putText(frame, label, (cX - 20, cY - 20),
 					cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+		
+		if draw:
+			# Do FPS label
+			current = time.time()
+			fps = 1 / (current - self.lastFrameTime)
+			self.lastFrameTime = current
+			label = "FPS: {:.2f}".format(fps)
+			cv2.putText(frame, label, (5, 20),
+				cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
 		
 		#Put the frame in the queue for the UI
 		if self.parent != None:
