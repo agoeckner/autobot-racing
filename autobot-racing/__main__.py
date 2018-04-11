@@ -60,8 +60,10 @@ class FrameworkManager():
 		tCV = threading.Thread(target=self.cv.run, args=(False,))
 		tCV.daemon = True
 		tUI.daemon = True
+		tQueue.daemon = True
 		tUI.start()
 		tCV.start()
+		tQueue.start()
 		
 		# Program main loop.
 		try:
