@@ -138,14 +138,23 @@ class ComputerVision:
 			heading = self.getTriangleHeading(approx)
 
 			# Determine color of the pixel at the center of the contour.
-			pixel = frame[cY][cX]
+			totalR = 0
+			totalG = 0
+			totalB = 0
+			for x in range(cX - 1, cX + 2):
+				for y in range(cY - 1, cY + 2):
+					pixel = frame[y][x]
+					totalR += int(pixel[2])
+					totalG += int(pixel[1])
+					totalB += int(pixel[0])
+			
 			
 			# This is the color in OpenCV format, BGR
-			colorCV = (int(pixel[0]), int(pixel[1]), int(pixel[2]))
-			colorCV = self.getClosestColor(colorCV)
+			color = (totalR / 9.0, totalG / 9.0, totalB / 9.0)
+			color = self.getClosestColor(color)
 			
 			# This is the color in normal format, RGB.
-			color = (colorCV[2], colorCV[1], colorCV[0])
+			colorCV = (color[2], color[1], color[0])
 			
 			# Push the data out to the main thread.
 			if self.parent != None:
@@ -154,7 +163,7 @@ class ComputerVision:
 			# Draw the contour and center of the shape on the image.
 			if draw:
 				cv2.drawContours(frame, [approx], -1, colorCV, 3)
-				cv2.circle(frame, (cX, cY), 7, (255, 255, 255), -1)
+				cv2.circle(frame, (cX, cY), 6, (255, 255, 255), -1)
 				label = "({:d}, {:d}), {:.2f}".format(cX, cY, math.degrees(heading))
 				# label = str(cv2.contourArea(c))
 				cv2.putText(frame, label, (cX - 20, cY - 20),
