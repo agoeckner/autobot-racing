@@ -25,5 +25,5 @@ To setup Raspberry Pi
 
 To have Raspberry Pi start event loop on boot
 
-	1. Run command
+	1. Run command inside pi-drivers folder
 		sudo ./bootSetup.sh
