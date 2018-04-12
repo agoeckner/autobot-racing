@@ -93,7 +93,7 @@ class UIManager(): #{
     ## Adds a new car to the list of car objects
     ##-----------------------------------------------------------------------------
     def addNewCarObj(self, car): #{
-        self.parent.carList.append(car)
+        self.parent.vehicles.addVehicle(car)
         #self.parent.connectNewCar(car)
     #}
 

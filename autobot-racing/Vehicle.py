@@ -8,23 +8,32 @@ class Vehicle():
 	POSITION_HISTORY_POINTS = 10
 	HEADING_HISTORY_POINTS = 10
 
-	def __init__(self, carName, IP, port, carFrameID, frame, lapNum, place, lapTimes, controlSystem, guidanceSystem):
-		self.carName = carName
+	def __init__(self, name, IP, port, carFrameID, frame, controlSystem, guidanceSystem):
+		
+		# Set up parameters.
+		self.name = name
+		self.color = (0, 0, 0)
 		self.IP = IP
 		self.port = port
 		self.carFrameID = carFrameID
 		self.frame = frame
-		self.lapNum = lapNum
-		self.place = place
-		self.lapTimes = lapTimes
 		self.control = controlSystem
 		self.guidance = guidanceSystem
-		self.interface = EthernetInterface(carName, IP, port)
+		self.interface = EthernetInterface(name, IP, port)
+		
+		# Get colors... This is ugly.
+		if name.upper() == "RED":
+			self.color = (255, 0, 0)
+		elif name.upper() == "GREEN":
+			self.color = (0, 255, 0)
+		elif name.upper() == "BLUE":
+			self.color = (0, 0, 255)
 		
 		# Store the most recent position/heading data.
 		self.position = deque(maxlen = self.POSITION_HISTORY_POINTS)
 		self.heading = deque(maxlen = self.HEADING_HISTORY_POINTS)
 		
+		# Add dummy initial data.
 		self.position.append((0,0))
 		self.heading.append(0)
 
