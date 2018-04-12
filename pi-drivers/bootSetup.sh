@@ -34,8 +34,8 @@ mkdir /home/pi/autobot-racing/pi-drivers/log
 #Give some time for DHCP to resolve
 sleep 10
 
-python3 /home/pi/autobot-racing/pi-drivers/EthernetInterface.py >> $LOGPATH &
-chmod u+rw,g+rw,o+r $LOGPATH
+python3 /home/pi/autobot-racing/pi-drivers/EthernetInterface.py >> \$LOGPATH &
+chmod u+rw,g+rw,o+r \$LOGPATH
 EOM
 
 chmod +x EthernetInterface
