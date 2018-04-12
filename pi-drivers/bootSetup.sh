@@ -1,6 +1,12 @@
 #!/bin/bash
 
-FILE=/etc/init.d/EthernetInterface
+if [[ $EUID -ne 0 ]]; then
+    echo "This script must be run as root"
+    exit 1
+fi
+
+cd /etc/init.d
+FILE=./EthernetInterface
 
 cat > $FILE <<- EOM
 #!/bin/sh
@@ -32,4 +38,6 @@ python3 /home/pi/autobot-racing/pi-drivers/EthernetInterface.py >> $LOGPATH &
 chmod u+rw,g+rw,o+r $LOGPATH
 EOM
 
-/etc/init.d/update-rc.d EthernetInterface defaults
+chmod +x EthernetInterface
+update-rc.d EthernetInterface defaults
+cd - > /dev/null
