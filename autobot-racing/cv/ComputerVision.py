@@ -15,7 +15,7 @@ class ComputerVision:
 	)
 	
 	# Used to determine the cutoff for black/white
-	WHITE_THRESHOLD = 130
+	WHITE_THRESHOLD = 160
 	
 	# Used as a tuning constant for the epsilon value of approxPolyDP.
 	APPROX_ARCLEN_MULTIPLIER = 0.11
@@ -23,13 +23,13 @@ class ComputerVision:
 	# The boundary sizes (in pixels squared) of contours that are acceptable
 	# for further processing.
 	CONTOUR_AREA_MIN = 100
-	CONTOUR_AREA_MAX = 200
+	CONTOUR_AREA_MAX = 300
 	
 	# The actual, measured ratio of the triangle targets placed on the vehicles.
 	TRIANGLE_RATIO = 0.48507125007 #0.363636
 	
 	# The tolerance used to check if triangles conform to TRIANGLE_RATIO.
-	TRIANGLE_RATIO_TOLERANCE = 0.1
+	TRIANGLE_RATIO_TOLERANCE = 0.5 #0.1
 	
 	
 	# Initializes the computer vision system. Set videoDevice to 0 for camera, -1 for Kinect.
@@ -60,7 +60,7 @@ class ComputerVision:
 			ret, frame = self.cap.read()
 			if not ret:
 				raise CameraException("Unable to read from video device.")
-		# self.out = cv2.VideoWriter('output.avi', -1, 20.0, (640,480))
+		# self.out = cv2.VideoWriter('motion.avi', -1, 20.0, (640,480))
 	
 	# Closes all devices, etc. This function should be called when done with CV.
 	def close(self):
@@ -69,7 +69,8 @@ class ComputerVision:
 			self.kinect.close()
 		else:
 			self.cap.release()
-		self.out.release()
+		print("Closed")
+		# self.out.release()
 		cv2.destroyAllWindows()
 
 	# The primary computer vision system loop. This polls the camera as fast as
@@ -89,7 +90,9 @@ class ComputerVision:
 		else:
 			# Start the Kinect stream.
 			try:
+				print("Opening Kinect stream")
 				self.kinect.video_stream.open(nui.ImageStreamType.Video, 2, nui.ImageResolution.Resolution640x480, nui.ImageType.Color)
+				print("Opened Kinect stream")
 			except OSError as e:
 				print("OOPS2: " + str(e))
 				raise e
@@ -107,15 +110,14 @@ class ComputerVision:
 		# self.out.write(video)
 		self.processFrame(video)
 	
-	def processFrame(self, frame, showFrame = True, draw = True):
+	def processFrame(self, frame, showFrame = False, draw = True):
 		# Preprocess the image.
 		blurred = cv2.GaussianBlur(frame, (5, 5), 0)
 		gray = cv2.cvtColor(blurred, cv2.COLOR_BGR2GRAY)
-		# lab = cv2.cvtColor(blurred, cv2.COLOR_BGR2LAB)
 		thresh = cv2.threshold(gray, self.WHITE_THRESHOLD, 255, cv2.THRESH_BINARY)[1]
 		
 		# Find all contours.
-		im2, contours, hierarchy = cv2.findContours(thresh,cv2.RETR_TREE,
+		im2, contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE,
 			cv2.CHAIN_APPROX_NONE)
 
 		# Loop over candidate contours (those that meet size limits).
@@ -290,7 +292,7 @@ class CameraException(Exception):
 
 if __name__ == "__main__":
 	# Debug mode
-	cv = ComputerVision(None, "output.avi")
+	cv = ComputerVision(None, -1)#"motion.avi")#"output.avi")
 	try:
 		cv.run(showFrame=True)
 	except KeyboardInterrupt as e:
