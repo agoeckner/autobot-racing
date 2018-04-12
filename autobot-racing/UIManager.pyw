@@ -101,7 +101,7 @@ class UIManager(): #{
     ## Returns the list of Cars
     ##-----------------------------------------------------------------------------
     def getCarList(self): #{
-        return self.parent.getCarList()
+        return self.parent.vehicles.getList()
     #}
 
     ##-----------------------------------------------------------------------------
