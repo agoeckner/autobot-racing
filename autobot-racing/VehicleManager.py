@@ -13,10 +13,7 @@ class VehicleManager:
 		pass
 		
 	def addVehicle(self, vehicle):
-		
-		# TODO: THIS IS TEMPORARY CODE, REMOVE ONCE COLOR CAN BE SPECIFIED IN UI
-		vehicle.color = self.COLORS[len(self.vehicleList)]
-	
+		print("Added vehicle with name " + str(vehicle.name) + " and color " + str(vehicle.color))
 		self.vehicleByColor[vehicle.color] = vehicle
 		self.vehicleList.append(vehicle)
 		

@@ -37,8 +37,8 @@ class CarStatsUI(): #{
         self.createCameraFrames()
 
         #For Testing Remove Later----------------------------------------------------------------------------------------------------
-        self.addNewCarCallback('Car 1', '127.0.0.5', '457', 'Option 1', 'Option 2')
-        self.addNewCarCallback('Car 2', '127.0.0.6', '458', 'Option 2', 'Option 1')
+        # self.addNewCarCallback('Car 1', '127.0.0.5', '457', 'Option 1', 'Option 2')
+        # self.addNewCarCallback('Car 2', '127.0.0.6', '458', 'Option 2', 'Option 1')
         #----------------------------------------------------------------------------------------------------------------------------
 
         self.window.bind("<Configure>", self.updateWindow)
@@ -249,8 +249,7 @@ class CarStatsUI(): #{
         
         newCarFrame.bind("<Button-1>", lambda event, arg=newCarFrame.winfo_id(): self.openEditCarWindow(event, arg))
         
-        car = Vehicle(carName, IP, port, newCarFrame.winfo_id(), newCarFrame, None, None, None, controlSystem, guidanceSystem)
-        #print(str(controlSystem)+'\n'+str(guidanceSystem))
+        car = Vehicle(carName, IP, port, newCarFrame.winfo_id(), newCarFrame, controlSystem, guidanceSystem)
         self.parent.addNewCarObj(car)
     #}
 
@@ -295,7 +294,7 @@ class CarStatsUI(): #{
         IPLabel = IPChildren[0]
         portLabel = portChildren[0]
 
-        carLabel['text'] = car.carName
+        carLabel['text'] = car.name
         IPLabel['text'] = car.IP
         portLabel['text'] = car.port
     #}
@@ -372,7 +371,7 @@ class CarStatsUI(): #{
 ##        newLeaderBoardFrame.columnconfigure(1, weight=3)
 ##
 ##        carFrame1 = Frame(newLeaderBoardFrame)
-##        carLabel = Label(carFrame1, text=str(car.carName))
+##        carLabel = Label(carFrame1, text=str(car.name))
 ##        carLabel.config(font=("Tahoma", 9))
 ##        carLabel.pack()
 ##
