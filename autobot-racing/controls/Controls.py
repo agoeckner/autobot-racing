@@ -2,6 +2,7 @@ from math import *
 import numpy as np
 from numpy.linalg import *
 from Utilities import *
+import time
 
 class ControlSystem:
 	def __init__(self):
@@ -20,7 +21,7 @@ class ControlSystem:
 		return desired - actual
 
 class PIControlSystem(ControlSystem):
-	def __init__(self, P=0.2, I=0.0):
+	def __init__(self, P=0.2, I=0.1):
 		self.Kp = P
 		self.Ki = I
 		
