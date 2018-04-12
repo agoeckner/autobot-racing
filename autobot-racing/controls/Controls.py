@@ -19,6 +19,68 @@ class ControlSystem:
 	def throttle(self, actual, desired):
 		return desired - actual
 
+class PIControlSystem(ControlSystem):
+	def __init__(self, P=0.2, I=0.0):
+		self.Kp = P
+		self.Ki = I
+		
+		self.sample_time = 0.00
+		self.current_time = time.time()
+		self.last_time = self.current_time
+		self.clear()
+		
+	# Given an actual and a desired heading, returns new delta heading value.
+	def heading(self, actual, desired):
+		if desired - actual > pi:
+			actual += 2 * pi
+		elif desired - actual < -pi:
+			actual -= 2 * pi;
+			
+		self.PID(desired, actual)
+		return self.output
+	
+	def PID(self, SP, PV):
+	
+		error = SP - PV
+
+		self.current_time = time.time()
+		delta_time = self.current_time - self.last_time
+		delta_error = error - self.last_error
+
+		
+		if (delta_time >= self.sample_time):
+			self.PTerm = self.Kp * error
+			self.ITerm += error * delta_time
+
+			# Remember last time and last error for next calculation
+			self.last_time = self.current_time
+			self.last_error = error
+
+			self.output = self.PTerm + (self.Ki * self.ITerm)
+			
+	#Clears PID computations and coefficients	
+	def clear(self):
+		self.PTerm = 0.0
+		self.ITerm = 0.0
+		self.last_error = 0.0
+		self.output = 0.0
+
+	#Determines how aggressively the PID reacts to the current error with setting Proportional Gain
+	def setKp(self, proportional_gain):
+		self.Kp = proportional_gain
+		
+	#Determines how aggressively the PID reacts to the current error with setting Integral Gain
+	def setKi(self, integral_gain):
+		self.Ki = integral_gain
+		
+	#PID that should be updated at a regular interval.
+	def setSampleTime(self, sample_time):
+		self.sample_time = sample_time
+		
+	# Given an actual and a desired throttle, returns new delta speed value.
+	def throttle(self, actual, desired):
+		return desired - actual
+		
 class GuidanceSystem:
 	def __init__(self, environment):
 		self.environment = environment
