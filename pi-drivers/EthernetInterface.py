@@ -77,8 +77,8 @@ while True:
 				RCDriver.setSpeed(data[1])
 
 			
-	except Exception:
-			pass
+	except Exception as e:
+			print(e)
 
 	finally:
 			RCDriver.deinit()
