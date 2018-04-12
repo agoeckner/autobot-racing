@@ -178,9 +178,13 @@ class ComputerVision:
 		if draw:
 			# Do FPS label
 			current = time.time()
-			fps = 1 / (current - self.lastFrameTime)
-			self.lastFrameTime = current
-			label = "FPS: {:.2f}".format(fps)
+			diff = current - self.lastFrameTime
+			if diff == 0:
+				label = "FPS: ?"
+			else:
+				fps = 1 / (current - self.lastFrameTime)
+				self.lastFrameTime = current
+				label = "FPS: {:.2f}".format(fps)
 			cv2.putText(frame, label, (5, 20),
 				cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
 		
