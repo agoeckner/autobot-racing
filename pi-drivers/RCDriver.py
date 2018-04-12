@@ -12,7 +12,7 @@ def init():
 
 	GPIO.setwarnings(False)
 	GPIO.setmode(GPIO.BOARD)
-	GPIO.setup([38,40], GPIO.OUT, initial=GPIO.LOW)
+	GPIO.setup([36, 38,40], GPIO.OUT, initial=GPIO.LOW)
 	
 	setDirection.curr = 0;
 	
@@ -20,14 +20,22 @@ def init():
 	spi.open(0, 0)
 	spi.max_speed_hz = 244000 
 	write_pot(POT_INIT)
+	setPower(True)
 	
 def deinit():
 	global spi
 	
+	setPower(False)	
 	GPIO.cleanup()
 	spi.close()
 	spi = None
 	
+	
+def setPower(status):
+	if(status):
+		GPIO.output(36, GPIO.HIGH)
+	else:
+		GPIO.output(36, GPIO.LOW)
 	
 def setDirection(direction):
 	if setDirection.curr != direction:
