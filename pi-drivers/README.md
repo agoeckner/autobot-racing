@@ -1,4 +1,5 @@
 To setup Raspberry Pi
+
 	1. Download and flash a new install of Raspian from raspberry pi foundation
 	2. Run following commands:
 		sudo apt-get update
@@ -23,5 +24,6 @@ To setup Raspberry Pi
 
 
 To have Raspberry Pi start event loop on boot
+
 	1. Run command
 		sudo ./bootSetup.sh
