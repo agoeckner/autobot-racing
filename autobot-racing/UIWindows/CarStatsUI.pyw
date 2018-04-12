@@ -303,12 +303,9 @@ class CarStatsUI(): #{
     ## Callback for the editCar UI to delete a car frame
     ##-----------------------------------------------------------------------------
     def deleteCarCallback(self, car): #{
-        cars = self.parent.getCarList()
-        
         try:
             car.frame.destroy()
-            cars.remove(car)
-            self.parent.updateCarList(cars)
+            self.parent.parent.vehicles.removeVehicle(car)
         except:
             print('Error Deleting Car Frame')
     #}
