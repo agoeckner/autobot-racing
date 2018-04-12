@@ -20,3 +20,11 @@ class VehicleManager:
 	def removeVehicle(self, vehicle):
 		self.vehicleByColor[vehicle.color] = None
 		vehicleList.remove(vehicle)
+	
+	def getVehicleByColor(self, color):
+		if color in self.vehicleByColor:
+			return self.vehicleByColor[color]
+		else:
+			return None
+	def getList(self):
+		return self.vehicleList
