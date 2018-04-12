@@ -1,11 +1,13 @@
-import queue
 from EthernetInterface import EthernetInterface
-from UIManager import UIManager
-from cv.ComputerVision import *
-import threading
 from MessageQueue import MessageQueue
-import controls as ngc
+from UIManager import UIManager
 from Vehicle import Vehicle
+from VehicleManager import VehicleManager
+from cv.ComputerVision import *
+import controls as ngc
+import inspect
+import queue
+import threading
 
 #TODO: TEMPORARY!
 class Track:
@@ -20,6 +22,7 @@ class FrameworkManager():
 	## Constructor
 	##-----------------------------------------------------------------------------
 	def __init__(self):
+	
 		# Create message queues.
 		self.telemetryQueue = queue.Queue()
 		self.UIQueue = MessageQueue(self)
@@ -28,29 +31,14 @@ class FrameworkManager():
 		self.cv = ComputerVision(self, -1)
 		self.UserInterface = UIManager(self)
 		# self.EthernetInterface = EthernetInterface(self)
-		self.carList = [] #Stores all car objects
+		self.vehicles = VehicleManager()
 		
 		# TODO: ADD A BOGUS CAR
 		self.track = Track([(100, 100), (100, 200), (200, 200), (200, 100), (100, 100)], [])
-		veh = Vehicle(
-			"TESTING",
-			"128.10.120.200",
-			4000,
-			None,
-			None,
-			0,
-			0,
-			0,
-			ngc.ControlSystem(),
-			ngc.WallFollowingGuidanceSystem(self,
-					wallDistance = 10,
-					lookahead = 80)
-			)
-		self.carList.append(veh)
-		if veh.connect():
-			print("CONNECTED")
-		else:
-			print("CONNECTION FAILED")
+		# if veh.connect():
+			# print("CONNECTED")
+		# else:
+			# print("CONNECTION FAILED")
 
 	##-----------------------------------------------------------------------------
 	## Start the program.
@@ -81,9 +69,9 @@ class FrameworkManager():
 				(position, heading, color) = self.telemetryQueue.get(True, 1)
 				
 				# TODO, determine correct car based on color and then do this
-				vehicle = self.carList[0]
-				vehicle.position.append(position)
-				vehicle.heading.append(heading)
+				# vehicle = self.carList[0]
+				# vehicle.position.append(position)
+				# vehicle.heading.append(heading)
 			
 		except queue.Empty:
 			pass
@@ -135,13 +123,23 @@ class FrameworkManager():
 	## Gets the a list of Control Systems
 	##-----------------------------------------------------------------------------
 	def getControlSystems(self):
-		return ['Option 1', 'Option 2']
+		names = []
+		for name, obj in inspect.getmembers(ngc):
+			if inspect.isclass(obj) and "Control" in name:
+				print("CONTROL SYSTEM FOUND: " + str(name) + " (" + str(obj) + ")")
+				names.append(name)
+		return names
 
 	##-----------------------------------------------------------------------------
 	## Gets the a list of Guidance Systems
 	##-----------------------------------------------------------------------------
 	def getGuidanceSystems(self):
-		return ['Option 1', 'Option 2']
+		names = []
+		for name, obj in inspect.getmembers(ngc):
+			if inspect.isclass(obj) and "Guidance" in name:
+				print("GUIDANCE SYSTEM FOUND: " + str(name) + " (" + str(obj) + ")")
+				names.append(name)
+		return names
 
 ##----------------------------------------------------------------------------------------------------------------------------------------------------
 
