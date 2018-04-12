@@ -17,7 +17,7 @@ class EthernetInterface:
 	def __init__(self):
 		
 		#messages should be formated (2 byte short, 4 byte float)
-		self.unpacker = struct.Struct('=h h')
+		self.unpacker = struct.Struct('=h f')
 		
 		#Grab LAN ip address. 
 		#Note: we cannot use socket related functions as they return a loopback address		
@@ -66,16 +66,15 @@ class EthernetInterface:
 while True:
 
 	try:
+		RCDriver.init()
 		interface = EthernetInterface()
 		interface.connectToClient()
-		RCDriver.init()
 		
 		print("Starting Event Loop")
 		while True:
 				data = interface.getMsg()
 				RCDriver.setDirection(data[0])
-				RCDriver.setSpeed(data[1])
-
+				RCDriver.setSpeed(data[1] * 10)		#RCDriver expects an integer.
 			
 	except Exception:
 			pass
