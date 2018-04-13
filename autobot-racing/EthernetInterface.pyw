@@ -32,8 +32,9 @@ class EthernetInterface():
 	#Steering is designated as: -1 Left; 0 Straight; 1 Right
 	#Speed is designated as (Reverse) -1.0 >= speed <= 1.0 (Forward)
 	def sendMsg(self, steering, speed):
+		if self.connection == None:
+			return
 		try:
-			
 			bin = self.packer.pack(steering, speed)
 			self.connection.sendall(bin)
 			
