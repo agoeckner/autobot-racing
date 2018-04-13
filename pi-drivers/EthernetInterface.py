@@ -80,8 +80,8 @@ while True:
 				RCDriver.setDirection(data[0])
 				RCDriver.setSpeed(int(round(data[1],1) * 10))		#RCDriver expects an integer.
 			
-	except Exception:
-			pass
+	except Exception as e:
+			print(e)
 
 	finally:
 			RCDriver.deinit()
