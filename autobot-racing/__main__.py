@@ -30,15 +30,10 @@ class FrameworkManager():
 		# Set up components.
 		self.cv = ComputerVision(self, -1)
 		self.UserInterface = UIManager(self)
-		# self.EthernetInterface = EthernetInterface(self)
 		self.vehicles = VehicleManager()
 		
-		# TODO: ADD A BOGUS CAR
+		# TODO: ADD A BOGUS TRACK
 		self.track = Track([(100, 100), (100, 200), (200, 200), (200, 100), (100, 100)], [])
-		# if veh.connect():
-			# print("CONNECTED")
-		# else:
-			# print("CONNECTION FAILED")
 
 	##-----------------------------------------------------------------------------
 	## Start the program.
@@ -58,7 +53,7 @@ class FrameworkManager():
 		try:
 			while True:
 				self.getLatestTelemetry()
-				# self.runNavGuidanceControl()
+				self.runNavGuidanceControl()
 		except KeyboardInterrupt as e:
 			exit(0)
 	
@@ -68,16 +63,16 @@ class FrameworkManager():
 			while True:
 				(position, heading, color) = self.telemetryQueue.get(True, 1)
 				
-				# TODO, determine correct car based on color and then do this
-				# vehicle = self.carList[0]
-				# vehicle.position.append(position)
-				# vehicle.heading.append(heading)
+				vehicle = self.vehicles.getVehicleByColor(color)
+				vehicle.position.append(position)
+				vehicle.heading.append(heading)
 			
 		except queue.Empty:
 			pass
 	
 	def runNavGuidanceControl(self):
-		for vehicle in self.carList:
+		vehicles = self.vehicles.getList()
+		for vehicle in vehicles:
 		
 			# Determine guidance.
 			desiredHeading = vehicle.guidance.getDesiredHeading(vehicle.position[0])
