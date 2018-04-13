@@ -32,6 +32,7 @@ class ComputerVision:
 	def __init__(self, parent, videoDevice = 0):
 		self.parent = parent
 		self.queue = parent.telemetryQueue
+		self.trackID = 0
         
 		# Run in Kinect mode.
 		if videoDevice == -1:
@@ -43,6 +44,10 @@ class ComputerVision:
 			except OSError as e:
 				print("OOPS: " + str(e))
 				raise e
+		elif videoDevice is 2:
+			self.mode = "TRACK"
+			self.cap = cv2.VideoCapture('../track.avi')
+		
 		else:
 			self.mode = "CAMERA"
 			# Open video device.
@@ -75,6 +80,9 @@ class ComputerVision:
 
 				if not self.processFrame(frame):
 					break
+		elif self.mode is "TRACK":
+			ret, frame = self.cap.read()
+			self.findTrack(frame)
 		else:
 			# Start the Kinect stream.
 			try:
@@ -93,7 +101,47 @@ class ComputerVision:
 	def _processKinectFrame(self, frame):
 		video = np.empty((480,640,4),np.uint8)
 		frame.image.copy_bits(video.ctypes.data)
-		self.processFrame(video)
+		if self.trackID is 0:
+			self.findTrack(video)
+		else:
+			self.processFrame(video)
+	
+	##-----------------------------------------------------------------------------
+	## Identifies the track
+	##-----------------------------------------------------------------------------
+	def findTrack(self, frame): #{
+		contourMaxVal = None
+		candidate = None
+		blurred = cv2.GaussianBlur(frame, (5, 5), 0)
+		gray = cv2.cvtColor(blurred, cv2.COLOR_BGR2GRAY)
+		#lab = cv2.cvtColor(blurred, cv2.COLOR_BGR2LAB)
+		thresh = cv2.threshold(gray, 155, 255, cv2.THRESH_BINARY)[1]
+		
+		# Find all contours.
+		im2, contours, hierarchy = cv2.findContours(thresh,cv2.RETR_TREE,
+			cv2.CHAIN_APPROX_NONE)
+
+		# Loop over candidate contours (those that meet size limits).
+		candidates = list(filter(self.checkContourArea, contours))
+		
+		for c in candidates: #{
+			if contourMaxVal is None: #{
+				contourMaxVal = cv2.arcLength(c, True)
+				candidate = c
+			#}
+			else: #{
+				temp = cv2.arcLength(c, True)
+				if temp > contourMaxVal:
+					contourMaxVal = temp
+					candidate = c
+			#}
+		#}
+		
+		epsilon = 0.08 * cv2.arcLength(c, True)
+		approx = cv2.approxPolyDP(candidate, epsilon, True)
+		cv2.drawContours(frame, [approx], -1, (0,255,0), 3)
+		self.parent.UIQueue.q.put(('CamFeed', frame))
+	#}
 	
 	def processFrame(self, frame, showFrame = False, draw = True):
 		# Preprocess the image.
