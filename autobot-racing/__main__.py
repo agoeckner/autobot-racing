@@ -33,7 +33,7 @@ class FrameworkManager():
 		self.UIQueue = MessageQueue(self)
 
 		# Set up components.
-		self.cv = ComputerVision(self, 0)
+		self.cv = ComputerVision(self, -1)
 		self.UserInterface = UIManager(self, self.UIQueue)
 		self.vehicles = VehicleManager(self)
 		
@@ -65,13 +65,13 @@ class FrameworkManager():
 	# Pulls the latest telemetry from the telemetry queue.
 	def getLatestTelemetry(self):
 		try:
-			while True:
-				(position, heading, color) = self.telemetryQueue.get(True, 1)
-				
-				vehicle = self.vehicles.getVehicleByColor(color)
-				if vehicle != None:
-					vehicle.position.append(position)
-					vehicle.heading.append(heading)
+			# while True:
+			(position, heading, color) = self.telemetryQueue.get(True, 1)
+
+			vehicle = self.vehicles.getVehicleByColor(color)
+			if vehicle != None:
+				vehicle.position.append(position)
+				vehicle.heading.append(heading)
 			
 		except queue.Empty:
 			pass
