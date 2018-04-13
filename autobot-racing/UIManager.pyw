@@ -12,12 +12,13 @@ class UIManager(): #{
     ##-----------------------------------------------------------------------------
     ## Constructor
     ##-----------------------------------------------------------------------------
-    def __init__(self, parent): #{
+    def __init__(self, parent, UIQueue): #{
         self.parent = parent
         self.configWindow = ConfigUI(self)
         self.addNewCarUI = AddNewCarUI(self)
         self.editCarUI = EditCarUI(self)
         self.carStatsUI = CarStatsUI(self)
+		self.UIQueue = UIQueue
     #}
 
     ##-----------------------------------------------------------------------------
