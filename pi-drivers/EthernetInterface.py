@@ -60,11 +60,9 @@ class EthernetInterface:
 			self.clientSocket = None
 			raise
 			
-
 			
 #Cars event loop
 #All Exception handling to be done here
-
 while True:
 
 	try:
