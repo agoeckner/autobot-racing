@@ -92,10 +92,20 @@ class FrameworkManager():
 			vehicle.updateHeading(deltaHeading)
 			hdg = vehicle.heading[0]
 			# Snap to trinary, the only steering available on these cars.
-			if hdg < 0: hdg = -1
-			elif hdg > 0: hdg = 1
+			if hdg < 0:
+				print("TURN LEFT?")
+				hdg = -1
+			elif hdg > 0:
+				print("TURN RIGHT?")
+				hdg = 1
+			else:
+				hdg = 0
+				
+			# TEMPORARY INVERSE
+			hdg = -hdg
+			
 			# TODO: hardcoded speed
-			vehicle.sendMsg(hdg, 1)
+			vehicle.sendMsg(hdg, 0.1)
 			# vehicle.updateSpeed(deltaSpeed)
 
 ##UI Methods------------------------------------------------------------------------------------------------------------------------------------------
