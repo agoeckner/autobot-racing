@@ -1,5 +1,0 @@
-Threads:
-	One for each UI
-	
-Message Queue:
-	One for each thread
