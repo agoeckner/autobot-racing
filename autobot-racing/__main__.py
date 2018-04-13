@@ -8,7 +8,6 @@ import controls as ngc
 import inspect
 import queue
 import threading
-import time
 
 #TODO: TEMPORARY!
 class Track:
@@ -34,8 +33,8 @@ class FrameworkManager():
 		self.UIQueue = MessageQueue(self)
 
 		# Set up components.
-		self.cv = ComputerVision(self, 0)
-		self.UserInterface = UIManager(self, self.UIQueue)
+		self.cv = ComputerVision(self, -1)
+		self.UserInterface = UIManager(self)
 		self.vehicles = VehicleManager(self)
 		
 		# TODO: ADD A BOGUS TRACK
@@ -45,25 +44,19 @@ class FrameworkManager():
 	## Start the program.
 	##-----------------------------------------------------------------------------
 	def run(self):
-		# tUI = threading.Thread(target=self.UserInterface.openCarStatsUI)
+		tUI = threading.Thread(target=self.UserInterface.openCarStatsUI)
 		tCV = threading.Thread(target=self.cv.run, args=(False,))
-		#tQueue = threading.Thread(target=self.UIQueue.workerUI)
+		tQueue = threading.Thread(target=self.UIQueue.workerUI)
 		tCV.daemon = True
-		# tUI.daemon = True
-		#tQueue.daemon = True
-		# tUI.start()
+		tUI.daemon = True
+		tQueue.daemon = True
+		tUI.start()
 		tCV.start()
+		tQueue.start()
 		
-		#TODO: FIX SO THAT CAMERA FEED WORKS
-		# tQueue.start()
-		
-		self.UserInterface.openCarStatsUI()
-		#time.sleep(5)
 		# Program main loop.
 		try:
 			while True:
-				self.UserInterface.carStatsUI.updateCamFeed()
-				#self.UserInterface.carStatsUI.window.update()
 				self.getLatestTelemetry()
 				self.runNavGuidanceControl()
 		except KeyboardInterrupt as e:
@@ -79,7 +72,6 @@ class FrameworkManager():
 				if vehicle != None:
 					vehicle.position.append(position)
 					vehicle.heading.append(heading)
-				break #TODO, TEMPORARY
 			
 		except queue.Empty:
 			pass
@@ -100,12 +92,8 @@ class FrameworkManager():
 			vehicle.updateHeading(deltaHeading)
 			hdg = vehicle.heading[0]
 			# Snap to trinary, the only steering available on these cars.
-			if hdg < 0:
-				hdg = -1
-				print("TURN LEFT?")
-			elif hdg > 0:
-				hdg = 1
-				print("TURN RIGHT?")
+			if hdg < 0: hdg = -1
+			elif hdg > 0: hdg = 1
 			# TODO: hardcoded speed
 			vehicle.sendMsg(hdg, 1)
 			# vehicle.updateSpeed(deltaSpeed)
