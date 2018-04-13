@@ -32,7 +32,7 @@ LOGPATH="/home/pi/autobot-racing/pi-drivers/log/\$LOGNAME"
 mkdir /home/pi/autobot-racing/pi-drivers/log
 
 #Give some time for DHCP to resolve
-sleep 10
+sleep 15
 
 echo "===============================\$(date +%r)================================" >> \$LOGPATH 
 python3 /home/pi/autobot-racing/pi-drivers/EthernetInterface.py >> \$LOGPATH &
