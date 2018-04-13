@@ -39,29 +39,28 @@ class FrameworkManager():
 		
 		# TODO: ADD A BOGUS TRACK
 		self.track = Track([(100, 100), (100, 200), (200, 200), (200, 100), (100, 100)], [])
-		
+
 	##-----------------------------------------------------------------------------
 	## Start the program.
 	##-----------------------------------------------------------------------------
 	def run(self):
-		# tUI = threading.Thread(target=self.UserInterface.openCarStatsUI)
-		# tTelem = threading.Thread(target=self.runTelem)
+		tUI = threading.Thread(target=self.UserInterface.openCarStatsUI)
 		tCV = threading.Thread(target=self.cv.run, args=(False,))
 		tQueue = threading.Thread(target=self.UIQueue.workerUI)
 		tCV.daemon = True
-		# tUI.daemon = True
+		tUI.daemon = True
 		tQueue.daemon = True
-		# tTelem.daemon = True
-		# tUI.start()
-		# tTelem.start()
+		tUI.start()
 		tCV.start()
 		tQueue.start()
-		self.UserInterface.openCarStatsUI()
 		
-	
-	def runTelem(self):
-		self.getLatestTelemetry()
-		self.runNavGuidanceControl()
+		# Program main loop.
+		try:
+			while True:
+				self.getLatestTelemetry()
+				self.runNavGuidanceControl()
+		except KeyboardInterrupt as e:
+			exit(0)
 	
 	# Pulls the latest telemetry from the telemetry queue.
 	def getLatestTelemetry(self):
@@ -70,12 +69,9 @@ class FrameworkManager():
 				(position, heading, color) = self.telemetryQueue.get(True, 1)
 				
 				vehicle = self.vehicles.getVehicleByColor(color)
-				# print("RECEIVED TELEMETRY: " + str((position, heading, color)))
-				# print(vehicle)
 				if vehicle != None:
 					vehicle.position.append(position)
 					vehicle.heading.append(heading)
-				break #TODO
 			
 		except queue.Empty:
 			pass
@@ -99,7 +95,7 @@ class FrameworkManager():
 			if hdg < 0: hdg = -1
 			elif hdg > 0: hdg = 1
 			# TODO: hardcoded speed
-			vehicle.sendMsg(hdg, 0)
+			vehicle.sendMsg(hdg, 1)
 			# vehicle.updateSpeed(deltaSpeed)
 
 ##UI Methods------------------------------------------------------------------------------------------------------------------------------------------
