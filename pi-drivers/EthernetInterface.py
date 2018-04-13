@@ -66,15 +66,19 @@ class EthernetInterface:
 while True:
 
 	try:
+		print("Initializing RCDriver")
 		RCDriver.init()
 		interface = EthernetInterface()
+		
+		print("Waiting for client")
 		interface.connectToClient()
 		
 		print("Starting Event Loop")
 		while True:
 				data = interface.getMsg()
+				print(str(data))
 				RCDriver.setDirection(data[0])
-				RCDriver.setSpeed(data[1] * 10)		#RCDriver expects an integer.
+				RCDriver.setSpeed(int(data[1] * 10))		#RCDriver expects an integer.
 			
 	except Exception:
 			pass
