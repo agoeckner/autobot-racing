@@ -13,9 +13,9 @@ class EthernetInterface():
 
 	def __init__(self, name, ip, port):
 		self.name = name
-		self.ip = ip
+		self.ip = socket.gethostbyname(ip)
 		self.port = port
-		self.packer = struct.Struct('=h h')
+		self.packer = struct.Struct('=h f')
 		
 	#gets attributes in tuple form (name, ip, port)
 	def getAttr(self):
@@ -28,9 +28,9 @@ class EthernetInterface():
 		if attr[1]: self.ip = attr[1]
 		if attr[2]: self.port = attr[2]
 	
-	#We will send 4 bytes (2 byte short steering, 2 byte short speed)
+	#We will send 6 bytes (2 byte short steering, 4 byte short speed)
 	#Steering is designated as: -1 Left; 0 Straight; 1 Right
-	#Speed is designated as <0 Reverse; 0 Off; >1 Forward
+	#Speed is designated as (Reverse) -1.0 >= speed <= 1.0 (Forward)
 	def sendMsg(self, steering, speed):
 		try:
 			
