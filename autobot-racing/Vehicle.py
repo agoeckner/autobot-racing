@@ -1,5 +1,6 @@
 from collections import deque
 from EthernetInterface import EthernetInterface
+import sys
 
 import controls as ngc
 
@@ -8,17 +9,23 @@ class Vehicle():
 	POSITION_HISTORY_POINTS = 10
 	HEADING_HISTORY_POINTS = 10
 
-	def __init__(self, name, IP, port, carFrameID, frame, controlSystem, guidanceSystem):
+	def __init__(self, parent, name, IP, port, carFrameID, frame, controlSystem, guidanceSystem):
 		
 		# Set up parameters.
+		self.parent = parent
 		self.name = name
 		self.color = (0, 0, 0)
 		self.IP = IP
 		self.port = port
 		self.carFrameID = carFrameID
 		self.frame = frame
-		self.control = controlSystem
-		self.guidance = guidanceSystem
+		
+		# Get the actual control system class.
+		# print("Got control system: " + str(controlSystem))
+		self.control = parent.parent.controlSystems[controlSystem]
+		print("Vehicle " + str(name) + " using control system: " + str(self.control))
+		self.guidance = parent.parent.controlSystems[guidanceSystem]
+		print("Vehicle " + str(name) + " using guidance system: " + str(self.guidance))
 		self.interface = EthernetInterface(name, IP, port)
 		
 		# Get colors... This is ugly.
