@@ -15,7 +15,7 @@ class ComputerVision:
 	)
 	
 	# Used to determine the cutoff for black/white
-	WHITE_THRESHOLD = 160
+	WHITE_THRESHOLD = 165
 	
 	# Used as a tuning constant for the epsilon value of approxPolyDP.
 	APPROX_ARCLEN_MULTIPLIER = 0.11
@@ -35,6 +35,7 @@ class ComputerVision:
 	# Initializes the computer vision system. Set videoDevice to 0 for camera, -1 for Kinect.
 	def __init__(self, parent, videoDevice = 0):
 		self.parent = parent
+		self.trackID = 0
 		if parent != None:
 			self.queue = parent.telemetryQueue
 		
@@ -53,7 +54,7 @@ class ComputerVision:
 				raise e
 		elif videoDevice is 2:
 			self.mode = "TRACK"
-			self.cap = cv2.VideoCapture('../track.avi')
+			self.cap = cv2.VideoCapture('../motion.avi')
 		
 		else:
 			self.mode = "CAMERA"
@@ -64,7 +65,7 @@ class ComputerVision:
 			ret, frame = self.cap.read()
 			if not ret:
 				raise CameraException("Unable to read from video device.")
-		# self.out = cv2.VideoWriter('motion.avi', -1, 20.0, (640,480))
+		#self.out = cv2.VideoWriter('motion.avi', -1, 20.0, (640,480))
 	
 	# Closes all devices, etc. This function should be called when done with CV.
 	def close(self):
@@ -74,7 +75,7 @@ class ComputerVision:
 		else:
 			self.cap.release()
 		print("Closed")
-		# self.out.release()
+		#self.out.release()
 		cv2.destroyAllWindows()
 
 	# The primary computer vision system loop. This polls the camera as fast as
@@ -114,7 +115,7 @@ class ComputerVision:
 	def _processKinectFrame(self, frame):
 		video = np.empty((480,640,4),np.uint8)
 		frame.image.copy_bits(video.ctypes.data)
-		# self.out.write(video)
+		#self.out.write(video)
 		if self.trackID is 0:
 			self.findTrack(video)
 		else:
@@ -129,7 +130,7 @@ class ComputerVision:
 		blurred = cv2.GaussianBlur(frame, (5, 5), 0)
 		gray = cv2.cvtColor(blurred, cv2.COLOR_BGR2GRAY)
 		#lab = cv2.cvtColor(blurred, cv2.COLOR_BGR2LAB)
-		thresh = cv2.threshold(gray, 155, 255, cv2.THRESH_BINARY)[1]
+		thresh = cv2.threshold(gray, 160, 255, cv2.THRESH_BINARY)[1]
 		
 		# Find all contours.
 		im2, contours, hierarchy = cv2.findContours(thresh,cv2.RETR_TREE,
@@ -151,10 +152,12 @@ class ComputerVision:
 			#}
 		#}
 		
-		epsilon = 0.08 * cv2.arcLength(c, True)
-		approx = cv2.approxPolyDP(candidate, epsilon, True)
-		cv2.drawContours(frame, [approx], -1, (0,255,0), 3)
-		self.parent.UIQueue.q.put(('CamFeed', frame))
+		#print('Candidate: '+str(candidate))
+		if candidate is not None:
+			#epsilon = 0.03 * cv2.arcLength(candidate, True)
+			#approx = cv2.approxPolyDP(candidate, epsilon, True)
+			cv2.drawContours(frame, [candidate], -1, (0,255,0), 3)
+			self.parent.UIQueue.q.put(('CamFeed', frame))
 	#}
 	
 	def processFrame(self, frame, showFrame = False, draw = True):
