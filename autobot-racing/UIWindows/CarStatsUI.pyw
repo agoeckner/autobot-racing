@@ -407,6 +407,11 @@ class CarStatsUI(): #{
     def stopRace(self): #{
         print('Stop Race')
     #}
+	
+	def updateCamFeed(self): #{
+		message = self.parent.UIQueue.q.get()
+		self.updateCameraFeedFrame(message[1])
+	#}
 #}
 
 
