@@ -32,7 +32,7 @@ class ComputerVision:
 	def __init__(self, parent, videoDevice = 0):
 		self.parent = parent
 		self.queue = parent.telemetryQueue
-	
+        
 		# Run in Kinect mode.
 		if videoDevice == -1:
 			print("Initializing Kinect")
