@@ -36,6 +36,12 @@ class Vehicle():
 		# Add dummy initial data.
 		self.position.append((0,0))
 		self.heading.append(0)
+		
+		# Connect to Pi.
+		if self.connect():
+			print("Vehicle \"" + str(self.name) + "\" connected to transmitter.")
+		else:
+			print("WARN: Vehicle \"" + str(self.name) + "\" failed to connect to transmitter!")
 
 	def updateHeading(self, deltaHeading):
 		print("UPDATE HEADING BY " + str(deltaHeading))
