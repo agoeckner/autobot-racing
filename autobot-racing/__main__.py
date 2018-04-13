@@ -8,6 +8,7 @@ import controls as ngc
 import inspect
 import queue
 import threading
+import time
 
 #TODO: TEMPORARY!
 class Track:
@@ -51,13 +52,13 @@ class FrameworkManager():
 		# tUI.daemon = True
 		#tQueue.daemon = True
 		# tUI.start()
-		#tCV.start()
+		tCV.start()
 		
 		#TODO: FIX SO THAT CAMERA FEED WORKS
 		# tQueue.start()
 		
 		self.UserInterface.openCarStatsUI()
-		
+		#time.sleep(5)
 		# Program main loop.
 		try:
 			while True:
