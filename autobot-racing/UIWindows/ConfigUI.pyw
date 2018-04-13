@@ -30,8 +30,8 @@ class ConfigUI(): #{
         self.addCarDisplayTitle()
 
         #For Testing Remove Later----------------------------------------------------------------------------------------------------
-        self.addNewCarCallback('Car 1', '127.0.0.5', '457')
-        self.addNewCarCallback('Car 2', '127.0.0.6', '458')
+        # self.addNewCarCallback('Car 1', '127.0.0.5', '457')
+        # self.addNewCarCallback('Car 2', '127.0.0.6', '458')
         #----------------------------------------------------------------------------------------------------------------------------
         
         self.window.bind("<Configure>", self.updateWindow)
