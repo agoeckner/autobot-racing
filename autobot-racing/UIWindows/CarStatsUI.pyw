@@ -42,9 +42,9 @@ class CarStatsUI(): #{
         #----------------------------------------------------------------------------------------------------------------------------
 
         self.window.bind("<Configure>", self.updateWindow)
-        self.window.mainloop()
-        _thread.interrupt_main()
-        exit(0)
+        # self.window.mainloop()
+        # _thread.interrupt_main()
+        # exit(0)
     #}
 
     ##-----------------------------------------------------------------------------
