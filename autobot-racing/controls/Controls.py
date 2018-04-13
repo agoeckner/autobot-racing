@@ -21,11 +21,11 @@ class ControlSystem:
 		return desired - actual
 
 class PIControlSystem(ControlSystem):
-	def __init__(self, P=1.2, I=1.0):
+	def __init__(self, P=1.0, I=0.5):
 		self.Kp = P
 		self.Ki = I
 		
-		self.sample_time = 0.00
+		self.sample_time = 0.02
 		self.current_time = time.time()
 		self.last_time = self.current_time
 		self.clear()
@@ -51,7 +51,7 @@ class PIControlSystem(ControlSystem):
 			self.PTerm = self.Kp * error
 			self.ITerm += error * delta_time
 			
-			#print(self.ITerm)
+			print(self.ITerm)
 			if (self.ITerm < -self.windup_guard):
 				print("first")
 				self.ITerm = -self.windup_guard
@@ -69,7 +69,7 @@ class PIControlSystem(ControlSystem):
 		self.PTerm = 0.0
 		self.ITerm = 0.0
 		self.output = 0.0
-		self.windup_guard = 1.0
+		self.windup_guard = 0.05
 
 	#Determines how aggressively the PID reacts to the current error with setting Proportional Gain
 	def setKp(self, proportional_gain):

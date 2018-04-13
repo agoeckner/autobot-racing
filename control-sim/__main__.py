@@ -139,18 +139,18 @@ class ControlSim(App):
 		# Add the vehicles.
 		self.vehicles = SimVehicleManager(self)
 		self.vehicles.addVehicle(
-			SimVehicle([600,120], pi, 7,
-				ngc.ControlSystem(),
+			SimVehicle([420,120], pi, 4,
+				ngc.PIControlSystem(),
 				ngc.PassingGuidanceSystem(self,
-					wallDistance = 12,
-					lookahead = 20),
+					wallDistance = 20,
+					lookahead = 12),
 				color = (1, 0, 0, 0.5)))
 		self.vehicles.addVehicle(
-			SimVehicle([450,120], pi, 2,
+			SimVehicle([450,120], pi, 4,
 				ngc.ControlSystem(),
 				ngc.PassingGuidanceSystem(self,
-					wallDistance = 12,
-					lookahead = 100),
+					wallDistance = 20,
+					lookahead = 12),
 				color = (0, 1, 0, 0.5)))
 		# self.vehicles.addVehicle(
 			# SimVehicle([600,90], pi, 5,
@@ -187,8 +187,8 @@ class ControlSim(App):
 			deltaSpeed = vehicle.control.throttle(vehicle.speed, desiredSpeed)
 			
 			# Add some error.
-			# if randint(0, 5) == 5:
-				# deltaHeading = deltaHeading + 50 * (random() - 0.5)
+			if randint(0, 5) == 5:
+				deltaHeading = deltaHeading + 50 * (random() - 0.5)
 			
 			# Apply changes to vehicle.
 			vehicle.updateHeading(deltaHeading)
