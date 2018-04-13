@@ -33,8 +33,8 @@ class FrameworkManager():
 		self.UIQueue = MessageQueue(self)
 
 		# Set up components.
-		self.cv = ComputerVision(self, -1)
-		self.UserInterface = UIManager(self)
+		self.cv = ComputerVision(self, 0)
+		self.UserInterface = UIManager(self, self.UIQueue)
 		self.vehicles = VehicleManager(self)
 		
 		# TODO: ADD A BOGUS TRACK
@@ -46,13 +46,13 @@ class FrameworkManager():
 	def run(self):
 		tUI = threading.Thread(target=self.UserInterface.openCarStatsUI)
 		tCV = threading.Thread(target=self.cv.run, args=(False,))
-		tQueue = threading.Thread(target=self.UIQueue.workerUI)
+		#tQueue = threading.Thread(target=self.UIQueue.workerUI)
 		tCV.daemon = True
 		tUI.daemon = True
-		tQueue.daemon = True
+		#tQueue.daemon = True
 		tUI.start()
 		tCV.start()
-		tQueue.start()
+		#tQueue.start()
 		
 		# Program main loop.
 		try:
