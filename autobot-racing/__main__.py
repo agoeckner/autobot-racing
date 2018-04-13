@@ -58,6 +58,7 @@ class FrameworkManager():
 	def run(self):
 		tUI = threading.Thread(target=self.UserInterface.openCarStatsUI)
 		tCV = threading.Thread(target=self.cv.run, args=(False,))
+		tQueue = threading.Thread(target=self.UIQueue.workerUI)
 		tCV.daemon = True
 		tUI.daemon = True
 		tQueue.daemon = True
@@ -69,7 +70,7 @@ class FrameworkManager():
 		try:
 			while True:
 				self.getLatestTelemetry()
-				# self.runNavGuidanceControl()
+				#self.runNavGuidanceControl()
 		except KeyboardInterrupt as e:
 			exit(0)
 	
@@ -77,7 +78,7 @@ class FrameworkManager():
 	def getLatestTelemetry(self):
 		try:
 			while True:
-				(position, heading, color) = self.telemetryQueue.get(True, 1)
+				(position, heading, color) = self.telemetryQueue.get(True, 0.1)
 				
 				# TODO, determine correct car based on color and then do this
 				vehicle = self.carList[0]
@@ -101,10 +102,11 @@ class FrameworkManager():
 			# Send commands to vehicle.
 			vehicle.updateHeading(deltaHeading)
 			hdg = 0
-			if hdg < 0: hdg = -1
-			elif hdg > 0: hdg = 1
+			if deltaHeading < 0: hdg = -1
+			elif deltaHeading > 0: hdg = 1
+			print(str(hdg))
 			# TODO: hardcoded speed
-			vehicle.sendMsg(hdg, 1)
+			vehicle.sendMsg(hdg, 2)
 			# vehicle.updateSpeed(deltaSpeed)
 
 ##Car Methods-----------------------------------------------------------------------------------------------------------------------------------------
