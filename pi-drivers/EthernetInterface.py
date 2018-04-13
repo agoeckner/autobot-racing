@@ -78,7 +78,7 @@ while True:
 				data = interface.getMsg()
 				print(str(data))
 				RCDriver.setDirection(data[0])
-				RCDriver.setSpeed(int(data[1] * 10))		#RCDriver expects an integer.
+				RCDriver.setSpeed(int(round(data[1],1) * 10))		#RCDriver expects an integer.
 			
 	except Exception:
 			pass
