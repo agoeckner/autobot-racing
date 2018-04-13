@@ -47,6 +47,7 @@ class Vehicle():
 		self.headingGoal = 0.0
 		
 		# Add dummy initial data.
+		self.lastTelemetryTime = None
 		self.position.append((0,0))
 		self.heading.append(0)
 		
