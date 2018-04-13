@@ -23,6 +23,11 @@ class FrameworkManager():
 	##-----------------------------------------------------------------------------
 	def __init__(self):
 	
+		# Get list of control/guidance systems.
+		self.controlSystems = self.getControlSystemObjects()
+		self.guidanceSystems = self.getGuidanceSystemObjects()
+		
+	
 		# Create message queues.
 		self.telemetryQueue = queue.Queue()
 		self.UIQueue = MessageQueue(self)
@@ -30,7 +35,7 @@ class FrameworkManager():
 		# Set up components.
 		self.cv = ComputerVision(self, -1)
 		self.UserInterface = UIManager(self)
-		self.vehicles = VehicleManager()
+		self.vehicles = VehicleManager(self)
 		
 		# TODO: ADD A BOGUS TRACK
 		self.track = Track([(100, 100), (100, 200), (200, 200), (200, 100), (100, 100)], [])
@@ -64,8 +69,9 @@ class FrameworkManager():
 				(position, heading, color) = self.telemetryQueue.get(True, 1)
 				
 				vehicle = self.vehicles.getVehicleByColor(color)
-				vehicle.position.append(position)
-				vehicle.heading.append(heading)
+				if vehicle != None:
+					vehicle.position.append(position)
+					vehicle.heading.append(heading)
 			
 		except queue.Empty:
 			pass
@@ -84,7 +90,8 @@ class FrameworkManager():
 			
 			# Send commands to vehicle.
 			vehicle.updateHeading(deltaHeading)
-			hdg = 0
+			hdg = vehicle.heading[0]
+			# Snap to trinary, the only steering available on these cars.
 			if hdg < 0: hdg = -1
 			elif hdg > 0: hdg = 1
 			# TODO: hardcoded speed
@@ -108,6 +115,13 @@ class FrameworkManager():
 				print("CONTROL SYSTEM FOUND: " + str(name) + " (" + str(obj) + ")")
 				names.append(name)
 		return names
+	
+	def getControlSystemObjects(self):
+		objs = []
+		for name, obj in inspect.getmembers(ngc):
+			if inspect.isclass(obj) and "Control" in name:
+				objs.append(obj)
+		return objs
 
 	##-----------------------------------------------------------------------------
 	## Gets the a list of Guidance Systems
@@ -119,32 +133,14 @@ class FrameworkManager():
 				print("GUIDANCE SYSTEM FOUND: " + str(name) + " (" + str(obj) + ")")
 				names.append(name)
 		return names
+	def getGuidanceSystemObjects(self):
+		objs = []
+		for name, obj in inspect.getmembers(ngc):
+			if inspect.isclass(obj) and "Guidance" in name:
+				objs.append(obj)
+		return objs
 
 ##----------------------------------------------------------------------------------------------------------------------------------------------------
-
-
-
-##EthernetInterface Functions-------------------------------------------------------------------------------------------------------------------------
-	##-----------------------------------------------------------------------------
-	## Connects to the PI of the newly added car
-	##-----------------------------------------------------------------------------
-	def connectNewCar(self, car):
-		self.EthernetInterface.connectToPI(car)
-
-	##-----------------------------------------------------------------------------
-	## Updates the connection of the specified car
-	##-----------------------------------------------------------------------------
-	def updateCarConnection(self, car):
-		self.EthernetInterface.updateConnection(car)
-
-	##-----------------------------------------------------------------------------
-	## Disconnects from the specified car
-	##-----------------------------------------------------------------------------
-	def removeConnection(self, car):
-		self.EthernetInterface.disconnectFromPI(car)
-##----------------------------------------------------------------------------------------------------------------------------------------------------
-
-#}
 
 if __name__ == "__main__":
 	manager = FrameworkManager()

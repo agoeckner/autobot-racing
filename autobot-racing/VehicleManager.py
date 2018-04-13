@@ -9,11 +9,12 @@ class VehicleManager:
 	vehicleByColor = {}
 	vehicleList = []
 
-	def __init__(self):
-		pass
+	def __init__(self, parent):
+		self.parent = parent
 		
 	def addVehicle(self, vehicle):
 		print("Added vehicle with name " + str(vehicle.name) + " and color " + str(vehicle.color))
+		vehicle.parent = self
 		self.vehicleByColor[vehicle.color] = vehicle
 		self.vehicleList.append(vehicle)
 		

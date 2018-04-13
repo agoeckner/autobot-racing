@@ -249,7 +249,7 @@ class CarStatsUI(): #{
         
         newCarFrame.bind("<Button-1>", lambda event, arg=newCarFrame.winfo_id(): self.openEditCarWindow(event, arg))
         
-        car = Vehicle(carName, IP, port, newCarFrame.winfo_id(), newCarFrame, controlSystem, guidanceSystem)
+        car = Vehicle(self.parent.parent.vehicles, carName, IP, port, newCarFrame.winfo_id(), newCarFrame, controlSystem, guidanceSystem)
         self.parent.addNewCarObj(car)
     #}
 
