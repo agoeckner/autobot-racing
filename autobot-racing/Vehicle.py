@@ -22,10 +22,15 @@ class Vehicle():
 		
 		# Get the actual control system class.
 		# print("Got control system: " + str(controlSystem))
-		self.control = parent.parent.controlSystems[controlSystem]
-		print("Vehicle " + str(name) + " using control system: " + str(self.control))
-		self.guidance = parent.parent.controlSystems[guidanceSystem]
-		print("Vehicle " + str(name) + " using guidance system: " + str(self.guidance))
+		# self.control = parent.parent.controlSystems[controlSystem]
+		# print("Vehicle " + str(name) + " using control system: " + str(self.control))
+		# self.guidance = parent.parent.guidanceSystems[guidanceSystem]
+		# print("Vehicle " + str(name) + " using guidance system: " + str(self.guidance))
+		
+		self.control = ngc.ControlSystem()
+		self.guidance = ngc.WallFollowingGuidanceSystem(self.parent.parent,
+			wallDistance = 20, lookahead = 100)
+		
 		self.interface = EthernetInterface(name, IP, port)
 		
 		# Get colors... This is ugly.
@@ -39,6 +44,7 @@ class Vehicle():
 		# Store the most recent position/heading data.
 		self.position = deque(maxlen = self.POSITION_HISTORY_POINTS)
 		self.heading = deque(maxlen = self.HEADING_HISTORY_POINTS)
+		self.headingGoal = 0.0
 		
 		# Add dummy initial data.
 		self.position.append((0,0))
@@ -51,7 +57,8 @@ class Vehicle():
 			print("WARN: Vehicle \"" + str(self.name) + "\" failed to connect to transmitter!")
 
 	def updateHeading(self, deltaHeading):
-		print("UPDATE HEADING BY " + str(deltaHeading))
+		self.headingGoal += deltaHeading
+		# print("UPDATE HEADING BY " + str(deltaHeading))
 
 	def connect(self):
 		try:
