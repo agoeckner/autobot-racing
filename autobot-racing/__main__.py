@@ -35,12 +35,14 @@ class FrameworkManager():
 	
 		# Create message queues.
 		self.telemetryQueue = queue.Queue()
+		self.trackQueue = queue.Queue()
 		self.UIQueue = MessageQueue(self)
 
 		# Set up components.
-		self.cv = ComputerVision(self, "../motion.avi")
+		self.cv = ComputerVision(self,2)
 		self.UserInterface = UIManager(self, self.UIQueue)
 		self.vehicles = VehicleManager(self)
+
 		
 		# TODO: ADD A BOGUS TRACK
 		self.track = Track([(100, 100), (100, 200), (200, 200), (200, 100), (100, 100)], [])
@@ -58,6 +60,7 @@ class FrameworkManager():
 		tUI.start()
 		tCV.start()
 		#tQueue.start()
+
 		
 		# Program main loop.
 		try:
