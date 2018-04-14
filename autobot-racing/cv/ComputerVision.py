@@ -1,4 +1,4 @@
-from pykinect import nui
+#from pykinect import nui
 import numpy as np
 import cv2
 import math
@@ -54,7 +54,7 @@ class ComputerVision:
 				raise e
 		elif videoDevice is 2:
 			self.mode = "TRACK"
-			self.cap = cv2.VideoCapture('../motion.avi')
+			self.cap = cv2.VideoCapture('C:\\Users\\walccirc\\Documents\\autobot-racing\\autobot-racing\\track.avi')
 		
 		else:
 			self.mode = "CAMERA"
@@ -125,39 +125,54 @@ class ComputerVision:
 	## Identifies the track
 	##-----------------------------------------------------------------------------
 	def findTrack(self, frame): #{
-		contourMaxVal = None
 		candidate = None
+		sizeList = []
 		blurred = cv2.GaussianBlur(frame, (5, 5), 0)
 		gray = cv2.cvtColor(blurred, cv2.COLOR_BGR2GRAY)
 		#lab = cv2.cvtColor(blurred, cv2.COLOR_BGR2LAB)
-		thresh = cv2.threshold(gray, 160, 255, cv2.THRESH_BINARY)[1]
+		thresh = cv2.threshold(gray, 110, 255, cv2.THRESH_BINARY)[1]
 		
 		# Find all contours.
 		im2, contours, hierarchy = cv2.findContours(thresh,cv2.RETR_TREE,
 			cv2.CHAIN_APPROX_NONE)
 
-		# Loop over candidate contours (those that meet size limits).
-		candidates = list(filter(self.checkContourArea, contours))
-		
-		for c in candidates: #{
-			if contourMaxVal is None: #{
-				contourMaxVal = cv2.arcLength(c, True)
-				candidate = c
-			#}
-			else: #{
-				temp = cv2.arcLength(c, True)
-				if temp > contourMaxVal:
-					contourMaxVal = temp
-					candidate = c
-			#}
-		#}
-		
+		contours.sort(key=lambda x:cv2.arcLength(x, True), reverse=True)
+		#cv2.drawContours(frame, contours, -1, (255,0,0), 1)
+##		for c in contours: #{
+##			sizeList.append(cv2.arcLength(c, True))
+##		#}
+##		sizeList.sort()
+##
+##		for c in contours:
+##			temp = cv2.arcLength(c, True)
+##			if temp == sizeList[1]:
+##				candidate = c
+##				break
+		candidate = contours[1]
+##--------------TODO: Change 3 to 2------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+		candidate1 = contours[3]
+		#print(candidate)
 		#print('Candidate: '+str(candidate))
 		if candidate is not None:
-			#epsilon = 0.03 * cv2.arcLength(candidate, True)
-			#approx = cv2.approxPolyDP(candidate, epsilon, True)
-			cv2.drawContours(frame, [candidate], -1, (0,255,0), 3)
-			self.parent.UIQueue.q.put(('CamFeed', frame))
+			epsilon = 0.03 * cv2.arcLength(candidate, True)
+			approx = cv2.approxPolyDP(candidate, epsilon, True)
+			cv2.drawContours(frame, [approx], -1, (0,255,0), 2)
+
+			epsilon = 0.02 * cv2.arcLength(candidate1, True)
+			approx1 = cv2.approxPolyDP(candidate1, epsilon, True)
+			cv2.drawContours(frame, [approx1], -1, (0,255,0), 2)
+			#self.parent.UIQueue.q.put(('CamFeed', frame))
+			print(approx)
+
+		#TODO: pass this garbage through the queue for the main thread
+		#Pass the outer track then the inner
+		#self.parent.trackQueue.put(approx)
+		#self.parent.trackQueue.put(approx1)
+		
+		cv2.imshow('Crap', frame)
+		while True:
+			key = cv2.waitKey(1)
+			if key == 27: break
 	#}
 	
 	def processFrame(self, frame, showFrame = False, draw = True):
@@ -346,7 +361,7 @@ class CameraException(Exception):
 
 if __name__ == "__main__":
 	# Debug mode
-	cv = ComputerVision(None, -1)#"motion.avi")#"output.avi")
+	cv = ComputerVision(None, 2)#"motion.avi")#"output.avi")
 	try:
 		cv.run(showFrame=True)
 	except KeyboardInterrupt as e:
