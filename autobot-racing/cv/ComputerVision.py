@@ -15,7 +15,7 @@ class ComputerVision:
 	)
 	
 	# Used to determine the cutoff for black/white
-	WHITE_THRESHOLD = 165
+	WHITE_THRESHOLD = 110
 	
 	# Used as a tuning constant for the epsilon value of approxPolyDP.
 	APPROX_ARCLEN_MULTIPLIER = 0.11

@@ -39,7 +39,7 @@ class AddNewCarUI(): #{
         self.createf12()
 
         self.carNameEntry.focus_force()
-        self.window.mainloop()
+        # self.window.mainloop()
     #}
 
     ##-----------------------------------------------------------------------------
