@@ -19,10 +19,6 @@ class Track:
 
 
 class FrameworkManager():
-
-	# The maximum amount of time that a vehicle may be "missing" before stop command is sent.
-	VEHICLE_EMERGENCY_STOP_TIMEOUT = 2 #seconds
-
 	##-----------------------------------------------------------------------------
 	## Constructor
 	##-----------------------------------------------------------------------------
@@ -75,11 +71,7 @@ class FrameworkManager():
 
 			vehicle = self.vehicles.getVehicleByColor(color)
 			if vehicle != None:
-				vehicle.position.append(position)
-				vehicle.heading.append(heading)
-				
-				# Denote last time that this vehicle's telemetry was updated.
-				vehicle.lastTelemetryTime = time.time()
+				vehicle.updateTelemetry(position, heading)
 			
 		except queue.Empty:
 			pass
@@ -87,41 +79,8 @@ class FrameworkManager():
 	def runNavGuidanceControl(self):
 		vehicles = self.vehicles.getList()
 		for vehicle in vehicles:
-			
-			# Automatically stop this vehicle if we have no received telemetry recently.
-			ltt = vehicle.lastTelemetryTime
-			if ltt != None and (time.time() - ltt) >= self.VEHICLE_EMERGENCY_STOP_TIMEOUT:
-				vehicle.sendMsg(0, 0.0)
-				print("WARN: Vehicle " + str(vehicle.name) + " has been stopped.")
-				continue
-			
-			# Determine guidance.
-			desiredHeading = vehicle.guidance.getDesiredHeading(vehicle.position[0])
-			# desiredSpeed = vehicle.guidance.getDesiredSpeed(vehicle.position)
-			
-			# Run control algorithm.
-			deltaHeading = vehicle.control.heading(vehicle.heading[0], desiredHeading)
-			# deltaSpeed = vehicle.control.throttle(vehicle.speed, desiredSpeed)
-			
-			# Send commands to vehicle.
-			vehicle.updateHeading(deltaHeading)
-			hdg = vehicle.heading[0]
-			# Snap to trinary, the only steering available on these cars.
-			if hdg < 0:
-				print("TURN LEFT?")
-				hdg = -1
-			elif hdg > 0:
-				print("TURN RIGHT?")
-				hdg = 1
-			else:
-				hdg = 0
-				
-			# TEMPORARY INVERSE
-			hdg = -hdg
-			
-			# TODO: hardcoded speed
-			vehicle.sendMsg(hdg, 0.1)
-			# vehicle.updateSpeed(deltaSpeed)
+			vehicle.runNavGuidanceControl()
+
 
 ##UI Methods------------------------------------------------------------------------------------------------------------------------------------------
 	##-----------------------------------------------------------------------------
