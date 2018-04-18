@@ -26,14 +26,15 @@ class Vehicle():
 		
 		# Get the actual control system class.
 		# print("Got control system: " + str(controlSystem))
-		# self.control = parent.parent.controlSystems[controlSystem]
-		# print("Vehicle " + str(name) + " using control system: " + str(self.control))
-		# self.guidance = parent.parent.guidanceSystems[guidanceSystem]
-		# print("Vehicle " + str(name) + " using guidance system: " + str(self.guidance))
-		
-		self.control = ngc.ControlSystem()
-		self.guidance = ngc.WallFollowingGuidanceSystem(self.parent.parent,
+		self.control = parent.parent.controlSystems[controlSystem]()
+		print("Vehicle " + str(name) + " using control system: " + str(self.control))
+		self.guidance = parent.parent.guidanceSystems[guidanceSystem](self.parent.parent,
 			wallDistance = 20, lookahead = 100)
+		print("Vehicle " + str(name) + " using guidance system: " + str(self.guidance))
+		
+		# self.control = ngc.ControlSystem()
+		# self.guidance = ngc.WallFollowingGuidanceSystem(self.parent.parent,
+			# wallDistance = 20, lookahead = 100)
 		
 		self.interface = EthernetInterface(name, IP, port)
 		
@@ -70,23 +71,6 @@ class Vehicle():
 			print("Vehicle \"" + str(self.name) + "\" connected to transmitter.")
 		else:
 			print("WARN: Vehicle \"" + str(self.name) + "\" failed to connect to transmitter!")	
-
-	def connect(self):
-		try:
-			self.interface.connectToHost()
-			return True
-		except (ConnectionError, OSError) as e:
-			return False
-			
-	def disconnect(self):
-		self.interface.disconnectFromHost()
-		
-	def sendMsg(self, direction, speed):
-		try:
-			self.interface.sendMsg(direction, speed)
-			return True
-		except (ConnectionError, OSError) as e:
-			return False
 	
 	def updateTelemetry(self, position, heading):
 		# Add to the telemetry history.
@@ -111,7 +95,7 @@ class Vehicle():
 		if ltt != None and (time.time() - ltt) >= self.EMERGENCY_STOP_TIMEOUT:
 			self.sendMsg(0, 0.0)
 			print("WARN: Vehicle " + str(self.name) + " has been stopped.")
-			continue
+			return
 		
 		# Determine guidance.
 		desiredHeading = self.guidance.getDesiredHeading(self.actualPosition)
@@ -147,3 +131,24 @@ class Vehicle():
 	
 	def updateSpeed(self, deltaSpeed):
 		self.desiredSpeed += deltaSpeed
+	
+	#
+	# Communication functions:
+	#
+	
+	def connect(self):
+		try:
+			self.interface.connectToHost()
+			return True
+		except (ConnectionError, OSError) as e:
+			return False
+			
+	def disconnect(self):
+		self.interface.disconnectFromHost()
+		
+	def sendMsg(self, direction, speed):
+		try:
+			self.interface.sendMsg(direction, speed)
+			return True
+		except (ConnectionError, OSError) as e:
+			return False
