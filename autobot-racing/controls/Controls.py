@@ -53,10 +53,10 @@ class PIControlSystem(ControlSystem):
 			
 			#print(self.ITerm)
 			if (self.ITerm < -self.windup_guard):
-				print("first")
+				# print("first")
 				self.ITerm = -self.windup_guard
 			elif (self.ITerm > self.windup_guard):
-				print("second")
+				# print("second")
 				self.ITerm = self.windup_guard
 
 			# Remember last time for next calculation
