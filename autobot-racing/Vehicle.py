@@ -114,7 +114,11 @@ class Vehicle():
 		# Covariances
 		initialStateCov = 1.0e-3 * np.eye(4)
 		transistionCov = 1.0e-4 * np.eye(4)
-		observationCov = 1.0e-1 * np.eye(2)
+		observationCov = 1.0e-4 * np.eye(2)
+		
+		# Set up k-1 state
+		self.prevStateVector = initState
+		self.prevStateCovariance = initialStateCov
 		
 		# Set up the filter.
 		self.posFilter = KalmanFilter(
@@ -126,22 +130,56 @@ class Vehicle():
             observation_covariance = observationCov)
 		
 		print("Filter initialized: " + str(self.posFilter))
+		print("Used initial state: " + str(initState))
+		print(self.position)
 		
 		self.filterInitialized = True
 	
-	def updateTelemetry(self, position, heading):
+	# This must occur before position/velocity is updated.
+	def updatePositionFilter(self, position, deltaTime):
+		filtered_state_mean = self.prevStateVector
+		filtered_state_covariance = self.prevStateCovariance
+		observation = list(position)
+		transitionMatrix = [[1,deltaTime,0,0],[0,1,0,0],[0,0,1,deltaTime],[0,0,0,1]]
+		
+		# Update the filter.
+		(next_filtered_state_mean, next_filtered_state_covariance) = self.posFilter.filter_update(
+			filtered_state_mean, filtered_state_covariance, observation = observation,
+			)#transition_matrix = transitionMatrix)
+		
+		self.prevStateVector = next_filtered_state_mean
+		self.prevStateCovariance = self.prevStateCovariance
+		
+		filteredPos = (next_filtered_state_mean[0], next_filtered_state_mean[2])
+		
+		# print("RAW POSITION: " + str(position))
+		# print("FILTERED POSITION: " + str(filteredPos))
+		
+		return filteredPos
+	
+	def updateTelemetry(self, rawPosition, heading):
 	
 		# Initialize the position filter once we have enough data.
 		if not self.filterInitialized and len(self.position) > 2:
 			self.initializePositionFilter()
 		
-		# Add to the telemetry history.
-		self.position.append(position)
-		self.heading.append(heading)
-		
 		# Get the latest time.
 		currentTime = time.time()
 		deltaTime = currentTime - self.lastTelemetryTime
+		if deltaTime == 0.0:
+			deltaTime = 0.0000001
+		
+		# Do Kalman things.
+		if self.filterInitialized:
+			position = self.updatePositionFilter(rawPosition, deltaTime)
+			print("Got new filtered position: " + str(position))
+		else:
+			position = rawPosition
+			print("Got raw position: " + str(position))
+		
+		# Add to the telemetry history.
+		self.position.appendleft(position)
+		self.heading.appendleft(heading)
 		
 		# Calculate vehicle speed/velocity.
 		self.velocity = tuple(np.divide(np.array(self.position[1]) - \
@@ -157,22 +195,21 @@ class Vehicle():
 		# Update last telemetry time.
 		self.lastTelemetryTime = currentTime
 		
-		# Do Kalman things.
-		if self.filterInitialized and len(self.position) == 10:
-			data = list(self.position)
-			print("MEASURED:")
-			print(data)
-			(filtered_state_means, filtered_state_covariances) = self.posFilter.filter(data)
-			print("FILTERED:")
-			print(filtered_state_means)
-			exit(0)
-			# plt.plot(data[:,0],data[:,1],'xr',label='measured')
-			# plt.axis([0,520,360,0])
-				# plt.hold(True)
-			# plt.plot(filtered_state_means[:,0],filtered_state_means[:,1],'ob',label='kalman output')
-			# plt.legend(loc=2)
-			# plt.title("Constant Velocity Kalman Filter")
-			# plt.show()
+		# if self.filterInitialized and len(self.position) == 10:
+			# data = list(self.position)
+			# print("MEASURED:")
+			# print(data)
+			# (filtered_state_means, filtered_state_covariances) = self.posFilter.filter(data)
+			# print("FILTERED:")
+			# print(filtered_state_means)
+			# exit(0)
+			# # plt.plot(data[:,0],data[:,1],'xr',label='measured')
+			# # plt.axis([0,520,360,0])
+				# # plt.hold(True)
+			# # plt.plot(filtered_state_means[:,0],filtered_state_means[:,1],'ob',label='kalman output')
+			# # plt.legend(loc=2)
+			# # plt.title("Constant Velocity Kalman Filter")
+			# # plt.show()
 			
 	
 	def runNavGuidanceControl(self):
