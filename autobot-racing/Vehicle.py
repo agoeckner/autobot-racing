@@ -70,10 +70,6 @@ class Vehicle():
 			print("Vehicle \"" + str(self.name) + "\" connected to transmitter.")
 		else:
 			print("WARN: Vehicle \"" + str(self.name) + "\" failed to connect to transmitter!")	
-	
-	def updateHeading(self, deltaHeading):
-		self.desiredHeading += deltaHeading
-		# print("UPDATE HEADING BY " + str(deltaHeading))
 
 	def connect(self):
 		try:
@@ -118,29 +114,36 @@ class Vehicle():
 			continue
 		
 		# Determine guidance.
-		desiredHeading = self.guidance.getDesiredHeading(self.position[0])
-		# desiredSpeed = self.guidance.getDesiredSpeed(self.position)
+		desiredHeading = self.guidance.getDesiredHeading(self.actualPosition)
+		desiredSpeed = self.guidance.getDesiredSpeed(self.actualPosition)
 		
 		# Run control algorithm.
-		deltaHeading = self.control.heading(self.heading[0], desiredHeading)
-		# deltaSpeed = self.control.throttle(self.speed, desiredSpeed)
+		deltaHeading = self.control.heading(self.actualHeading, desiredHeading)
+		deltaSpeed = self.control.throttle(self.speed, desiredSpeed)
 		
-		# Send commands to self.
+		# Update the desired speed/heading values.
 		self.updateHeading(deltaHeading)
-		hdg = self.heading[0]
-		# Snap to trinary, the only steering available on these cars.
-		if hdg < 0:
-			print("TURN LEFT?")
+		self.updateSpeed(deltaSpeed)
+		
+		# Snap steering  to trinary, the only steering available on these cars.
+		hdg = self.desiredHeading
+		if hdg < 0.0:
+			# print("TURN LEFT?")
 			hdg = -1
-		elif hdg > 0:
-			print("TURN RIGHT?")
+		elif hdg > 0.0:
+			# print("TURN RIGHT?")
 			hdg = 1
 		else:
 			hdg = 0
 			
 		# TEMPORARY INVERSE
-		hdg = -hdg
+		# hdg = -hdg
 		
-		# TODO: hardcoded speed
-		self.sendMsg(hdg, 0.1)
-		# self.updateSpeed(deltaSpeed)
+		# Send command to the car.
+		self.sendMsg(hdg, self.desiredSpeed)
+	
+	def updateHeading(self, deltaHeading):
+		self.desiredHeading += deltaHeading
+	
+	def updateSpeed(self, deltaSpeed):
+		self.desiredSpeed += deltaSpeed
