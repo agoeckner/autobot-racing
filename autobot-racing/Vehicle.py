@@ -57,6 +57,7 @@ class Vehicle():
 		# These variables store the current, filtered telemetry data.
 		# AKA, the output of the Kalman Filter.
 		self.actualHeading = 0.0
+		self.actualPosition = (0.0, 0.0)
 		self.actualSpeed = 0
 		
 		# Add dummy initial data.
