@@ -1,4 +1,8 @@
-from pykinect import nui
+import sys
+if 'pykinect' in sys.modules:
+	from pykinect import nui
+else:
+	print("WARN: Running without Kinect support!")
 import numpy as np
 import cv2
 import math
