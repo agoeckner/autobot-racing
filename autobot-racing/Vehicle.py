@@ -86,9 +86,11 @@ class Vehicle():
 			print("WARN: Vehicle \"" + str(self.name) + "\" failed to connect to transmitter!")
 	
 	def getCurrentStateVector(self):
-		# state vector is [X, dX/dt, Y, dY/dt]
+		# state vector is [X, Y, dX/dt, dY/dt]
 		#TODO
-		return [self.position[0], self.velocity[0], self.position[0][1], self.velocity[1]]
+		pos = self.position[0]
+		vel = self.velocity
+		return [pos[0], vel[0], pos[1], vel[1]]
 	
 	def initializePositionFilter(self):
 	
@@ -98,11 +100,11 @@ class Vehicle():
 		# Time step
 		dt = 0.01 #TODO, update on actual delta time
 		
-		# Transition matrix (system dynamics)
-		transitionMatrix = [[1,0,1,0],[0,1,0,1],[0,0,1,0],[0,0,0,1]]
+		# Transition matrix (system dynamics, F)
+		transitionMatrix = [[1,dt,0,0],[0,1,0,0],[0,0,1,dt],[0,0,0,1]]
 		
-		# Observation matrix
-		observationMatrix = [1,0,0]
+		# Observation matrix, H
+		observationMatrix = [[1,0,0,0], [0,0,1,0]]
 		
 		# Get the initial state.
 		#TODO
