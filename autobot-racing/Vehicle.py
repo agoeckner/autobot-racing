@@ -96,6 +96,7 @@ class Vehicle():
 	
 		# Decent explanation of Kalman parameters here:
 		# https://stackoverflow.com/questions/47210512/using-pykalman-on-raw-acceleration-data-to-calculate-position
+		# https://pykalman.github.io/#pykalman.KalmanFilter.filter_update
 	
 		# Time step
 		dt = 0.01 #TODO, update on actual delta time
