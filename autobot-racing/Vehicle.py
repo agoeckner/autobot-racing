@@ -212,7 +212,7 @@ class Vehicle():
 		self.updateSpeed(deltaSpeed)
 		
 		# Snap steering  to trinary, the only steering available on these cars.
-		hdg = self.desiredHeading
+		hdg = deltaHeading
 		if hdg < 0.0:
 			# print("TURN LEFT?")
 			hdg = -1
