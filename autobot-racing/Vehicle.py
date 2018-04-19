@@ -178,39 +178,18 @@ class Vehicle():
 			print("Got raw position: " + str(position))
 		
 		# Add to the telemetry history.
+		self.actualPosition = position
+		self.actualHeading = heading
 		self.position.appendleft(position)
 		self.heading.appendleft(heading)
 		
 		# Calculate vehicle speed/velocity.
 		self.velocity = tuple(np.divide(np.array(self.position[1]) - \
 			np.array(position), deltaTime))
-		# print("VELOCITY: " + str(self.velocity))
-		
-		# TODO: JUST CALCULATE THIS FROM VELOCITY
-		deltaPos = abs(np.linalg.norm(np.array(self.position[1]) - \
-			np.array(position)))
-		self.actualSpeed = deltaPos / deltaTime
-		# print("SPEED: " + str(self.actualSpeed))
+		self.actualSpeed = np.sqrt(self.velocity.dot(self.velocity))
 		
 		# Update last telemetry time.
 		self.lastTelemetryTime = currentTime
-		
-		# if self.filterInitialized and len(self.position) == 10:
-			# data = list(self.position)
-			# print("MEASURED:")
-			# print(data)
-			# (filtered_state_means, filtered_state_covariances) = self.posFilter.filter(data)
-			# print("FILTERED:")
-			# print(filtered_state_means)
-			# exit(0)
-			# # plt.plot(data[:,0],data[:,1],'xr',label='measured')
-			# # plt.axis([0,520,360,0])
-				# # plt.hold(True)
-			# # plt.plot(filtered_state_means[:,0],filtered_state_means[:,1],'ob',label='kalman output')
-			# # plt.legend(loc=2)
-			# # plt.title("Constant Velocity Kalman Filter")
-			# # plt.show()
-			
 	
 	def runNavGuidanceControl(self):
 		# Automatically stop if we have no received telemetry recently.
