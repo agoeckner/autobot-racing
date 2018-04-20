@@ -128,20 +128,20 @@ class UIManager(): #{
 	#}
 
 	def findTrackCallback(self): #{
-                self.parent.cv.getTrack = True
-        #}
-
-        def startRace(self): #{
-                self.parent.raceState = 'START'
-        #}
-
-        def pauseRace(self): #{
-                self.parent.raceState = 'PAUSE'
-        #}
-
-        def stopRace(self): #{
-                self.parent.raceState = 'STOP'
-        #}
+		self.parent.cv.getTrack = True
+	#}
+	
+	def startRace(self): #{
+		self.parent.raceState = 'START'
+	#}
+	
+	def pauseRace(self): #{
+		self.parent.raceState = 'PAUSE'
+	#}
+	
+	def stopRace(self): #{
+		self.parent.raceState = 'STOP'
+	#}
 #}
 
 
