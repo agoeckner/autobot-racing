@@ -27,15 +27,15 @@ class EditCarUI(): #{
         self.window.resizable(0, 0)
 
         self.createf1()
-        self.createf2(car.carName)
+        self.createf2(car.name)
         self.createf3()
         self.createf4(car.IP)
         self.createf5()
         self.createf6(car.port)
         self.createf7()
-        self.createf8(car.controlSystem)
+        self.createf8(car.control)
         self.createf9()
-        self.createf10(car.guidanceSystem)
+        self.createf10(car.guidance)
         self.createf11()
         self.createf12()
 
@@ -238,7 +238,7 @@ class EditCarUI(): #{
     ## Collects info from entries and sends back to config UI
     ##-----------------------------------------------------------------------------
     def saveCarSettings(self): #{
-        self.car.carName = self.carNameEntry.get()
+        self.car.name = self.carNameEntry.get()
         self.car.IP = self.IPEntry.get()
         self.car.port = self.portEntry.get()
 
