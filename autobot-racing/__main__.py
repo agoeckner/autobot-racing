@@ -37,12 +37,15 @@ class FrameworkManager():
 		self.telemetryQueue = queue.Queue()
 		self.trackQueue = queue.Queue()
 		self.UIQueue = MessageQueue(self)
+		self.CVQueue = queue.Queue()
 
 		# Set up components.
-		self.cv = ComputerVision(self,2)
+		self.cv = ComputerVision(self,-1)
 		self.UserInterface = UIManager(self, self.UIQueue)
 		self.vehicles = VehicleManager(self)
 
+		#Used to determine if the get track button was pushed
+		self.getTrack = False
 		
 		# TODO: ADD A BOGUS TRACK
 		self.track = Track([(100, 100), (100, 200), (200, 200), (200, 100), (100, 100)], [])
@@ -65,8 +68,12 @@ class FrameworkManager():
 		# Program main loop.
 		try:
 			while True:
+				if self.getTrack is True:
+					self.track = Track(self.trackQueue.get(), self.trackQueue.get())
+					self.getTrack = False
 				self.getLatestTelemetry()
 				self.runNavGuidanceControl()
+				#print(str(self.track.innerWall))
 		except KeyboardInterrupt as e:
 			exit(0)
 	
