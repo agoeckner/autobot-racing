@@ -126,6 +126,10 @@ class UIManager(): #{
 	def getGuidanceSystems(self): #{
 		return self.parent.getGuidanceSystems()
 	#}
+
+	def findTrackCallback(self): #{
+                self.parent.cv.getTrack = True
+        #}
 #}
 
 
