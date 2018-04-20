@@ -199,6 +199,10 @@ class Vehicle():
 			self.sendMsg(0, 0.0)
 			print("WARN: Vehicle " + str(self.name) + " has been stopped.")
 			return
+		elif self.parent.parent.raceState is 'STOP' or self.parent.parent.raceState is 'PAUSE':
+                        self.sendMsg(0, 0.0)
+			print("WARN: Vehicle " + str(self.name) + " has been stopped.")
+			return
 		
 		# Determine guidance.
 		desiredHeading = math.degrees(self.guidance.getDesiredHeading(self.actualPosition))
