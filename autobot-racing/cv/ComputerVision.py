@@ -1,4 +1,4 @@
-#from pykinect import nui
+from pykinect import nui
 import numpy as np
 import cv2
 import math
@@ -35,7 +35,10 @@ class ComputerVision:
 	# Initializes the computer vision system. Set videoDevice to 0 for camera, -1 for Kinect.
 	def __init__(self, parent, videoDevice = 0):
 		self.parent = parent
-		self.trackID = 0
+		self.getTrack = False
+		self.trackOut = []
+		self.trackIn = []
+		
 		if parent != None:
 			self.queue = parent.telemetryQueue
 		
@@ -52,10 +55,6 @@ class ComputerVision:
 			except OSError as e:
 				print("OOPS: " + str(e))
 				raise e
-		elif videoDevice is 2:
-			self.mode = "TRACK"
-			self.cap = cv2.VideoCapture('C:\\Users\\walccirc\\Documents\\autobot-racing\\autobot-racing\\track.avi')
-		
 		else:
 			self.mode = "CAMERA"
 			# Open video device.
@@ -90,11 +89,11 @@ class ComputerVision:
 					raise CameraException("Unable to read from video device.")
 				height, width = frame.shape[:2]
 
+				if self.trackID is 0:
+					self.findTrack(frame)
+				
 				if not self.processFrame(frame):
 					break
-		elif self.mode is "TRACK":
-			ret, frame = self.cap.read()
-			self.findTrack(frame)
 		else:
 			# Start the Kinect stream.
 			try:
@@ -116,7 +115,9 @@ class ComputerVision:
 		video = np.empty((480,640,4),np.uint8)
 		frame.image.copy_bits(video.ctypes.data)
 		#self.out.write(video)
-		if self.trackID is 0:
+		
+		
+		if self.getTrack is True:
 			self.findTrack(video)
 		else:
 			self.processFrame(video)
@@ -150,7 +151,7 @@ class ComputerVision:
 ##				break
 		candidate = contours[1]
 ##--------------TODO: Change 3 to 2------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-		candidate1 = contours[3]
+		candidate1 = contours[2]
 		#print(candidate)
 		#print('Candidate: '+str(candidate))
 		if candidate is not None:
@@ -162,17 +163,23 @@ class ComputerVision:
 			approx1 = cv2.approxPolyDP(candidate1, epsilon, True)
 			cv2.drawContours(frame, [approx1], -1, (0,255,0), 2)
 			#self.parent.UIQueue.q.put(('CamFeed', frame))
-			print(approx)
+			#print(approx)
+			#print(approx1)
 
 		#TODO: pass this garbage through the queue for the main thread
 		#Pass the outer track then the inner
-		#self.parent.trackQueue.put(approx)
-		#self.parent.trackQueue.put(approx1)
-		
-		cv2.imshow('Crap', frame)
-		while True:
-			key = cv2.waitKey(1)
-			if key == 27: break
+		self.parent.trackQueue.put(approx)
+		self.parent.trackQueue.put(approx1)
+		self.trackIn = approx
+		self.trackOut = approx1
+
+		self.parent.UIQueue.q.put(('CamFeed', frame))
+		self.getTrack = False
+		self.parent.getTrack = True
+##		cv2.imshow('Crap', frame)
+##		while True:
+##			key = cv2.waitKey(1)
+##			if key == 27: break
 	#}
 	
 	def processFrame(self, frame, showFrame = False, draw = True):
@@ -252,6 +259,11 @@ class ComputerVision:
 				label = "FPS: {:.2f}".format(fps)
 			cv2.putText(frame, label, (5, 20),
 				cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
+
+		if len(self.trackIn) > 0:
+			cv2.drawContours(frame, [self.trackIn], -1, (0,255,0), 2)
+		if len(self.trackOut) > 0:
+			cv2.drawContours(frame, [self.trackOut], -1, (0,255,0), 2)
 		
 		#Put the frame in the queue for the UI
 		if self.parent != None:
