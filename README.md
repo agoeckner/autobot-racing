@@ -15,3 +15,5 @@ Autobot Racing uses Python 3, along with a variety of packages:
  * requests
  * numpy
  * pillow
+ * pykalman
+   * scipy
