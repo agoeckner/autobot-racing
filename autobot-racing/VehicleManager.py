@@ -11,6 +11,10 @@ class VehicleManager:
 
 	def __init__(self, parent):
 		self.parent = parent
+	
+	# Make this class iterable.
+	def __getitem__(self, index):
+		return self.vehicleList[index]
 		
 	def addVehicle(self, vehicle):
 		print("Added vehicle with name " + str(vehicle.name) + " and color " + str(vehicle.color))
