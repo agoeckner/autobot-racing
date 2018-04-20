@@ -15,7 +15,7 @@ class ComputerVision:
 	)
 	
 	# Used to determine the cutoff for black/white
-	WHITE_THRESHOLD = 160
+	WHITE_THRESHOLD = 110
 	
 	# Used as a tuning constant for the epsilon value of approxPolyDP.
 	APPROX_ARCLEN_MULTIPLIER = 0.11
@@ -35,6 +35,10 @@ class ComputerVision:
 	# Initializes the computer vision system. Set videoDevice to 0 for camera, -1 for Kinect.
 	def __init__(self, parent, videoDevice = 0):
 		self.parent = parent
+		self.getTrack = False
+		self.trackOut = []
+		self.trackIn = []
+		
 		if parent != None:
 			self.queue = parent.telemetryQueue
 		
@@ -60,7 +64,7 @@ class ComputerVision:
 			ret, frame = self.cap.read()
 			if not ret:
 				raise CameraException("Unable to read from video device.")
-		# self.out = cv2.VideoWriter('motion.avi', -1, 20.0, (640,480))
+		#self.out = cv2.VideoWriter('motion.avi', -1, 20.0, (640,480))
 	
 	# Closes all devices, etc. This function should be called when done with CV.
 	def close(self):
@@ -70,7 +74,7 @@ class ComputerVision:
 		else:
 			self.cap.release()
 		print("Closed")
-		# self.out.release()
+		#self.out.release()
 		cv2.destroyAllWindows()
 
 	# The primary computer vision system loop. This polls the camera as fast as
@@ -85,6 +89,9 @@ class ComputerVision:
 					raise CameraException("Unable to read from video device.")
 				height, width = frame.shape[:2]
 
+				if self.trackID is 0:
+					self.findTrack(frame)
+				
 				if not self.processFrame(frame):
 					break
 		else:
@@ -107,8 +114,73 @@ class ComputerVision:
 	def _processKinectFrame(self, frame):
 		video = np.empty((480,640,4),np.uint8)
 		frame.image.copy_bits(video.ctypes.data)
-		# self.out.write(video)
-		self.processFrame(video)
+		#self.out.write(video)
+		
+		
+		if self.getTrack is True:
+			self.findTrack(video)
+		else:
+			self.processFrame(video)
+	
+	##-----------------------------------------------------------------------------
+	## Identifies the track
+	##-----------------------------------------------------------------------------
+	def findTrack(self, frame): #{
+		candidate = None
+		sizeList = []
+		blurred = cv2.GaussianBlur(frame, (5, 5), 0)
+		gray = cv2.cvtColor(blurred, cv2.COLOR_BGR2GRAY)
+		#lab = cv2.cvtColor(blurred, cv2.COLOR_BGR2LAB)
+		thresh = cv2.threshold(gray, 110, 255, cv2.THRESH_BINARY)[1]
+		
+		# Find all contours.
+		im2, contours, hierarchy = cv2.findContours(thresh,cv2.RETR_TREE,
+			cv2.CHAIN_APPROX_NONE)
+
+		contours.sort(key=lambda x:cv2.arcLength(x, True), reverse=True)
+		#cv2.drawContours(frame, contours, -1, (255,0,0), 1)
+##		for c in contours: #{
+##			sizeList.append(cv2.arcLength(c, True))
+##		#}
+##		sizeList.sort()
+##
+##		for c in contours:
+##			temp = cv2.arcLength(c, True)
+##			if temp == sizeList[1]:
+##				candidate = c
+##				break
+		candidate = contours[1]
+##--------------TODO: Change 3 to 2------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+		candidate1 = contours[2]
+		#print(candidate)
+		#print('Candidate: '+str(candidate))
+		if candidate is not None:
+			epsilon = 0.03 * cv2.arcLength(candidate, True)
+			approx = cv2.approxPolyDP(candidate, epsilon, True)
+			cv2.drawContours(frame, [approx], -1, (0,255,0), 2)
+
+			epsilon = 0.02 * cv2.arcLength(candidate1, True)
+			approx1 = cv2.approxPolyDP(candidate1, epsilon, True)
+			cv2.drawContours(frame, [approx1], -1, (0,255,0), 2)
+			#self.parent.UIQueue.q.put(('CamFeed', frame))
+			#print(approx)
+			#print(approx1)
+
+		#TODO: pass this garbage through the queue for the main thread
+		#Pass the outer track then the inner
+		self.parent.trackQueue.put(approx)
+		self.parent.trackQueue.put(approx1)
+		self.trackIn = approx
+		self.trackOut = approx1
+
+		self.parent.UIQueue.q.put(('CamFeed', frame))
+		self.getTrack = False
+		self.parent.getTrack = True
+##		cv2.imshow('Crap', frame)
+##		while True:
+##			key = cv2.waitKey(1)
+##			if key == 27: break
+	#}
 	
 	def processFrame(self, frame, showFrame = False, draw = True):
 		# Preprocess the image.
@@ -178,11 +250,20 @@ class ComputerVision:
 		if draw:
 			# Do FPS label
 			current = time.time()
-			fps = 1 / (current - self.lastFrameTime)
-			self.lastFrameTime = current
-			label = "FPS: {:.2f}".format(fps)
+			diff = current - self.lastFrameTime
+			if diff == 0:
+				label = "FPS: ?"
+			else:
+				fps = 1 / (current - self.lastFrameTime)
+				self.lastFrameTime = current
+				label = "FPS: {:.2f}".format(fps)
 			cv2.putText(frame, label, (5, 20),
 				cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
+
+		if len(self.trackIn) > 0:
+			cv2.drawContours(frame, [self.trackIn], -1, (0,255,0), 2)
+		if len(self.trackOut) > 0:
+			cv2.drawContours(frame, [self.trackOut], -1, (0,255,0), 2)
 		
 		#Put the frame in the queue for the UI
 		if self.parent != None:
@@ -292,9 +373,8 @@ class CameraException(Exception):
 
 if __name__ == "__main__":
 	# Debug mode
-	cv = ComputerVision(None, -1)#"motion.avi")#"output.avi")
+	cv = ComputerVision(None, 2)#"motion.avi")#"output.avi")
 	try:
 		cv.run(showFrame=True)
 	except KeyboardInterrupt as e:
 		cv.close()
-		raise e
