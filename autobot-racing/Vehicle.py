@@ -4,6 +4,7 @@ from pykalman import KalmanFilter
 import numpy as np
 import sys
 import time
+import math
 
 # TEMPORARY...
 from matplotlib import pyplot as plt
@@ -112,7 +113,7 @@ class Vehicle():
 		initState = self.getCurrentStateVector()
 		
 		# Covariances
-		initialStateCov = 1.0e-3 * np.eye(4)
+		initialStateCov = 1.0e-2 * np.eye(4)
 		transistionCov = 1.0e-4 * np.eye(4)
 		observationCov = 1.0e-4 * np.eye(2)
 		
@@ -172,10 +173,10 @@ class Vehicle():
 		# Do Kalman things.
 		if self.filterInitialized:
 			position = self.updatePositionFilter(rawPosition, deltaTime)
-			print("Got new filtered position: " + str(position))
+			# print("Got new filtered position: " + str(position))
 		else:
 			position = rawPosition
-			print("Got raw position: " + str(position))
+			# print("Got raw position: " + str(position))
 		
 		# Add to the telemetry history.
 		self.actualPosition = position
@@ -186,7 +187,7 @@ class Vehicle():
 		# Calculate vehicle speed/velocity.
 		self.velocity = tuple(np.divide(np.array(self.position[1]) - \
 			np.array(position), deltaTime))
-		self.actualSpeed = np.sqrt(self.velocity.dot(self.velocity))
+		self.actualSpeed = np.sqrt(np.dot(self.velocity, self.velocity))
 		
 		# Update last telemetry time.
 		self.lastTelemetryTime = currentTime
@@ -200,7 +201,7 @@ class Vehicle():
 			return
 		
 		# Determine guidance.
-		desiredHeading = self.guidance.getDesiredHeading(self.actualPosition)
+		desiredHeading = math.degrees(self.guidance.getDesiredHeading(self.actualPosition))
 		desiredSpeed = self.guidance.getDesiredSpeed(self.actualPosition)
 		
 		# Run control algorithm.
@@ -212,12 +213,17 @@ class Vehicle():
 		self.updateSpeed(deltaSpeed)
 		
 		# Snap steering  to trinary, the only steering available on these cars.
+		
+		# info = "DESIRED: " + str(desiredHeading) + ", ACTUAL: " + str(self.actualHeading)
+		# if abs(desiredHeading - self.actualHeading) <= 0.1:
+			# info = "EQUIVALENT"
+		
 		hdg = deltaHeading
 		if hdg < 0.0:
-			# print("TURN LEFT?")
+			# print("TURN LEFT? " + info)
 			hdg = -1
 		elif hdg > 0.0:
-			# print("TURN RIGHT?")
+			# print("TURN RIGHT? " + info)
 			hdg = 1
 		else:
 			hdg = 0

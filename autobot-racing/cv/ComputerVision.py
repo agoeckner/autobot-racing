@@ -1,7 +1,6 @@
-import sys
-if 'pykinect' in sys.modules:
+try:
 	from pykinect import nui
-else:
+except ImportException:
 	print("WARN: Running without Kinect support!")
 import numpy as np
 import cv2
@@ -19,7 +18,8 @@ class ComputerVision:
 	)
 	
 	# Used to determine the cutoff for black/white
-	WHITE_THRESHOLD = 160 #TODO, REAL VALUE: 110
+	# WHITE_THRESHOLD = 160 #FOR RECORDED VIDEO
+	WHITE_THRESHOLD = 110 #FOR REAL-TIME
 	
 	# Used as a tuning constant for the epsilon value of approxPolyDP.
 	APPROX_ARCLEN_MULTIPLIER = 0.11
@@ -145,7 +145,7 @@ class ComputerVision:
 			center = (cX, cY)
 			
 			# Get the heading of the triangle.
-			heading = self.getTriangleHeading(approx)
+			heading = math.degrees(self.getTriangleHeading(approx))
 
 			# Determine color of the pixel at the center of the contour.
 			totalR = 0
@@ -174,7 +174,7 @@ class ComputerVision:
 			if draw:
 				cv2.drawContours(frame, [approx], -1, colorCV, 3)
 				cv2.circle(frame, (cX, cY), 6, (255, 255, 255), -1)
-				label = "({:d}, {:d}), {:.2f}".format(cX, cY, math.degrees(heading))
+				label = "({:d}, {:d}), {:.2f}".format(cX, cY, heading)
 				# label = str(cv2.contourArea(c))
 				cv2.putText(frame, label, (cX - 20, cY - 20),
 					cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
@@ -191,6 +191,11 @@ class ComputerVision:
 				label = "FPS: {:.2f}".format(fps)
 			cv2.putText(frame, label, (5, 20),
 				cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
+				
+			# TEMP, ADD LINES
+			tempTrack = [(100, 100), (100, 300), (500, 300), (500, 100), (100, 100)]
+			cv2.polylines(frame, np.array([tempTrack]), False, (255,0,255), 2)
+			# cv2.fillPoly(frame, np.array([tempTrack]), (255,0,255))
 		
 		#Put the frame in the queue for the UI
 		if self.parent != None:
