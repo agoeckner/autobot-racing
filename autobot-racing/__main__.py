@@ -34,12 +34,12 @@ class FrameworkManager():
 		self.UIQueue = MessageQueue(self)
 
 		# Set up components.
-		self.cv = ComputerVision(self, "../motion.avi")
+		self.cv = ComputerVision(self, -1)#"../motion.avi")
 		self.UserInterface = UIManager(self, self.UIQueue)
 		self.vehicles = VehicleManager(self)
 		
 		# TODO: ADD A BOGUS TRACK
-		self.track = Track([(100, 100), (100, 200), (200, 200), (200, 100), (100, 100)], [])
+		self.track = Track([(100, 100), (100, 300), (500, 300), (500, 100), (100, 100)], [])
 
 	##-----------------------------------------------------------------------------
 	## Start the program.
