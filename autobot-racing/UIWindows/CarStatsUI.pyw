@@ -177,14 +177,18 @@ class CarStatsUI(): #{
 		titleLabel.config(font=("Tahoma", 12))
 		titleLabel.pack(anchor=N, expand=False)
 
-		self.fpsLabel = Label(titleFrame, text='FPS:')
-		self.fpsLabel.config(font=("Tahoma", 10))
-		self.fpsLabel.pack(anchor=NW, expand=False)
+##		self.fpsLabel = Label(titleFrame, text='FPS:')
+##		self.fpsLabel.config(font=("Tahoma", 10))
+##		self.fpsLabel.pack(anchor=NW, expand=False)
 
 		self.CameraFeed = Frame(self.CameraFeedTitleFrame)#, highlightbackground="green", highlightthickness=1)
 		self.CameraFeed.pack(side='top',fill=BOTH, expand=True, padx=2, pady=2)
 		self.image_label = Label(self.CameraFeed)
 		self.image_label.pack()
+
+		self.findTrackButton = Button(self.CameraFeedTitleFrame, text='Find Track', command=self.findTrack, width=16)
+		self.findTrackButton.config(font=("Tahoma", 10))
+		self.findTrackButton.pack(side='bottom',pady=10)
 		
 	#}
 
@@ -408,11 +412,19 @@ class CarStatsUI(): #{
 	def stopRace(self): #{
 		print('Stop Race')
 	#}
+
+	def findTrack(self): #{
+                self.parent.findTrackCallback()
+        #}
 	
 	def updateCamFeed(self): #{
-		message = self.parent.UIQueue.q.get()
-		self.updateCameraFeedFrame(message[1])
-		self.window.after(5,self.updateCamFeed)
+		try:
+			message = self.parent.UIQueue.q.get()
+			self.updateCameraFeedFrame(message[1])
+			self.window.after(5,self.updateCamFeed)
+		except self.parent.UIQueue.q.Empty:
+			print('Empty queue')
+			self.window.after(5,self.updateCamFeed)
 	#}
 #}
 
