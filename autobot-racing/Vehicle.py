@@ -17,7 +17,7 @@ class Vehicle():
 	HEADING_HISTORY_POINTS = 10
 	
 	# The maximum amount of time that a vehicle may be "missing" before stop command is sent.
-	EMERGENCY_STOP_TIMEOUT = 2 #seconds
+	EMERGENCY_STOP_TIMEOUT = 1 #seconds
 
 	def __init__(self, parent, name, IP, port, carFrameID, frame, controlSystem,
 		guidanceSystem,
@@ -211,19 +211,20 @@ class Vehicle():
 		# Update the desired speed/heading values.
 		self.updateHeading(deltaHeading)
 		self.updateSpeed(deltaSpeed)
+		self.desiredSpeed = 0.2
 		
 		# Snap steering  to trinary, the only steering available on these cars.
 		
-		# info = "DESIRED: " + str(desiredHeading) + ", ACTUAL: " + str(self.actualHeading)
-		# if abs(desiredHeading - self.actualHeading) <= 0.1:
-			# info = "EQUIVALENT"
+		info = "DESIRED: " + str(desiredHeading) + ", ACTUAL: " + str(self.actualHeading)
+		if abs(desiredHeading - self.actualHeading) <= 0.1:
+			info = "EQUIVALENT"
 		
 		hdg = deltaHeading
-		if hdg < 0.0:
-			# print("TURN LEFT? " + info)
+		if hdg > 0.0:
+			print("TURN LEFT? " + info)
 			hdg = -1
-		elif hdg > 0.0:
-			# print("TURN RIGHT? " + info)
+		elif hdg < 0.0:
+			print("TURN RIGHT? " + info)
 			hdg = 1
 		else:
 			hdg = 0
