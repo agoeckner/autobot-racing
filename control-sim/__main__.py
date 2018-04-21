@@ -133,7 +133,8 @@ class ControlSim(App):
 	def initSim(self):
 		# Add the track.
 		self.track = SimTrack(
-			[(200, 220), (460, 280), (600, 220), (600, 150), (200, 150), (200, 220)],
+			# [(200, 220), (460, 280), (600, 220), (600, 150), (200, 150), (200, 220)],
+			[(200, 220), (600, 220), (600, 150), (200, 150), (200, 220)],
 			[(100, 320), (450, 370), (700, 320), (700, 50), (100, 50), (100, 320)])
 		
 		# Add the vehicles.
@@ -145,13 +146,13 @@ class ControlSim(App):
 					wallDistance = 12,
 					lookahead = 20),
 				color = (1, 0, 0, 0.5)))
-		self.vehicles.addVehicle(
-			SimVehicle([450,120], pi, 2,
-				ngc.ControlSystem(),
-				ngc.PassingGuidanceSystem(self,
-					wallDistance = 12,
-					lookahead = 100),
-				color = (0, 1, 0, 0.5)))
+		# self.vehicles.addVehicle(
+			# SimVehicle([450,120], pi, 2,
+				# ngc.ControlSystem(),
+				# ngc.PassingGuidanceSystem(self,
+					# wallDistance = 12,
+					# lookahead = 100),
+				# color = (0, 1, 0, 0.5)))
 		# self.vehicles.addVehicle(
 			# SimVehicle([600,90], pi, 5,
 				# ngc.ControlSystem(),
@@ -193,6 +194,9 @@ class ControlSim(App):
 			# Apply changes to vehicle.
 			vehicle.updateHeading(deltaHeading)
 			vehicle.updateSpeed(deltaSpeed)
+			
+			info = "DESIRED: " + str(degrees(desiredHeading)) + ", ACTUAL: " + str(degrees(vehicle.heading)) + ", DELTA: " + str(degrees(deltaHeading))
+			print(info)
 			
 			# Check for a wall collission.
 			if not vehicle.guidance.isPointOnTrack(vehicle.position):

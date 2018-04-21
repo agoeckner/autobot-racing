@@ -17,7 +17,7 @@ class Vehicle():
 	HEADING_HISTORY_POINTS = 10
 	
 	# The maximum amount of time that a vehicle may be "missing" before stop command is sent.
-	EMERGENCY_STOP_TIMEOUT = 1 #seconds
+	EMERGENCY_STOP_TIMEOUT = 0.10 #seconds
 
 	def __init__(self, parent, name, IP, port, carFrameID, frame, controlSystem,
 		guidanceSystem,
@@ -42,7 +42,7 @@ class Vehicle():
 		self.control = parent.parent.controlSystems[controlSystem]()
 		print("Vehicle " + str(name) + " using control system: " + str(self.control))
 		self.guidance = parent.parent.guidanceSystems[guidanceSystem](self.parent.parent,
-			wallDistance = 20, lookahead = 100)
+			wallDistance = 60, lookahead = 200)
 		print("Vehicle " + str(name) + " using guidance system: " + str(self.guidance))
 		self.guidance.vehicle = self
 		
@@ -215,22 +215,26 @@ class Vehicle():
 		# Update the desired speed/heading values.
 		self.updateHeading(deltaHeading)
 		self.updateSpeed(deltaSpeed)
-		self.desiredSpeed = 0.2
+		self.desiredSpeed = 0.0
+		
+		# print(self.parent.parent.track.innerWall)
 		
 		# Snap steering  to trinary, the only steering available on these cars.
 		
-		info = "DESIRED: " + str(desiredHeading) + ", ACTUAL: " + str(self.actualHeading)
-		if abs(desiredHeading - self.actualHeading) <= 0.1:
+		info = "DESIRED: " + str(desiredHeading) + ", ACTUAL: " + str(self.actualHeading) + ", DELTA: " + str(deltaHeading)
+		hdg = deltaHeading
+		if abs(desiredHeading - self.actualHeading) <= 15.0:
+			hdg = 0.0
 			info = "EQUIVALENT"
 		
-		hdg = deltaHeading
-		if hdg > 0.0:
-			print("TURN LEFT? " + info)
+		if hdg < 0.0:
+			# print("TURN LEFT? " + info)
 			hdg = -1
-		elif hdg < 0.0:
-			print("TURN RIGHT? " + info)
+		elif hdg > 0.0:
+			# print("TURN RIGHT? " + info)
 			hdg = 1
 		else:
+			# print("STRAIGHT: "+ info)
 			hdg = 0
 			
 		# TEMPORARY INVERSE
@@ -241,6 +245,7 @@ class Vehicle():
 	
 	def updateHeading(self, deltaHeading):
 		self.desiredHeading += deltaHeading
+		self.desiredHeading = self.desiredHeading % (2 * math.pi)
 	
 	def updateSpeed(self, deltaSpeed):
 		self.desiredSpeed += deltaSpeed

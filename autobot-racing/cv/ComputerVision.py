@@ -7,6 +7,7 @@ import cv2
 import math
 from math import pi
 import time
+import random
 
 class ComputerVision:
 	# The allowed vehicle colors.
@@ -170,20 +171,34 @@ class ComputerVision:
 			#print(approx)
 			#print(approx1)
 
+		outer = []
+		for t in approx:
+			outer.append(tuple(t[0]))
+		outer.append(outer[0])
+		inner = []
+		for t in approx1:
+			cv2.putText(frame, str(tuple(t[0])), tuple(t[0]),
+				cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+			inner.append(tuple(t[0]))
+		inner.append(inner[0])
+		# print(inner)
+		# inner.reverse()
+		print(inner)
 		#TODO: pass this garbage through the queue for the main thread
 		#Pass the outer track then the inner
-		self.parent.trackQueue.put(approx)
-		self.parent.trackQueue.put(approx1)
+		self.parent.trackQueue.put(inner)
+		self.parent.trackQueue.put(outer)
 		self.trackIn = approx
 		self.trackOut = approx1
 
-		self.parent.UIQueue.q.put(('CamFeed', frame))
+		if random.random() < 0.5:
+			self.parent.UIQueue.q.put(('CamFeed', frame))
 		self.getTrack = False
 		self.parent.getTrack = True
-##		cv2.imshow('Crap', frame)
-##		while True:
-##			key = cv2.waitKey(1)
-##			if key == 27: break
+		# cv2.imshow('frame', frame)
+		# while True:
+			# key = cv2.waitKey(1)
+			# if key == 27: break
 	#}
 	
 	def processFrame(self, frame, showFrame = False, draw = True):

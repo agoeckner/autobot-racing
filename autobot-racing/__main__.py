@@ -58,6 +58,7 @@ class FrameworkManager():
 		tUI.daemon = True
 		#tQueue.daemon = True
 		tUI.start()
+		time.sleep(5)
 		tCV.start()
 		#tQueue.start()
 
