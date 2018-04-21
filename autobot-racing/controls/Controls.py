@@ -4,6 +4,9 @@ from numpy.linalg import *
 from Utilities import *
 import time
 
+from shapely.geometry import LineString, Point
+import itertools
+
 class ControlSystem:
 	def __init__(self):
 		pass
@@ -91,11 +94,10 @@ class GuidanceSystem:
 	def __init__(self, environment):
 		self.environment = environment
 		self.vehicle = None #will be set by VehicleManager
-		self.track = environment.track
 	
 	# Returns the desired heading at a specific position on the track.
 	def getDesiredHeading(self, pos):
-		((wall0, wall1), d) = self._getClosestPolyVertex(pos, self.track.innerWall)
+		((wall0, wall1), d) = self._getClosestPolyVertex(pos, self.environment.track.innerWall)
 		heading = atan2(wall1[1] - wall0[1], wall1[0] - wall0[0])
 		return heading
 	
@@ -106,26 +108,57 @@ class GuidanceSystem:
 	
 	# Determines if a point is within the boundaries of the track.
 	def isPointOnTrack(self, point):
-		if isPointInPolygon(self.track.innerWall, point):
+		if isPointInPolygon(self.environment.track.innerWall, point):
 			return False
-		if isPointInPolygon(self.track.outerWall, point):
+		if isPointInPolygon(self.environment.track.outerWall, point):
 			return True
 		return False
 	
 	# Returns tuple of ((line0, line1), dist), where line0 and line1 are
 	# points on closest vertex, and dist is distance to closest point on line.
 	def _getClosestPolyVertex(self, pos, polygon):
+		def dist(A, B, C):
+			"""Calculate the distance of point C to line segment spanned by points A, B.
+			"""
+
+			a = np.asarray(A)
+			b = np.asarray(B)
+			c = np.asarray(C)
+			#project c onto line spanned by a,b but consider the end points
+			#should the projection fall "outside" of the segment    
+			n, v = b - a, c - a
+			#the projection q of c onto the infinite line defined by points a,b
+			#can be parametrized as q = a + t*(b - a). In terms of dot-products,
+			#the coefficient t is (c - a).(b - a)/( (b-a).(b-a) ). If we want
+			#to restrict the "projected" point to belong to the finite segment
+			#connecting points a and b, it's sufficient to "clip" it into
+			#interval [0,1] - 0 corresponds to a, 1 corresponds to b.
+			t = max(0, min(np.dot(v, n)/np.dot(n, n), 1))
+			return np.linalg.norm(c - (a + t * n)) #or np.linalg.norm(v - t*n)
+		
 		closest = ()
-		min = 99999999
+		minD = 99999999
+		print("START FOR POLY: " + str(polygon))
+		
+		#[(195, 179), (198, 283), (373, 279), (372, 179), (195, 179)]
 		p1 = polygon[0]
 		for p in range(1, len(polygon)):
 			p2 = polygon[p]
-			d = np.cross(np.subtract(p2, p1), np.subtract(p1, pos)) / norm(np.subtract(p2, p1))
-			if d < min:
-				min = d
+			print("P1: " + str(p1) + " P2: " + str(p2))
+			d = dist(p1, p2, pos)
+			# d = np.cross(np.subtract(p2, p1), np.subtract(p1, pos)) / norm(np.subtract(p2, p1))
+			# d = np.cross(np.subtract(p1, p2), np.subtract(p2, pos)) / norm(np.subtract(p1, p2))
+			print("   d: " + str(d))
+			# if d < 0:
+				# continue #raise Exception("NEGATIVE D: " + str(d))
+			if d < minD:
+				minD = d
 				closest = (p1, p2)
+				print("   New closest: " + str(closest))
 			p1 = p2
-		return (closest, abs(min))
+		print("RESULT: " + str(closest))
+		# exit(0)
+		return (closest, abs(minD))
 
 class WallFollowingGuidanceSystem(GuidanceSystem):	
 	def __init__(self, *args, wallDistance = 20, lookahead = 45, **kwargs):
@@ -137,7 +170,9 @@ class WallFollowingGuidanceSystem(GuidanceSystem):
 	
 	# Returns the desired heading at a specific position on the track.
 	def getDesiredHeading(self, pos):
-		((wall0, wall1), d) = self._getClosestPolyVertex(pos, self.track.innerWall)
+		((wall0, wall1), d) = self._getClosestPolyVertex(pos, self.environment.track.innerWall)
+		print("GOT WALL: " + str((wall0, wall1)))
+
 		self.actualWallDist = d
 		# Straight-line heading along wall.
 		ha = atan2(wall1[1] - wall0[1], wall1[0] - wall0[0])
