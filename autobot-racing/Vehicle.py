@@ -210,33 +210,43 @@ class Vehicle():
 		desiredHeading = math.degrees(self.guidance.getDesiredHeading(self.actualPosition))
 		desiredSpeed = self.guidance.getDesiredSpeed(self.actualPosition)
 		
+		# Fix heading wrap.
+		# self.actualHeading = self.actualHeading % 360.0
+		# desiredHeading = desiredHeading % 360.0
+		# if self.actualHeading < 0:
+			# self.actualHeading = -(self.actualHeading % 180.0)
+		# else:
+			# self.actualHeading = self.actualHeading % 180.0
+		# if desiredHeading < 0:
+			# desiredHeading = -(desiredHeading % 180.0)
+		# else:
+			# desiredHeading = desiredHeading % 180.0
+		
 		# Run control algorithm.
 		deltaHeading = self.control.heading(self.actualHeading, desiredHeading)
 		deltaSpeed = self.control.throttle(self.actualSpeed, desiredSpeed)
 		
 		# Update the desired speed/heading values.
-		self.updateHeading(deltaHeading)
-		self.updateSpeed(deltaSpeed)
-		self.desiredSpeed = 0.1
-		
-		# print(self.parent.parent.track.innerWall)
-		
+		self.updateDesiredHeading(desiredHeading)
+		self.updateDesiredSpeed(deltaSpeed)
+		self.desiredSpeed = 0.0
+				
 		# Snap steering  to trinary, the only steering available on these cars.
 		
-		info = "DESIRED: " + str(desiredHeading) + ", ACTUAL: " + str(self.actualHeading) + ", DELTA: " + str(deltaHeading)
-		hdg = deltaHeading
-		if abs(desiredHeading - self.actualHeading) <= 15.0:
+		if abs(deltaHeading) < 10.0:
 			hdg = 0.0
-			info = "EQUIVALENT"
+		else:
+			hdg = deltaHeading
+		info = "DESIRED: " + str(self.desiredHeading) + ", ACTUAL: " + str(self.actualHeading) + ", DELTA: " + str(deltaHeading) + ", ACTUAL DELTA: " + str(hdg)
 		
 		if hdg < 0.0:
-			# print("TURN LEFT? " + info)
+			print("TURN LEFT? " + info)
 			hdg = -1
 		elif hdg > 0.0:
-			# print("TURN RIGHT? " + info)
+			print("TURN RIGHT? " + info)
 			hdg = 1
 		else:
-			# print("STRAIGHT: "+ info)
+			print("STRAIGHT: "+ info)
 			hdg = 0
 			
 		# TEMPORARY INVERSE
@@ -245,11 +255,14 @@ class Vehicle():
 		# Send command to the car.
 		self.sendMsg(hdg, self.desiredSpeed)
 	
-	def updateHeading(self, deltaHeading):
-		self.desiredHeading += deltaHeading
-		self.desiredHeading = self.desiredHeading % (2 * math.pi)
+	def updateDesiredHeading(self, desiredHeading):
+		self.desiredHeading = desiredHeading
+		# self.desiredHeading = desiredHeading % 360.0 #(2 * math.pi)
+		# if abs(deltaHeading) >= 5.0:
+			# self.desiredHeading += deltaHeading
+			# self.desiredHeading = self.desiredHeading % 360.0 #(2 * math.pi)
 	
-	def updateSpeed(self, deltaSpeed):
+	def updateDesiredSpeed(self, deltaSpeed):
 		self.desiredSpeed += deltaSpeed
 	
 	#
