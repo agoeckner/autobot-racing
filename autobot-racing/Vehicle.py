@@ -197,7 +197,13 @@ class Vehicle():
 		ltt = self.lastTelemetryTime
 		if ltt != None and (time.time() - ltt) >= self.EMERGENCY_STOP_TIMEOUT:
 			self.sendMsg(0, 0.0)
-			print("WARN: Vehicle " + str(self.name) + " has been stopped.")
+			print("WARN: Vehicle " + str(self.name) + " has been stopped. [TIMEOUT]")
+			return
+		
+		# Automatically stop if we go outside the track.
+		if not self.guidance.isPointOnTrack(self.actualPosition):
+			self.sendMsg(0, 0.0)
+			print("WARN: Vehicle " + str(self.name) + " has been stopped. [OUT OF BOUNDS]")
 			return
 		elif self.parent.parent.raceState is 'STOP' or self.parent.parent.raceState is 'PAUSE':
 			self.sendMsg(0, 0.0)
