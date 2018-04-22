@@ -214,17 +214,9 @@ class Vehicle():
 		desiredHeading = self.guidance.getDesiredHeading(self.actualPosition)
 		desiredSpeed = self.guidance.getDesiredSpeed(self.actualPosition)
 		
-		# Fix heading wrap.
-		# self.actualHeading = self.actualHeading % (2 * math.pi)
-		# desiredHeading = desiredHeading % (2 * math.pi)
-		# if self.actualHeading < 0:
-			# self.actualHeading = -(self.actualHeading % math.pi)
-		# else:
-			# self.actualHeading = self.actualHeading % math.pi
-		# if desiredHeading < 0:
-			# desiredHeading = -(desiredHeading % math.pi)
-		# else:
-			# desiredHeading = desiredHeading % math.pi
+		# Clamp headings between 0 and 2 * PI.
+		self.actualHeading = self.actualHeading % (2 * math.pi)
+		desiredHeading = desiredHeading % (2 * math.pi)
 		
 		# Run control algorithm.
 		deltaHeading = self.control.heading(self.actualHeading, desiredHeading)
