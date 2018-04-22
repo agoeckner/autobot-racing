@@ -13,11 +13,12 @@ class ControlSystem:
 
 	# Given an actual and a desired heading, returns new delta heading value.
 	def heading(self, actual, desired):
-		if desired - actual > 180.0:#pi:
-			actual += 360.0#2 * pi
-		elif desired - actual < -180.0:#-pi:
-			actual -= 360.0#2 * pi;
-		return desired - actual
+		error = desired - actual
+		if error > pi:
+			error -= 2 * pi
+		elif error < -pi:
+			error += 2 * pi;
+		return error
 	
 	# Given an actual and a desired throttle, returns new delta speed value.
 	def throttle(self, actual, desired):
