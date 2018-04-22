@@ -211,7 +211,7 @@ class Vehicle():
 		# Update the desired speed/heading values.
 		self.updateHeading(deltaHeading)
 		self.updateSpeed(deltaSpeed)
-		self.desiredSpeed = 0.0
+		self.desiredSpeed = 0.1
 		
 		# print(self.parent.parent.track.innerWall)
 		
