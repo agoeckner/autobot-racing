@@ -13,10 +13,10 @@ class ControlSystem:
 
 	# Given an actual and a desired heading, returns new delta heading value.
 	def heading(self, actual, desired):
-		if desired - actual > pi:
-			actual += 2 * pi
-		elif desired - actual < -pi:
-			actual -= 2 * pi;
+		if desired - actual > 180.0:#pi:
+			actual += 360.0#2 * pi
+		elif desired - actual < -180.0:#-pi:
+			actual -= 360.0#2 * pi;
 		return desired - actual
 	
 	# Given an actual and a desired throttle, returns new delta speed value.
@@ -194,26 +194,26 @@ class GuidanceSystem:
 		
 		closest = ()
 		minD = 99999999
-		print("START FOR POLY: " + str(polygon))
-		print("CHECK AT POINT: " + str(pos))
+		# print("START FOR POLY: " + str(polygon))
+		# print("CHECK AT POINT: " + str(pos))
 		
 		#[(195, 179), (198, 283), (373, 279), (372, 179), (195, 179)]
 		p1 = polygon[0]
 		for p in range(1, len(polygon)):
 			p2 = polygon[p]
-			print("P1: " + str(p1) + " P2: " + str(p2))
+			# print("P1: " + str(p1) + " P2: " + str(p2))
 			d = point_to_line_dist(p1, p2, pos)
 			# d = np.cross(np.subtract(p2, p1), np.subtract(p1, pos)) / norm(np.subtract(p2, p1))
 			# d = np.cross(np.subtract(p1, p2), np.subtract(p2, pos)) / norm(np.subtract(p1, p2))
-			print("   d: " + str(d))
+			# print("   d: " + str(d))
 			# if d < 0:
 				# continue #raise Exception("NEGATIVE D: " + str(d))
 			if d < minD:
 				minD = d
 				closest = (p1, p2)
-				print("   New closest: " + str(closest))
+				# print("   New closest: " + str(closest))
 			p1 = p2
-		print("RESULT: " + str(closest))
+		# print("RESULT: " + str(closest))
 		# exit(0)
 		return (closest, abs(minD))
 
@@ -228,7 +228,7 @@ class WallFollowingGuidanceSystem(GuidanceSystem):
 	# Returns the desired heading at a specific position on the track.
 	def getDesiredHeading(self, pos):
 		((wall0, wall1), d) = self._getClosestPolyVertex(pos, self.environment.track.innerWall)
-		print("GOT WALL: " + str((wall0, wall1)))
+		# print("GOT WALL: " + str((wall0, wall1)))
 
 		self.actualWallDist = d
 		# Straight-line heading along wall.

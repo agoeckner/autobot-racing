@@ -98,7 +98,7 @@ class SimVehicle:
 		self.speed = self.initialSpeed
 	
 	def updateHeading(self, delta):
-		if abs(delta) >= 0.05:
+		if abs(delta) >= 0.087:
 			# Clamp the turn rate.
 			if delta > 0:
 				self.heading += self.MIN_TURN_ANGLE #min(delta, self.MIN_TURN_ANGLE)
