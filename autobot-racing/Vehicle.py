@@ -207,20 +207,20 @@ class Vehicle():
 			return
 		
 		# Determine guidance.
-		desiredHeading = math.degrees(self.guidance.getDesiredHeading(self.actualPosition))
+		desiredHeading = self.guidance.getDesiredHeading(self.actualPosition)
 		desiredSpeed = self.guidance.getDesiredSpeed(self.actualPosition)
 		
 		# Fix heading wrap.
-		# self.actualHeading = self.actualHeading % 360.0
-		# desiredHeading = desiredHeading % 360.0
+		# self.actualHeading = self.actualHeading % (2 * math.pi)
+		# desiredHeading = desiredHeading % (2 * math.pi)
 		# if self.actualHeading < 0:
-			# self.actualHeading = -(self.actualHeading % 180.0)
+			# self.actualHeading = -(self.actualHeading % math.pi)
 		# else:
-			# self.actualHeading = self.actualHeading % 180.0
+			# self.actualHeading = self.actualHeading % math.pi
 		# if desiredHeading < 0:
-			# desiredHeading = -(desiredHeading % 180.0)
+			# desiredHeading = -(desiredHeading % math.pi)
 		# else:
-			# desiredHeading = desiredHeading % 180.0
+			# desiredHeading = desiredHeading % math.pi
 		
 		# Run control algorithm.
 		deltaHeading = self.control.heading(self.actualHeading, desiredHeading)
@@ -233,7 +233,7 @@ class Vehicle():
 				
 		# Snap steering  to trinary, the only steering available on these cars.
 		
-		if abs(deltaHeading) < 10.0:
+		if abs(deltaHeading) < math.radians(10):
 			hdg = 0.0
 		else:
 			hdg = deltaHeading
@@ -257,10 +257,10 @@ class Vehicle():
 	
 	def updateDesiredHeading(self, desiredHeading):
 		self.desiredHeading = desiredHeading
-		# self.desiredHeading = desiredHeading % 360.0 #(2 * math.pi)
+		# self.desiredHeading = desiredHeading % 2 * math.pi #(2 * math.pi)
 		# if abs(deltaHeading) >= 5.0:
 			# self.desiredHeading += deltaHeading
-			# self.desiredHeading = self.desiredHeading % 360.0 #(2 * math.pi)
+			# self.desiredHeading = self.desiredHeading % 2 * math.pi #(2 * math.pi)
 	
 	def updateDesiredSpeed(self, deltaSpeed):
 		self.desiredSpeed += deltaSpeed

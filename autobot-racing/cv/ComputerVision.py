@@ -232,7 +232,7 @@ class ComputerVision:
 			center = (cX, cY)
 			
 			# Get the heading of the triangle.
-			heading = math.degrees(self.getTriangleHeading(approx))
+			heading = self.getTriangleHeading(approx)
 
 			# Determine color of the pixel at the center of the contour.
 			totalR = 0
@@ -261,7 +261,7 @@ class ComputerVision:
 			if draw:
 				cv2.drawContours(frame, [approx], -1, colorCV, 3)
 				cv2.circle(frame, (cX, cY), 6, (255, 255, 255), -1)
-				label = "({:d}, {:d}), {:.2f}".format(cX, cY, heading)
+				label = "({:d}, {:d}), {:.2f}".format(cX, cY, math.degrees(heading))
 				# label = str(cv2.contourArea(c))
 				cv2.putText(frame, label, (cX - 20, cY - 20),
 					cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
