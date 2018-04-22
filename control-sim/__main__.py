@@ -133,14 +133,16 @@ class ControlSim(App):
 	def initSim(self):
 		# Add the track.
 		self.track = SimTrack(
-			# [(200, 220), (460, 280), (600, 220), (600, 150), (200, 150), (200, 220)],
-			[(200, 220), (600, 220), (600, 150), (200, 150), (200, 220)],
-			[(100, 320), (450, 370), (700, 320), (700, 50), (100, 50), (100, 320)])
+			#INNER-NORMAL [(200, 220), (460, 280), (600, 220), (600, 150), (200, 150), (200, 220)],
+			#OUTER-NORMAL[(100, 320), (450, 370), (700, 320), (700, 50), (100, 50), (100, 320)])
+			# TEMP TRACKS:
+			[(153, 143), (196, 243), (373, 240), (372, 142), (153, 143)],
+			[(33, 19), (548, 33), (549, 407), (31, 397), (33, 19)])
 		
 		# Add the vehicles.
 		self.vehicles = SimVehicleManager(self)
 		self.vehicles.addVehicle(
-			SimVehicle([600,120], pi, 7,
+			SimVehicle([300,120], pi, 7,
 				ngc.ControlSystem(),
 				ngc.PassingGuidanceSystem(self,
 					wallDistance = 12,
