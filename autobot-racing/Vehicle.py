@@ -222,23 +222,23 @@ class Vehicle():
 		self.updateDesiredHeading(desiredHeading)
 		self.updateDesiredSpeed(deltaSpeed)
 		self.desiredSpeed = 0.0
-				
+		
 		# Snap steering  to trinary, the only steering available on these cars.
 		
-		if abs(deltaHeading) < math.radians(10):
+		if abs(deltaHeading) < math.radians(5) and False:
 			hdg = 0.0
 		else:
 			hdg = deltaHeading
 		info = "DESIRED: " + str(self.desiredHeading) + ", ACTUAL: " + str(self.actualHeading) + ", DELTA: " + str(deltaHeading) + ", ACTUAL DELTA: " + str(hdg)
 		
 		if hdg < 0.0:
-			print("TURN LEFT? " + info)
+			# print("TURN LEFT? " + info)
 			hdg = -1
 		elif hdg > 0.0:
-			print("TURN RIGHT? " + info)
+			# print("TURN RIGHT? " + info)
 			hdg = 1
 		else:
-			print("STRAIGHT: "+ info)
+			# print("STRAIGHT: "+ info)
 			hdg = 0
 			
 		# TEMPORARY INVERSE
