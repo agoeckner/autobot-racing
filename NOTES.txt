@@ -1,0 +1,4 @@
+NOTES ABOUT RUNNING THE CARS:
+ - Always run cars clockwise.
+ - Short sides both go CCW (or was it CW) together
+ - The long sides both go the opposite direction together
