@@ -17,7 +17,9 @@ class ControlSystem:
 		if error > pi:
 			error -= 2 * pi
 		elif error < -pi:
-			error += 2 * pi;
+			error += 2 * pi
+		
+		# print("DELTA HEADING: " + str(degrees(error)))
 		return error
 	
 	# Given an actual and a desired throttle, returns new delta speed value.
@@ -95,6 +97,7 @@ class GuidanceSystem:
 	def __init__(self, environment):
 		self.environment = environment
 		self.vehicle = None #will be set by VehicleManager
+		self.prevClosest = None
 	
 	# Returns the desired heading at a specific position on the track.
 	def getDesiredHeading(self, pos):
@@ -169,10 +172,10 @@ class GuidanceSystem:
 			is_betw_x = lp1_x <= x_seg <= lp2_x or lp2_x <= x_seg <= lp1_x
 			is_betw_y = lp1_y <= y_seg <= lp2_y or lp2_y <= y_seg <= lp1_y
 			if is_betw_x and is_betw_y:
-				return segment_dist
+				return (segment_dist, False)
 			else:
 				# if not, then return the minimum distance to the segment endpoints
-				return endpoint_dist
+				return (endpoint_dist, True)
 			
 		def dist(A, B, C):
 			"""Calculate the distance of point C to line segment spanned by points A, B.
@@ -194,6 +197,7 @@ class GuidanceSystem:
 			return np.linalg.norm(v - t*n)
 		
 		closest = ()
+		setPrevClosest = False
 		minD = 99999999
 		# print("START FOR POLY: " + str(polygon))
 		# print("CHECK AT POINT: " + str(pos))
@@ -203,7 +207,10 @@ class GuidanceSystem:
 		for p in range(1, len(polygon)):
 			p2 = polygon[p]
 			# print("P1: " + str(p1) + " P2: " + str(p2))
-			d = point_to_line_dist(p1, p2, pos)
+			(d, outside) = point_to_line_dist(p1, p2, pos)
+			if outside and (p1, p2) == self.prevClosest:
+				# print("Skip previous: " + str(self.prevClosest))
+				continue
 			# d = np.cross(np.subtract(p2, p1), np.subtract(p1, pos)) / norm(np.subtract(p2, p1))
 			# d = np.cross(np.subtract(p1, p2), np.subtract(p2, pos)) / norm(np.subtract(p1, p2))
 			# print("   d: " + str(d))
@@ -211,11 +218,15 @@ class GuidanceSystem:
 				# continue #raise Exception("NEGATIVE D: " + str(d))
 			if d < minD:
 				minD = d
+				setPrevClosest = not outside
 				closest = (p1, p2)
 				# print("   New closest: " + str(closest))
 			p1 = p2
 		# print("RESULT: " + str(closest))
 		# exit(0)
+		if setPrevClosest:
+			self.prevClosest = closest
+			# print("PREV CLOSEST SET TO " + str(closest))
 		return (closest, abs(minD))
 
 class WallFollowingGuidanceSystem(GuidanceSystem):	
@@ -228,13 +239,52 @@ class WallFollowingGuidanceSystem(GuidanceSystem):
 	
 	# Returns the desired heading at a specific position on the track.
 	def getDesiredHeading(self, pos):
+		
+		def getBearing(a, b):
+			difY = b[1] - a[1]
+			calc = sin(difY) * cos(b[0])
+			calc2 = cos(a[0]) * sin(b[0]) - sin(a[0]) * cos(b[0]) * cos(difY)
+			calc = atan2(calc,calc2)
+			return calc
+		
 		((wall0, wall1), d) = self._getClosestPolyVertex(pos, self.environment.track.innerWall)
-		# print("GOT WALL: " + str((wall0, wall1)))
+		# print("GOT WALL: " + str((wall1, wall0)))
 
 		self.actualWallDist = d
+
 		# Straight-line heading along wall.
-		ha = atan2(wall1[1] - wall0[1], wall1[0] - wall0[0])
+		# thetaW = getBearing(wall0, wall1)
+		thetaW = atan2(wall0[1] - wall1[1], wall0[0] - wall1[0]) % (2 * pi)
+		print(str(thetaW) + " " + str(degrees(thetaW)))
+		# print("THETA W: " + str(degrees(thetaW)))
+		
 		# Heading that converges to correct distance from wall.
-		hd = atan2(d - self.desiredWallDist, self.distLookahead)
-		heading = ha - hd
+		thetaD = pi / 2 - atan2(self.distLookahead, d - self.desiredWallDist)
+		
+		# heading = thetaW + thetaD
+		# if thetaW > (pi / 4) and thetaW < (5 * pi / 4):
+			# print("LEFT QUADRANTS")
+			# heading = thetaW + thetaD
+		# else:
+			# print("RIGHT QUADRANTS")
+			# heading = thetaW - thetaD
+		heading = thetaW + thetaD
+		
+		# # Straight-line heading along wall.
+		# hw = getBearing(wall1, wall0)#atan2(wall1[1] - wall0[1], wall1[0] - wall0[0])
+		# ha = actualHeading
+		# phi = hw - ha
+		# # Get sides of triangle.
+		# r1 = self.distLookahead
+		# r2 = sin(phi) * prevDist
+		# # Get final angle.
+		# theta = atan2(-r2, r1)
+		# heading = hw - theta
+		
+		# print("DISTANCE ACTUAL: " + str(d))
+		# print("DISTANCE DESIRED: " + str(self.desiredWallDist))
+		# print("DISTANCE LOOKAHEAD: " + str(self.distLookahead))
+		# print("HW: " + str(degrees(hw)) + ", HD: " + str(degrees(hd)))
+		# print("DESIRED HEADING: " + str(degrees(heading)))
+		
 		return heading

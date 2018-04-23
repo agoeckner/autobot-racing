@@ -14,8 +14,12 @@ import time
 class Track:
 	def __init__(self, innerWall, outerWall):
 		self.innerWall = innerWall
+		# self.innerWall.reverse()
 		self.outerWall = outerWall
-		self.track = self
+		print("INNER WALL: " + str(self.innerWall))
+		print("OUTER WALL: " + str(self.outerWall))
+
+		# self.track = self
 
 
 class FrameworkManager():
@@ -68,8 +72,6 @@ class FrameworkManager():
 			while True:
 				if self.getTrack is True:
 					self.track = Track(self.trackQueue.get(), self.trackQueue.get())
-					print("INNER WALL: " + str(self.track.innerWall))
-					print("OUTER WALL: " + str(self.track.outerWall))
 					self.getTrack = False
 				self.getLatestTelemetry()
 				self.runNavGuidanceControl()

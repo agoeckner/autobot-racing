@@ -7,6 +7,7 @@ from kivy.uix.widget import Widget
 from kivy.uix.button import Button
 from kivy.uix.label import Label
 from kivy.graphics import Color, Ellipse, Line
+import time
 
 # Import control/guidance modules from the actual program.
 import sys
@@ -60,6 +61,7 @@ class SimDisplay(Widget):
 class SimTrack:
 	def __init__(self, innerWall, outerWall):
 		self.innerWall = innerWall
+		# self.innerWall.reverse() # TODO: TEMPORARY REVERSAL
 		self.outerWall = outerWall
 
 class SimVehicleManager:
@@ -98,7 +100,7 @@ class SimVehicle:
 		self.speed = self.initialSpeed
 	
 	def updateHeading(self, delta):
-		if abs(delta) >= 0.087:
+		if abs(delta) >= 0.05:#0.087:
 			# Clamp the turn rate.
 			if delta > 0:
 				self.heading += self.MIN_TURN_ANGLE #min(delta, self.MIN_TURN_ANGLE)
@@ -133,19 +135,20 @@ class ControlSim(App):
 	def initSim(self):
 		# Add the track.
 		self.track = SimTrack(
-			#INNER-NORMAL [(200, 220), (460, 280), (600, 220), (600, 150), (200, 150), (200, 220)],
-			#OUTER-NORMAL[(100, 320), (450, 370), (700, 320), (700, 50), (100, 50), (100, 320)])
+			# NORMAL TRACKS:
+			[(200, 220), (460, 280), (600, 220), (600, 150), (200, 150), (200, 220)],
+			[(100, 320), (450, 370), (700, 320), (700, 50), (100, 50), (100, 320)])
 			# TEMP TRACKS:
-			[(153, 143), (196, 243), (373, 240), (372, 142), (153, 143)],
-			[(33, 19), (548, 33), (549, 407), (31, 397), (33, 19)])
+			# [(153, 143), (196, 243), (373, 240), (372, 142), (153, 143)],
+			# [(33, 19), (548, 33), (549, 407), (31, 397), (33, 19)])
 		
 		# Add the vehicles.
 		self.vehicles = SimVehicleManager(self)
 		self.vehicles.addVehicle(
-			SimVehicle([300,120], pi, 7,
+			SimVehicle([500,70], pi/2, 7,
 				ngc.ControlSystem(),
-				ngc.PassingGuidanceSystem(self,
-					wallDistance = 12,
+				ngc.WallFollowingGuidanceSystem(self,
+					wallDistance = 20,
 					lookahead = 20),
 				color = (1, 0, 0, 0.5)))
 		# self.vehicles.addVehicle(
@@ -198,12 +201,11 @@ class ControlSim(App):
 			vehicle.updateSpeed(deltaSpeed)
 			
 			info = "DESIRED: " + str(degrees(desiredHeading)) + ", ACTUAL: " + str(degrees(vehicle.heading)) + ", DELTA: " + str(degrees(deltaHeading))
-			print(info)
-			
+			# print(info)
 			# Check for a wall collission.
 			if not vehicle.guidance.isPointOnTrack(vehicle.position):
 				vehicle.speed = 0
-			
+						
 		return True #false to stop
 
 if __name__ == '__main__':
