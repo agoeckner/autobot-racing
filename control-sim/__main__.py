@@ -33,7 +33,7 @@ class SimDisplay(Widget):
 		print("LOCATION: " + str(pos))
 		
 		heading = self.par.vehicles[0].guidance.getDesiredHeading(pos)
-		print("   HEADING: " + str(degrees(heading)))
+		# print("   HEADING: " + str(degrees(heading)))
 		
 		self.draw_trajectory(pos, heading)
 	
@@ -71,8 +71,8 @@ class SimDisplay(Widget):
 		# Trajectory lines.
 		for vehicle in vehicles:
 			pos = vehicle.position
-			futurePoint = (pos[0] + cos(vehicle.heading) * vehicle.speed * self.FUTURE_LINE_SCALE,
-				pos[1] + sin(vehicle.heading) * vehicle.speed * self.FUTURE_LINE_SCALE)
+			futurePoint = (pos[0] + cos(vehicle.heading) * vehicle.actualSpeed * self.FUTURE_LINE_SCALE,
+				pos[1] + sin(vehicle.heading) * vehicle.actualSpeed * self.FUTURE_LINE_SCALE)
 			with self.canvas:
 				Color(*vehicle.color, mode='rgba')
 				if vehicle not in self.traj or self.traj[vehicle] == None:
@@ -111,7 +111,7 @@ class SimVehicleManager:
 class SimVehicle:
 	# Turning radius measured to be ~1.5 feet
 	# TODO: Properly implement turning radius.
-	MIN_TURN_ANGLE = pi / 8
+	MIN_TURN_ANGLE = pi / 36
 
 	def __init__(self, initialPosition, initialHeading, initialSpeed,
 			control, guidance, color = (1, 0, 0, 1)):
@@ -120,7 +120,7 @@ class SimVehicle:
 		self.initialSpeed = initialSpeed
 		self.position = initialPosition
 		self.heading = initialHeading
-		self.speed = initialSpeed
+		self.actualSpeed = initialSpeed
 		self.color = color
 		self.control = control
 		self.guidance = guidance
@@ -128,10 +128,10 @@ class SimVehicle:
 	def reset(self):
 		self.position = self.initialPosition
 		self.heading = self.initialHeading
-		self.speed = self.initialSpeed
+		self.actualSpeed = self.initialSpeed
 	
 	def updateHeading(self, delta):
-		# if abs(delta) >= 0.05:#0.087:
+		if abs(delta) >= 0.087:
 			# Clamp the turn rate.
 			if delta > 0:
 				self.heading += self.MIN_TURN_ANGLE #min(delta, self.MIN_TURN_ANGLE)
@@ -142,7 +142,7 @@ class SimVehicle:
 			self.heading = self.heading % (2 * pi)
 	
 	def updateSpeed(self, delta):
-		self.speed += delta
+		self.actualSpeed += delta
 
 class ControlSim(App):
 
@@ -178,12 +178,12 @@ class ControlSim(App):
 		self.vehicles.addVehicle(
 			SimVehicle([500,70], pi/2, 7,
 				ngc.ControlSystem(),
-				ngc.WallFollowingGuidanceSystem(self,
+				ngc.PassingGuidanceSystem(self,
 					wallDistance = 20,
-					lookahead = 20),
+					lookahead = 25),
 				color = (1, 0, 0, 0.5)))
 		# self.vehicles.addVehicle(
-			# SimVehicle([450,120], pi, 2,
+			# SimVehicle([450,120], pi, 6,
 				# ngc.ControlSystem(),
 				# ngc.PassingGuidanceSystem(self,
 					# wallDistance = 12,
@@ -209,11 +209,12 @@ class ControlSim(App):
 	
 	def step(self, dt):
 		self.display.on_step(self.vehicles)
+		
 		# return
 		for vehicle in self.vehicles:
 			# Move the vehicle.
-			vehicle.position[0] += cos(vehicle.heading) * vehicle.speed
-			vehicle.position[1] += sin(vehicle.heading) * vehicle.speed
+			vehicle.position[0] += cos(vehicle.heading) * vehicle.actualSpeed
+			vehicle.position[1] += sin(vehicle.heading) * vehicle.actualSpeed
 			
 			# Determine guidance.
 			desiredHeading = vehicle.guidance.getDesiredHeading(vehicle.position)
@@ -225,21 +226,21 @@ class ControlSim(App):
 			
 			# Run control algorithm.
 			deltaHeading = vehicle.control.heading(vehicle.heading, desiredHeading)
-			deltaSpeed = vehicle.control.throttle(vehicle.speed, desiredSpeed)
+			deltaSpeed = vehicle.control.throttle(vehicle.actualSpeed, desiredSpeed)
 			
 			# Add some error.
-			# if randint(0, 5) == 5:
-				# deltaHeading = deltaHeading + 50 * (random() - 0.5)
+			if randint(0, 6) == 0:
+				deltaHeading = deltaHeading + 2 * (random() - 0.5)
 			
 			# Apply changes to vehicle.
 			vehicle.updateHeading(deltaHeading)
 			vehicle.updateSpeed(deltaSpeed)
 			
-			info = "DESIRED: " + str(degrees(desiredHeading)) + ", ACTUAL: " + str(degrees(vehicle.heading)) + ", DELTA: " + str(degrees(deltaHeading))
+			# info = "DESIRED: " + str(degrees(desiredHeading)) + ", ACTUAL: " + str(degrees(vehicle.heading)) + ", DELTA: " + str(degrees(deltaHeading))
 			# print(info)
 			# Check for a wall collission.
 			if not vehicle.guidance.isPointOnTrack(vehicle.position):
-				vehicle.speed = 0
+				vehicle.actualSpeed = 0
 						
 		return True #false to stop
 
