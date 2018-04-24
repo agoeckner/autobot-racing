@@ -20,11 +20,36 @@ Window.clearcolor = (1, 1, 1, 1)
 class SimDisplay(Widget):
 	FUTURE_LINE_SCALE = 100
 
-	def __init__(self, track, **kwargs):
+	def __init__(self, parent, track, **kwargs):
 		super(SimDisplay, self).__init__(**kwargs)
 		
+		self.tempHeadingLine = None
+		self.par = parent
 		self.track = track
 		self.traj = {}
+	
+	def on_touch_down(self, touch):
+		pos = (touch.x, touch.y)
+		print("LOCATION: " + str(pos))
+		
+		heading = self.par.vehicles[0].guidance.getDesiredHeading(pos)
+		print("   HEADING: " + str(degrees(heading)))
+		
+		self.draw_trajectory(pos, heading)
+	
+	def on_touch_move(self, touch):
+		pos = (touch.x, touch.y)
+		heading = self.par.vehicles[0].guidance.getDesiredHeading(pos)
+		self.draw_trajectory(pos, heading)
+	
+	def on_touch_up(self, touch):
+		self.tempHeadingLine = None
+	
+	def draw_trajectory(self, pos, heading):
+		# Future trajectory.
+		futurePoint = (pos[0] + cos(heading) * 60,
+			pos[1] + sin(heading) * 60)
+		self.tempHeadingLine = [pos, futurePoint]
 	
 	def on_step(self, vehicles):
 		# Reset canvas.
@@ -32,10 +57,16 @@ class SimDisplay(Widget):
 		
 		# Display the track.
 		color = (0, 0, 0, 1)
+		thl = self.tempHeadingLine
 		with self.canvas:
 			Color(*color, mode='rgba')
 			self.innerWall = Line(points=self.track.innerWall, width=2.0)
 			self.outerWall = Line(points=self.track.outerWall, width=3.0)
+			
+			# Draw temporary heading line.
+			if thl != None:
+				Color(1, 0, 1, 1, mode='rgba')
+				Line(points=self.tempHeadingLine, width=1.6)
 		
 		# Trajectory lines.
 		for vehicle in vehicles:
@@ -80,7 +111,7 @@ class SimVehicleManager:
 class SimVehicle:
 	# Turning radius measured to be ~1.5 feet
 	# TODO: Properly implement turning radius.
-	MIN_TURN_ANGLE = pi / 24
+	MIN_TURN_ANGLE = pi / 8
 
 	def __init__(self, initialPosition, initialHeading, initialSpeed,
 			control, guidance, color = (1, 0, 0, 1)):
@@ -100,7 +131,7 @@ class SimVehicle:
 		self.speed = self.initialSpeed
 	
 	def updateHeading(self, delta):
-		if abs(delta) >= 0.05:#0.087:
+		# if abs(delta) >= 0.05:#0.087:
 			# Clamp the turn rate.
 			if delta > 0:
 				self.heading += self.MIN_TURN_ANGLE #min(delta, self.MIN_TURN_ANGLE)
@@ -121,7 +152,7 @@ class ControlSim(App):
 	
 		# Set up UI.
 		parent = Widget()
-		self.display = SimDisplay(self.track)
+		self.display = SimDisplay(self, self.track)
 		restartBtn = Button(text='Restart')
 		restartBtn.bind(on_release=self.restart)
 		parent.add_widget(self.display)
@@ -136,11 +167,11 @@ class ControlSim(App):
 		# Add the track.
 		self.track = SimTrack(
 			# NORMAL TRACKS:
-			[(200, 220), (460, 280), (600, 220), (600, 150), (200, 150), (200, 220)],
-			[(100, 320), (450, 370), (700, 320), (700, 50), (100, 50), (100, 320)])
+			# [(200, 220), (460, 280), (600, 220), (600, 150), (200, 150), (200, 220)],
+			# [(100, 320), (450, 370), (700, 320), (700, 50), (100, 50), (100, 320)])
 			# TEMP TRACKS:
-			# [(153, 143), (196, 243), (373, 240), (372, 142), (153, 143)],
-			# [(33, 19), (548, 33), (549, 407), (31, 397), (33, 19)])
+			[(153, 143), (196, 243), (373, 240), (372, 142), (153, 143)],
+			[(33, 19), (548, 33), (549, 407), (31, 397), (33, 19)])
 		
 		# Add the vehicles.
 		self.vehicles = SimVehicleManager(self)
@@ -187,6 +218,10 @@ class ControlSim(App):
 			# Determine guidance.
 			desiredHeading = vehicle.guidance.getDesiredHeading(vehicle.position)
 			desiredSpeed = vehicle.guidance.getDesiredSpeed(vehicle.position)
+			
+			# Clamp headings between 0 and 2 * PI.
+			vehicle.heading = vehicle.heading % (2 * pi)
+			desiredHeading = desiredHeading % (2 * pi)
 			
 			# Run control algorithm.
 			deltaHeading = vehicle.control.heading(vehicle.heading, desiredHeading)

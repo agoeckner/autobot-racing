@@ -255,7 +255,7 @@ class WallFollowingGuidanceSystem(GuidanceSystem):
 		# Straight-line heading along wall.
 		# thetaW = getBearing(wall0, wall1)
 		thetaW = atan2(wall0[1] - wall1[1], wall0[0] - wall1[0]) % (2 * pi)
-		print(str(thetaW) + " " + str(degrees(thetaW)))
+		# print(str(thetaW) + " " + str(degrees(thetaW)))
 		# print("THETA W: " + str(degrees(thetaW)))
 		
 		# Heading that converges to correct distance from wall.
