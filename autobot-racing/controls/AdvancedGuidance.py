@@ -32,14 +32,14 @@ class PassingGuidanceSystem(WallFollowingGuidanceSystem):
 		for v in vehicles:
 			if v == vehicle:
 				continue
-			if vehicle.speed < v.speed or v.speed == 0:
+			if vehicle.actualSpeed < v.actualSpeed or v.actualSpeed == 0:
 				continue
 			d = euclideanDistance(pos, v.position)
 			if d < 5:
 				raise Exception("COLLISION")
 			if d < self.CAUTION_DISTANCE:
 				# print("TOO CLOSE TO OTHER VEHICLE")
-				return (vehicle.speed + v.speed) * self.CAUTION_SPEED_PERCENTAGE
+				return (vehicle.actualSpeed + v.actualSpeed) * self.CAUTION_SPEED_PERCENTAGE
 		return self.vehicle.initialSpeed
 	
 	# Returns the desired heading at a specific position on the track.
@@ -59,7 +59,7 @@ class PassingGuidanceSystem(WallFollowingGuidanceSystem):
 			d = euclideanDistance(vehicle.position, v.position)
 			if d > self.FOLLOW_PASS_THRESHOLD_DIST:
 				continue
-			if v.speed >= vehicle.speed:
+			if v.actualSpeed >= vehicle.actualSpeed:
 				continue
 			# print("PASSING")
 			# if abs(v.guidance.actualWallDist - self.desiredWallDist) >= self.MIN_PASS_SPACING:
