@@ -4,6 +4,7 @@ import socket
 import struct
 from subprocess import check_output as call
 import RCDriver
+import time
 
 class EthernetInterface:
 
@@ -60,26 +61,35 @@ class EthernetInterface:
 			self.clientSocket = None
 			raise
 			
-			
+print("Initializing RCDriver")
+RCDriver.init()
+
+                
 #Cars event loop
 #All Exception handling to be done here
 while True:
+	time.sleep(1)
+	interface = None       
 
+        
 	try:
-		RCDriver.init()
 		interface = EthernetInterface()
+		
+		print("Waiting for client")
 		interface.connectToClient()
 		
 		print("Starting Event Loop")
 		while True:
 				data = interface.getMsg()
+				print(str(data))
 				RCDriver.setDirection(data[0])
-				RCDriver.setSpeed(data[1] * 10)		#RCDriver expects an integer.
+				RCDriver.setSpeed(int(round(data[1],1) * 10))		#RCDriver expects an integer.
 			
-	except Exception:
-			pass
-
+	except Exception as e:
+		print(e)
+                        
 	finally:
-			RCDriver.deinit()
-
+		RCDriver.setDirection(0)
+		RCDriver.setSpeed(0)
+		#interface.disconnectFromClient()
 

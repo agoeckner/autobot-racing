@@ -14,7 +14,8 @@ def init():
 	GPIO.setmode(GPIO.BOARD)
 	GPIO.setup([36, 38,40], GPIO.OUT, initial=GPIO.LOW)
 	
-	setDirection.curr = 0;
+	setDirection.curr = 0
+	setSpeed.last = 0
 	
 	spi = spidev.SpiDev()
 	spi.open(0, 0)
@@ -55,7 +56,6 @@ def write_pot(input):
     spi.xfer([msb, lsb])
 	
 def setSpeed(speed):
-
 	value = None
 
 	if speed > 0:
@@ -65,7 +65,10 @@ def setSpeed(speed):
 	else:
 		value = POT_INIT
 		
-	write_pot(value)
+	if speed != setSpeed.last:
+		print("Current " + str(speed) + " Last: " + str(setSpeed.last))
+		setSpeed.last = speed
+		write_pot(value)
 
 
 	
