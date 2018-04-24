@@ -40,8 +40,9 @@ class FrameworkManager():
 		self.UserInterface = UIManager(self, self.UIQueue)
 		self.vehicles = VehicleManager(self)
 
-		#Used to determine if the get track button was pushed
+		#Flag
 		self.getTrack = False
+		self.raceState = 'STOP'
 		
 		# TODO: ADD A BOGUS TRACK
 		self.track = Track([(100, 100), (100, 300), (500, 300), (500, 100), (100, 100)], [])

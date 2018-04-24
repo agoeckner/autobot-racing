@@ -396,26 +396,29 @@ class CarStatsUI(): #{
 	## Starts the Race
 	##-----------------------------------------------------------------------------
 	def startRace(self): #{
-		print('Start Race')
+		self.parent.startRace()
+		#print('Start Race')
 	#}
 
 	##-----------------------------------------------------------------------------
 	## Pauses the Race
 	##-----------------------------------------------------------------------------
 	def pauseRace(self): #{
-		print('Pause Race')
+		self.parent.pauseRace()
+		#print('Pause Race')
 	#}
 
 	##-----------------------------------------------------------------------------
 	## Stops the Race
 	##-----------------------------------------------------------------------------
 	def stopRace(self): #{
-		print('Stop Race')
+		self.parent.stopRace()
+		#print('Stop Race')
 	#}
 
 	def findTrack(self): #{
-                self.parent.findTrackCallback()
-        #}
+		self.parent.findTrackCallback()
+	#}
 	
 	def updateCamFeed(self): #{
 		try:
