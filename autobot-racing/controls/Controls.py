@@ -101,7 +101,7 @@ class GuidanceSystem:
 	
 	# Returns the desired heading at a specific position on the track.
 	def getDesiredHeading(self, pos):
-		((wall0, wall1), d) = self._getClosestPolyVertex(pos, self.environment.track.innerWall)
+		((wall0, wall1), d) = self._getClosestPolyEdge(pos, self.environment.track.innerWall)
 		heading = atan2(wall1[1] - wall0[1], wall1[0] - wall0[0])
 		return heading
 	
@@ -119,8 +119,8 @@ class GuidanceSystem:
 		return False
 	
 	# Returns tuple of ((line0, line1), dist), where line0 and line1 are
-	# points on closest vertex, and dist is distance to closest point on line.
-	def _getClosestPolyVertex(self, pos, polygon):
+	# points on closest edge, and dist is distance to closest point on line.
+	def _getClosestPolyEdge(self, pos, polygon):
 		def point_to_line_dist(p1, p2, pos):
 			"""Calculate the distance between a point and a line segment.
 
@@ -171,10 +171,12 @@ class GuidanceSystem:
 			lp2_y = line[1][1]  # line point 2 y
 			is_betw_x = lp1_x <= x_seg <= lp2_x or lp2_x <= x_seg <= lp1_x
 			is_betw_y = lp1_y <= y_seg <= lp2_y or lp2_y <= y_seg <= lp1_y
+			
 			if is_betw_x and is_betw_y:
 				return (segment_dist, False)
 			else:
 				# if not, then return the minimum distance to the segment endpoints
+				print(endpoint_dist, line[0], line[1])
 				return (endpoint_dist, True)
 			
 		def dist(A, B, C):
@@ -208,19 +210,19 @@ class GuidanceSystem:
 			p2 = polygon[p]
 			# print("P1: " + str(p1) + " P2: " + str(p2))
 			(d, outside) = point_to_line_dist(p1, p2, pos)
-			if outside and (p1, p2) == self.prevClosest:
+			print(outside)
+			if not outside or  (p1, p2) != self.prevClosest:
 				# print("Skip previous: " + str(self.prevClosest))
-				continue
-			# d = np.cross(np.subtract(p2, p1), np.subtract(p1, pos)) / norm(np.subtract(p2, p1))
-			# d = np.cross(np.subtract(p1, p2), np.subtract(p2, pos)) / norm(np.subtract(p1, p2))
-			# print("   d: " + str(d))
-			# if d < 0:
-				# continue #raise Exception("NEGATIVE D: " + str(d))
-			if d < minD:
-				minD = d
-				setPrevClosest = not outside
-				closest = (p1, p2)
-				# print("   New closest: " + str(closest))
+				# d = np.cross(np.subtract(p2, p1), np.subtract(p1, pos)) / norm(np.subtract(p2, p1))
+				# d = np.cross(np.subtract(p1, p2), np.subtract(p2, pos)) / norm(np.subtract(p1, p2))
+				# print("   d: " + str(d))
+				# if d < 0:
+					# continue #raise Exception("NEGATIVE D: " + str(d))
+				if d < minD:
+					minD = d
+					setPrevClosest = not outside
+					closest = (p1, p2)
+					# print("   New closest: " + str(closest))
 			p1 = p2
 		# print("RESULT: " + str(closest))
 		# exit(0)
@@ -247,19 +249,24 @@ class WallFollowingGuidanceSystem(GuidanceSystem):
 			calc = atan2(calc,calc2)
 			return calc
 		
-		((wall0, wall1), d) = self._getClosestPolyVertex(pos, self.environment.track.innerWall)
+		((wall0, wall1), d) = self._getClosestPolyEdge(pos, self.environment.track.innerWall)
 		# print("GOT WALL: " + str((wall1, wall0)))
 
 		self.actualWallDist = d
 
 		# Straight-line heading along wall.
 		# thetaW = getBearing(wall0, wall1)
-		thetaW = atan2(wall0[1] - wall1[1], wall0[0] - wall1[0]) % (2 * pi)
+		thetaW = atan2(wall0[1] - wall1[1], wall0[0] - wall1[0])# % (2 * pi)
 		# print(str(thetaW) + " " + str(degrees(thetaW)))
 		# print("THETA W: " + str(degrees(thetaW)))
 		
 		# Heading that converges to correct distance from wall.
+		print("GETDESIREDHEADING")
 		thetaD = pi / 2 - atan2(self.distLookahead, d - self.desiredWallDist)
+		print("   wall: " + str((wall0, wall1)))
+		print("   d: " + str(d))
+		print("   thetaD: " + str(degrees(thetaD)))
+		print("   thetaW: " + str(degrees(thetaW)))
 		
 		# heading = thetaW + thetaD
 		# if thetaW > (pi / 4) and thetaW < (5 * pi / 4):
@@ -269,6 +276,7 @@ class WallFollowingGuidanceSystem(GuidanceSystem):
 			# print("RIGHT QUADRANTS")
 			# heading = thetaW - thetaD
 		heading = thetaW + thetaD
+		print("   heading: " + str(degrees(heading)))
 		
 		# # Straight-line heading along wall.
 		# hw = getBearing(wall1, wall0)#atan2(wall1[1] - wall0[1], wall1[0] - wall0[0])

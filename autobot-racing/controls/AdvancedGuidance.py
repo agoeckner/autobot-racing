@@ -18,11 +18,11 @@ class PassingGuidanceSystem(WallFollowingGuidanceSystem):
 		vehicle = self.vehicle
 
 		# Check for collisions with the walls.
-		((wall0, wall1), d) = self._getClosestPolyVertex(pos, self.environment.track.innerWall)
+		((wall0, wall1), d) = self._getClosestPolyEdge(pos, self.environment.track.innerWall)
 		if d < self.CAUTION_DISTANCE:
 			# print("TOO CLOSE TO INNER WALL")
 			return vehicle.initialSpeed * self.CAUTION_SPEED_PERCENTAGE
-		((wall0, wall1), d) = self._getClosestPolyVertex(pos, self.environment.track.outerWall)
+		((wall0, wall1), d) = self._getClosestPolyEdge(pos, self.environment.track.outerWall)
 		if d < self.CAUTION_DISTANCE:
 			# print("TOO CLOSE TO OUTER WALL")
 			return vehicle.initialSpeed * self.CAUTION_SPEED_PERCENTAGE
@@ -45,7 +45,7 @@ class PassingGuidanceSystem(WallFollowingGuidanceSystem):
 	# Returns the desired heading at a specific position on the track.
 	def getDesiredHeading(self, pos):
 		# Get distance from wall.
-		((wall0, wall1), d) = self._getClosestPolyVertex(pos, self.environment.track.innerWall)
+		((wall0, wall1), d) = self._getClosestPolyEdge(pos, self.environment.track.innerWall)
 		self.actualWallDist = d
 		
 		# Attempt to pass if necessary.
