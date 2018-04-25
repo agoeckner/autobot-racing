@@ -14,8 +14,12 @@ import time
 class Track:
 	def __init__(self, innerWall, outerWall):
 		self.innerWall = innerWall
+		self.innerWall.reverse()
 		self.outerWall = outerWall
-		self.track = self
+		print("INNER WALL: " + str(self.innerWall))
+		print("OUTER WALL: " + str(self.outerWall))
+
+		# self.track = self
 
 
 class FrameworkManager():
@@ -41,7 +45,7 @@ class FrameworkManager():
 		self.vehicles = VehicleManager(self)
 
 		#Flag
-		self.getTrack = False
+		self.getTrack = True
 		self.raceState = 'STOP'
 		
 		# TODO: ADD A BOGUS TRACK
@@ -58,6 +62,7 @@ class FrameworkManager():
 		tUI.daemon = True
 		#tQueue.daemon = True
 		tUI.start()
+		time.sleep(5)
 		tCV.start()
 		#tQueue.start()
 

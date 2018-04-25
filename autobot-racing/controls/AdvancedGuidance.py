@@ -18,11 +18,11 @@ class PassingGuidanceSystem(WallFollowingGuidanceSystem):
 		vehicle = self.vehicle
 
 		# Check for collisions with the walls.
-		((wall0, wall1), d) = self._getClosestPolyVertex(pos, self.track.innerWall)
+		((wall0, wall1), d) = self._getClosestPolyEdge(pos, self.environment.track.innerWall)
 		if d < self.CAUTION_DISTANCE:
 			# print("TOO CLOSE TO INNER WALL")
 			return vehicle.initialSpeed * self.CAUTION_SPEED_PERCENTAGE
-		((wall0, wall1), d) = self._getClosestPolyVertex(pos, self.track.outerWall)
+		((wall0, wall1), d) = self._getClosestPolyEdge(pos, self.environment.track.outerWall)
 		if d < self.CAUTION_DISTANCE:
 			# print("TOO CLOSE TO OUTER WALL")
 			return vehicle.initialSpeed * self.CAUTION_SPEED_PERCENTAGE
@@ -32,34 +32,23 @@ class PassingGuidanceSystem(WallFollowingGuidanceSystem):
 		for v in vehicles:
 			if v == vehicle:
 				continue
-			if vehicle.speed < v.speed or v.speed == 0:
+			if vehicle.actualSpeed < v.actualSpeed or v.actualSpeed == 0:
 				continue
 			d = euclideanDistance(pos, v.position)
 			if d < 5:
 				raise Exception("COLLISION")
 			if d < self.CAUTION_DISTANCE:
 				# print("TOO CLOSE TO OTHER VEHICLE")
-				return (vehicle.speed + v.speed) * self.CAUTION_SPEED_PERCENTAGE
+				return (vehicle.actualSpeed + v.actualSpeed) * self.CAUTION_SPEED_PERCENTAGE
 		return self.vehicle.initialSpeed
 	
 	# Returns the desired heading at a specific position on the track.
 	def getDesiredHeading(self, pos):
-		# Get distance from wall.
-		((wall0, wall1), d) = self._getClosestPolyVertex(pos, self.track.innerWall)
-		self.actualWallDist = d
-		
 		# Attempt to pass if necessary.
-		wallDist = self.getPassingWallDist(self.vehicle)
-		self.desiredWallDist = wallDist
+		self.desiredWallDist = self.getPassingWallDist(self.vehicle)
 		
-		# Straight-line heading along wall.
-		ha = atan2(wall1[1] - wall0[1], wall1[0] - wall0[0])
-		
-		# Heading that converges to correct distance from wall.
-		hd = atan2(d - wallDist, self.distLookahead)
-		heading = ha - hd
-		
-		return heading
+		# Now use the wall-following algorithm.
+		return super(PassingGuidanceSystem, self).getDesiredHeading(pos)
 	
 	# Determines how much the wall distance needs to change in order to pass.
 	def getPassingWallDist(self, vehicle):
@@ -70,7 +59,7 @@ class PassingGuidanceSystem(WallFollowingGuidanceSystem):
 			d = euclideanDistance(vehicle.position, v.position)
 			if d > self.FOLLOW_PASS_THRESHOLD_DIST:
 				continue
-			if v.speed >= vehicle.speed:
+			if v.actualSpeed >= vehicle.actualSpeed:
 				continue
 			# print("PASSING")
 			# if abs(v.guidance.actualWallDist - self.desiredWallDist) >= self.MIN_PASS_SPACING:

@@ -7,6 +7,7 @@ from kivy.uix.widget import Widget
 from kivy.uix.button import Button
 from kivy.uix.label import Label
 from kivy.graphics import Color, Ellipse, Line
+import time
 
 # Import control/guidance modules from the actual program.
 import sys
@@ -19,11 +20,36 @@ Window.clearcolor = (1, 1, 1, 1)
 class SimDisplay(Widget):
 	FUTURE_LINE_SCALE = 100
 
-	def __init__(self, track, **kwargs):
+	def __init__(self, parent, track, **kwargs):
 		super(SimDisplay, self).__init__(**kwargs)
 		
+		self.tempHeadingLine = None
+		self.par = parent
 		self.track = track
 		self.traj = {}
+	
+	def on_touch_down(self, touch):
+		pos = (touch.x, touch.y)
+		print("LOCATION: " + str(pos))
+		
+		heading = self.par.vehicles[0].guidance.getDesiredHeading(pos)
+		# print("   HEADING: " + str(degrees(heading)))
+		
+		self.draw_trajectory(pos, heading)
+	
+	def on_touch_move(self, touch):
+		pos = (touch.x, touch.y)
+		heading = self.par.vehicles[0].guidance.getDesiredHeading(pos)
+		self.draw_trajectory(pos, heading)
+	
+	def on_touch_up(self, touch):
+		self.tempHeadingLine = None
+	
+	def draw_trajectory(self, pos, heading):
+		# Future trajectory.
+		futurePoint = (pos[0] + cos(heading) * 60,
+			pos[1] + sin(heading) * 60)
+		self.tempHeadingLine = [pos, futurePoint]
 	
 	def on_step(self, vehicles):
 		# Reset canvas.
@@ -31,16 +57,22 @@ class SimDisplay(Widget):
 		
 		# Display the track.
 		color = (0, 0, 0, 1)
+		thl = self.tempHeadingLine
 		with self.canvas:
 			Color(*color, mode='rgba')
 			self.innerWall = Line(points=self.track.innerWall, width=2.0)
 			self.outerWall = Line(points=self.track.outerWall, width=3.0)
+			
+			# Draw temporary heading line.
+			if thl != None:
+				Color(1, 0, 1, 1, mode='rgba')
+				Line(points=self.tempHeadingLine, width=1.6)
 		
 		# Trajectory lines.
 		for vehicle in vehicles:
 			pos = vehicle.position
-			futurePoint = (pos[0] + cos(vehicle.heading) * vehicle.speed * self.FUTURE_LINE_SCALE,
-				pos[1] + sin(vehicle.heading) * vehicle.speed * self.FUTURE_LINE_SCALE)
+			futurePoint = (pos[0] + cos(vehicle.heading) * vehicle.actualSpeed * self.FUTURE_LINE_SCALE,
+				pos[1] + sin(vehicle.heading) * vehicle.actualSpeed * self.FUTURE_LINE_SCALE)
 			with self.canvas:
 				Color(*vehicle.color, mode='rgba')
 				if vehicle not in self.traj or self.traj[vehicle] == None:
@@ -60,6 +92,7 @@ class SimDisplay(Widget):
 class SimTrack:
 	def __init__(self, innerWall, outerWall):
 		self.innerWall = innerWall
+		# self.innerWall.reverse() # TODO: TEMPORARY REVERSAL
 		self.outerWall = outerWall
 
 class SimVehicleManager:
@@ -78,7 +111,7 @@ class SimVehicleManager:
 class SimVehicle:
 	# Turning radius measured to be ~1.5 feet
 	# TODO: Properly implement turning radius.
-	MIN_TURN_ANGLE = pi / 24
+	MIN_TURN_ANGLE = pi / 36
 
 	def __init__(self, initialPosition, initialHeading, initialSpeed,
 			control, guidance, color = (1, 0, 0, 1)):
@@ -87,7 +120,7 @@ class SimVehicle:
 		self.initialSpeed = initialSpeed
 		self.position = initialPosition
 		self.heading = initialHeading
-		self.speed = initialSpeed
+		self.actualSpeed = initialSpeed
 		self.color = color
 		self.control = control
 		self.guidance = guidance
@@ -95,10 +128,10 @@ class SimVehicle:
 	def reset(self):
 		self.position = self.initialPosition
 		self.heading = self.initialHeading
-		self.speed = self.initialSpeed
+		self.actualSpeed = self.initialSpeed
 	
 	def updateHeading(self, delta):
-		if abs(delta) >= 0.05:
+		if abs(delta) >= 0.087:
 			# Clamp the turn rate.
 			if delta > 0:
 				self.heading += self.MIN_TURN_ANGLE #min(delta, self.MIN_TURN_ANGLE)
@@ -109,7 +142,7 @@ class SimVehicle:
 			self.heading = self.heading % (2 * pi)
 	
 	def updateSpeed(self, delta):
-		self.speed += delta
+		self.actualSpeed += delta
 
 class ControlSim(App):
 
@@ -119,7 +152,7 @@ class ControlSim(App):
 	
 		# Set up UI.
 		parent = Widget()
-		self.display = SimDisplay(self.track)
+		self.display = SimDisplay(self, self.track)
 		restartBtn = Button(text='Restart')
 		restartBtn.bind(on_release=self.restart)
 		parent.add_widget(self.display)
@@ -132,26 +165,32 @@ class ControlSim(App):
 	
 	def initSim(self):
 		# Add the track.
+		inner = [(356, 154), (357, 252), (183, 257), (180, 155), (356, 154)]
+		# inner.reverse()
 		self.track = SimTrack(
-			[(200, 220), (460, 280), (600, 220), (600, 150), (200, 150), (200, 220)],
-			[(100, 320), (450, 370), (700, 320), (700, 50), (100, 50), (100, 320)])
+			# NORMAL TRACKS:
+			# [(200, 220), (460, 280), (600, 220), (600, 150), (200, 150), (200, 220)],
+			# [(100, 320), (450, 370), (700, 320), (700, 50), (100, 50), (100, 320)])
+			# TEMP TRACKS:
+			inner,
+			[(12, 36), (534, 37), (541, 420), (13, 416), (12, 36)])
 		
 		# Add the vehicles.
 		self.vehicles = SimVehicleManager(self)
 		self.vehicles.addVehicle(
-			SimVehicle([600,120], pi, 7,
+			SimVehicle([500,70], pi/2, 7,
 				ngc.ControlSystem(),
 				ngc.PassingGuidanceSystem(self,
-					wallDistance = 12,
-					lookahead = 20),
+					wallDistance = 20,
+					lookahead = 25),
 				color = (1, 0, 0, 0.5)))
-		self.vehicles.addVehicle(
-			SimVehicle([450,120], pi, 2,
-				ngc.ControlSystem(),
-				ngc.PassingGuidanceSystem(self,
-					wallDistance = 12,
-					lookahead = 100),
-				color = (0, 1, 0, 0.5)))
+		# self.vehicles.addVehicle(
+			# SimVehicle([450,120], pi, 6,
+				# ngc.ControlSystem(),
+				# ngc.PassingGuidanceSystem(self,
+					# wallDistance = 12,
+					# lookahead = 100),
+				# color = (0, 1, 0, 0.5)))
 		# self.vehicles.addVehicle(
 			# SimVehicle([600,90], pi, 5,
 				# ngc.ControlSystem(),
@@ -172,32 +211,39 @@ class ControlSim(App):
 	
 	def step(self, dt):
 		self.display.on_step(self.vehicles)
+		return
 		# return
 		for vehicle in self.vehicles:
 			# Move the vehicle.
-			vehicle.position[0] += cos(vehicle.heading) * vehicle.speed
-			vehicle.position[1] += sin(vehicle.heading) * vehicle.speed
+			vehicle.position[0] += cos(vehicle.heading) * vehicle.actualSpeed
+			vehicle.position[1] += sin(vehicle.heading) * vehicle.actualSpeed
 			
 			# Determine guidance.
 			desiredHeading = vehicle.guidance.getDesiredHeading(vehicle.position)
 			desiredSpeed = vehicle.guidance.getDesiredSpeed(vehicle.position)
 			
+			# Clamp headings between 0 and 2 * PI.
+			vehicle.heading = vehicle.heading % (2 * pi)
+			desiredHeading = desiredHeading % (2 * pi)
+			
 			# Run control algorithm.
 			deltaHeading = vehicle.control.heading(vehicle.heading, desiredHeading)
-			deltaSpeed = vehicle.control.throttle(vehicle.speed, desiredSpeed)
+			deltaSpeed = vehicle.control.throttle(vehicle.actualSpeed, desiredSpeed)
 			
 			# Add some error.
-			# if randint(0, 5) == 5:
-				# deltaHeading = deltaHeading + 50 * (random() - 0.5)
+			if randint(0, 6) == 0:
+				deltaHeading = deltaHeading + 2 * (random() - 0.5)
 			
 			# Apply changes to vehicle.
 			vehicle.updateHeading(deltaHeading)
 			vehicle.updateSpeed(deltaSpeed)
 			
+			# info = "DESIRED: " + str(degrees(desiredHeading)) + ", ACTUAL: " + str(degrees(vehicle.heading)) + ", DELTA: " + str(degrees(deltaHeading))
+			# print(info)
 			# Check for a wall collission.
 			if not vehicle.guidance.isPointOnTrack(vehicle.position):
-				vehicle.speed = 0
-			
+				vehicle.actualSpeed = 0
+						
 		return True #false to stop
 
 if __name__ == '__main__':

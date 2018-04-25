@@ -17,7 +17,7 @@ class Vehicle():
 	HEADING_HISTORY_POINTS = 10
 	
 	# The maximum amount of time that a vehicle may be "missing" before stop command is sent.
-	EMERGENCY_STOP_TIMEOUT = 1 #seconds
+	EMERGENCY_STOP_TIMEOUT = 0.10 #seconds
 
 	def __init__(self, parent, name, IP, port, carFrameID, frame, controlSystem,
 		guidanceSystem,
@@ -42,7 +42,7 @@ class Vehicle():
 		self.control = parent.parent.controlSystems[controlSystem]()
 		print("Vehicle " + str(name) + " using control system: " + str(self.control))
 		self.guidance = parent.parent.guidanceSystems[guidanceSystem](self.parent.parent,
-			wallDistance = 20, lookahead = 100)
+			wallDistance = 20, lookahead = 200)
 		print("Vehicle " + str(name) + " using guidance system: " + str(self.guidance))
 		self.guidance.vehicle = self
 		
@@ -193,44 +193,60 @@ class Vehicle():
 		self.lastTelemetryTime = currentTime
 	
 	def runNavGuidanceControl(self):
+		if self.parent.parent.raceState is 'STOP' or self.parent.parent.raceState is 'PAUSE':
+			self.sendMsg(0, 0.0)
+			return
+		
 		# Automatically stop if we have no received telemetry recently.
 		ltt = self.lastTelemetryTime
 		if ltt != None and (time.time() - ltt) >= self.EMERGENCY_STOP_TIMEOUT:
 			self.sendMsg(0, 0.0)
-			print("WARN: Vehicle " + str(self.name) + " has been stopped.")
+			print("WARN: Vehicle " + str(self.name) + " has been stopped. [TIMEOUT]")
 			return
-		elif self.parent.parent.raceState is 'STOP' or self.parent.parent.raceState is 'PAUSE':
+		
+		# Automatically stop if we go outside the track.
+		if not self.guidance.isPointOnTrack(self.actualPosition):
 			self.sendMsg(0, 0.0)
-			print("WARN: Vehicle " + str(self.name) + " has been stopped.")
+			print("WARN: Vehicle " + str(self.name) + " has been stopped. [OUT OF BOUNDS]")
 			return
 		
 		# Determine guidance.
-		desiredHeading = math.degrees(self.guidance.getDesiredHeading(self.actualPosition))
+		desiredHeading = self.guidance.getDesiredHeading(self.actualPosition)
 		desiredSpeed = self.guidance.getDesiredSpeed(self.actualPosition)
+		
+		# Clamp headings between 0 and 2 * PI.
+		self.actualHeading = self.actualHeading % (2 * math.pi)
+		desiredHeading = desiredHeading % (2 * math.pi)
 		
 		# Run control algorithm.
 		deltaHeading = self.control.heading(self.actualHeading, desiredHeading)
 		deltaSpeed = self.control.throttle(self.actualSpeed, desiredSpeed)
 		
+		# print("DESIRED HEADING: " + str(math.degrees(desiredHeading)))
+		# print("ACTUAL HEADING: " + str(math.degrees(self.actualHeading)))
+		# print("DELTA HEADING: " + str(str(math.degrees(deltaHeading))))
+		
 		# Update the desired speed/heading values.
-		self.updateHeading(deltaHeading)
-		self.updateSpeed(deltaSpeed)
+		self.updateDesiredHeading(desiredHeading)
+		self.updateDesiredSpeed(deltaSpeed)
 		self.desiredSpeed = 0.2
 		
 		# Snap steering  to trinary, the only steering available on these cars.
 		
-		info = "DESIRED: " + str(desiredHeading) + ", ACTUAL: " + str(self.actualHeading)
-		if abs(desiredHeading - self.actualHeading) <= 0.1:
-			info = "EQUIVALENT"
+		if abs(deltaHeading) < math.radians(5) and False:
+			hdg = 0.0
+		else:
+			hdg = deltaHeading
+		# info = "DESIRED: " + str(self.desiredHeading) + ", ACTUAL: " + str(self.actualHeading) + ", DELTA: " + str(deltaHeading) + ", ACTUAL DELTA: " + str(hdg)
 		
-		hdg = deltaHeading
-		if hdg > 0.0:
-			print("TURN LEFT? " + info)
+		if hdg < 0.0:
+			# print("TURN LEFT? " + info)
 			hdg = -1
-		elif hdg < 0.0:
-			print("TURN RIGHT? " + info)
+		elif hdg > 0.0:
+			# print("TURN RIGHT? " + info)
 			hdg = 1
 		else:
+			# print("STRAIGHT: "+ info)
 			hdg = 0
 			
 		# TEMPORARY INVERSE
@@ -239,10 +255,14 @@ class Vehicle():
 		# Send command to the car.
 		self.sendMsg(hdg, self.desiredSpeed)
 	
-	def updateHeading(self, deltaHeading):
-		self.desiredHeading += deltaHeading
+	def updateDesiredHeading(self, desiredHeading):
+		self.desiredHeading = desiredHeading
+		# self.desiredHeading = desiredHeading % 2 * math.pi #(2 * math.pi)
+		# if abs(deltaHeading) >= 5.0:
+			# self.desiredHeading += deltaHeading
+			# self.desiredHeading = self.desiredHeading % 2 * math.pi #(2 * math.pi)
 	
-	def updateSpeed(self, deltaSpeed):
+	def updateDesiredSpeed(self, deltaSpeed):
 		self.desiredSpeed += deltaSpeed
 	
 	#

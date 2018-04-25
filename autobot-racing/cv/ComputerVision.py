@@ -7,6 +7,7 @@ import cv2
 import math
 from math import pi
 import time
+import random
 
 class ComputerVision:
 	# The allowed vehicle colors.
@@ -170,20 +171,34 @@ class ComputerVision:
 			#print(approx)
 			#print(approx1)
 
+		outer = []
+		for t in approx:
+			outer.append(tuple(t[0]))
+		outer.append(outer[0])
+		inner = []
+		for t in approx1:
+			cv2.putText(frame, str(tuple(t[0])), tuple(t[0]),
+				cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+			inner.append(tuple(t[0]))
+		inner.append(inner[0])
+		# print(inner)
+		# inner.reverse()
+		print(inner)
 		#TODO: pass this garbage through the queue for the main thread
 		#Pass the outer track then the inner
-		self.parent.trackQueue.put(approx)
-		self.parent.trackQueue.put(approx1)
+		self.parent.trackQueue.put(inner)
+		self.parent.trackQueue.put(outer)
 		self.trackIn = approx
 		self.trackOut = approx1
 
-		self.parent.UIQueue.q.put(('CamFeed', frame))
+		if random.random() < 0.5:
+			self.parent.UIQueue.q.put(('CamFeed', frame))
 		self.getTrack = False
 		self.parent.getTrack = True
-##		cv2.imshow('Crap', frame)
-##		while True:
-##			key = cv2.waitKey(1)
-##			if key == 27: break
+		# cv2.imshow('frame', frame)
+		# while True:
+			# key = cv2.waitKey(1)
+			# if key == 27: break
 	#}
 	
 	def processFrame(self, frame, showFrame = False, draw = True):
@@ -217,7 +232,7 @@ class ComputerVision:
 			center = (cX, cY)
 			
 			# Get the heading of the triangle.
-			heading = math.degrees(self.getTriangleHeading(approx))
+			heading = self.getTriangleHeading(approx)
 
 			# Determine color of the pixel at the center of the contour.
 			totalR = 0
@@ -246,7 +261,7 @@ class ComputerVision:
 			if draw:
 				cv2.drawContours(frame, [approx], -1, colorCV, 3)
 				cv2.circle(frame, (cX, cY), 6, (255, 255, 255), -1)
-				label = "({:d}, {:d}), {:.2f}".format(cX, cY, heading)
+				label = "({:d}, {:d}), {:.2f}".format(cX, cY, math.degrees(heading))
 				# label = str(cv2.contourArea(c))
 				cv2.putText(frame, label, (cX - 20, cY - 20),
 					cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
@@ -359,11 +374,16 @@ class ComputerVision:
 				minLenIdx = idx
 		short = sides[minLenIdx]
 		
-		# Get slope of shortest side.
-		diff = np.subtract(short[1], short[0])[0]
+		# Get midpoint of shortest side.
+		mid = (short[0] + short[1]) / 2
+		
+		# Get slope from midpoint of short line to opposite point.
+		opp = triangle[oppositePoint[minLenIdx]]
+		diff = mid - opp
+		diff = [diff[0][0], -diff[0][1]]
 		
 		# Get heading.
-		heading = np.arctan2(diff[0], diff[1])
+		heading = np.arctan2(diff[0], diff[1]) + pi / 2
 		
 		return heading		
 	
