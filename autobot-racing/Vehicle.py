@@ -42,7 +42,7 @@ class Vehicle():
 		self.control = parent.parent.controlSystems[controlSystem]()
 		print("Vehicle " + str(name) + " using control system: " + str(self.control))
 		self.guidance = parent.parent.guidanceSystems[guidanceSystem](self.parent.parent,
-			wallDistance = 60, lookahead = 200)
+			wallDistance = 20, lookahead = 200)
 		print("Vehicle " + str(name) + " using guidance system: " + str(self.guidance))
 		self.guidance.vehicle = self
 		
@@ -193,6 +193,10 @@ class Vehicle():
 		self.lastTelemetryTime = currentTime
 	
 	def runNavGuidanceControl(self):
+		if self.parent.parent.raceState is 'STOP' or self.parent.parent.raceState is 'PAUSE':
+			self.sendMsg(0, 0.0)
+			return
+		
 		# Automatically stop if we have no received telemetry recently.
 		ltt = self.lastTelemetryTime
 		if ltt != None and (time.time() - ltt) >= self.EMERGENCY_STOP_TIMEOUT:
@@ -204,10 +208,6 @@ class Vehicle():
 		if not self.guidance.isPointOnTrack(self.actualPosition):
 			self.sendMsg(0, 0.0)
 			print("WARN: Vehicle " + str(self.name) + " has been stopped. [OUT OF BOUNDS]")
-			return
-		elif self.parent.parent.raceState is 'STOP' or self.parent.parent.raceState is 'PAUSE':
-			self.sendMsg(0, 0.0)
-			print("WARN: Vehicle " + str(self.name) + " has been stopped.")
 			return
 		
 		# Determine guidance.
@@ -222,10 +222,14 @@ class Vehicle():
 		deltaHeading = self.control.heading(self.actualHeading, desiredHeading)
 		deltaSpeed = self.control.throttle(self.actualSpeed, desiredSpeed)
 		
+		# print("DESIRED HEADING: " + str(math.degrees(desiredHeading)))
+		# print("ACTUAL HEADING: " + str(math.degrees(self.actualHeading)))
+		# print("DELTA HEADING: " + str(str(math.degrees(deltaHeading))))
+		
 		# Update the desired speed/heading values.
 		self.updateDesiredHeading(desiredHeading)
 		self.updateDesiredSpeed(deltaSpeed)
-		self.desiredSpeed = 0.0
+		self.desiredSpeed = 0.2
 		
 		# Snap steering  to trinary, the only steering available on these cars.
 		
@@ -233,7 +237,7 @@ class Vehicle():
 			hdg = 0.0
 		else:
 			hdg = deltaHeading
-		info = "DESIRED: " + str(self.desiredHeading) + ", ACTUAL: " + str(self.actualHeading) + ", DELTA: " + str(deltaHeading) + ", ACTUAL DELTA: " + str(hdg)
+		# info = "DESIRED: " + str(self.desiredHeading) + ", ACTUAL: " + str(self.actualHeading) + ", DELTA: " + str(deltaHeading) + ", ACTUAL DELTA: " + str(hdg)
 		
 		if hdg < 0.0:
 			# print("TURN LEFT? " + info)

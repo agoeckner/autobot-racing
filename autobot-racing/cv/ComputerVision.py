@@ -374,11 +374,16 @@ class ComputerVision:
 				minLenIdx = idx
 		short = sides[minLenIdx]
 		
-		# Get slope of shortest side.
-		diff = np.subtract(short[1], short[0])[0]
+		# Get midpoint of shortest side.
+		mid = (short[0] + short[1]) / 2
+		
+		# Get slope from midpoint of short line to opposite point.
+		opp = triangle[oppositePoint[minLenIdx]]
+		diff = mid - opp
+		diff = [diff[0][0], -diff[0][1]]
 		
 		# Get heading.
-		heading = np.arctan2(diff[0], diff[1])
+		heading = np.arctan2(diff[0], diff[1]) + pi / 2
 		
 		return heading		
 	

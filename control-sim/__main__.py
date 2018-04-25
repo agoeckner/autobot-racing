@@ -165,13 +165,15 @@ class ControlSim(App):
 	
 	def initSim(self):
 		# Add the track.
+		inner = [(356, 154), (357, 252), (183, 257), (180, 155), (356, 154)]
+		# inner.reverse()
 		self.track = SimTrack(
 			# NORMAL TRACKS:
 			# [(200, 220), (460, 280), (600, 220), (600, 150), (200, 150), (200, 220)],
 			# [(100, 320), (450, 370), (700, 320), (700, 50), (100, 50), (100, 320)])
 			# TEMP TRACKS:
-			[(153, 143), (196, 243), (373, 240), (372, 142), (153, 143)],
-			[(33, 19), (548, 33), (549, 407), (31, 397), (33, 19)])
+			inner,
+			[(12, 36), (534, 37), (541, 420), (13, 416), (12, 36)])
 		
 		# Add the vehicles.
 		self.vehicles = SimVehicleManager(self)
@@ -209,7 +211,7 @@ class ControlSim(App):
 	
 	def step(self, dt):
 		self.display.on_step(self.vehicles)
-		
+		return
 		# return
 		for vehicle in self.vehicles:
 			# Move the vehicle.

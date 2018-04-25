@@ -231,13 +231,17 @@ class WallFollowingGuidanceSystem(GuidanceSystem):
 		((wall0, wall1), d) = self._getClosestPolyEdge(pos, self.environment.track.innerWall)
 		self.actualWallDist = d
 
+		# print("GETDESIREDHEADING:")
 		# Straight-line heading along wall.
 		thetaW = atan2(wall0[1] - wall1[1], wall0[0] - wall1[0])# % (2 * pi)
+		# print("   THETAW: " + str(degrees(thetaW)))
 		
 		# Correction needed to return to correct distance from wall.
 		thetaD = pi / 2 - atan2(self.distLookahead, d - self.desiredWallDist)
+		# print("   THETAD: " + str(degrees(thetaW)))
 		
 		# Final heading.
 		heading = thetaW + thetaD
+		# print("   HEADING: " + str(degrees(heading)))
 		
 		return heading

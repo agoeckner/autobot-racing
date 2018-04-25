@@ -14,7 +14,7 @@ import time
 class Track:
 	def __init__(self, innerWall, outerWall):
 		self.innerWall = innerWall
-		# self.innerWall.reverse()
+		self.innerWall.reverse()
 		self.outerWall = outerWall
 		print("INNER WALL: " + str(self.innerWall))
 		print("OUTER WALL: " + str(self.outerWall))
@@ -45,7 +45,7 @@ class FrameworkManager():
 		self.vehicles = VehicleManager(self)
 
 		#Flag
-		self.getTrack = False
+		self.getTrack = True
 		self.raceState = 'STOP'
 		
 		# TODO: ADD A BOGUS TRACK
