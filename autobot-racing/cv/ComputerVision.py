@@ -40,7 +40,7 @@ class ComputerVision:
 	# Initializes the computer vision system. Set videoDevice to 0 for camera, -1 for Kinect.
 	def __init__(self, parent, videoDevice = 0):
 		self.parent = parent
-		self.getTrack = False
+		self.getTrack = True
 		self.trackOut = []
 		self.trackIn = []
 		
@@ -60,6 +60,10 @@ class ComputerVision:
 			except OSError as e:
 				print("OOPS: " + str(e))
 				raise e
+		
+		elif videoDevice is 2:
+			self.mode = "CAMERA"
+			self.cap = cv2.VideoCapture('C:\\Users\\Harold\\Documents\\Programming\\Autobot-Racing\\autobot-racing\\track.avi')
 		else:
 			self.mode = "CAMERA"
 			# Open video device.
@@ -94,7 +98,7 @@ class ComputerVision:
 					raise CameraException("Unable to read from video device.")
 				height, width = frame.shape[:2]
 
-				if self.trackID is 0:
+				if self.getTrack is True:
 					self.findTrack(frame)
 				
 				if not self.processFrame(frame):
@@ -144,19 +148,11 @@ class ComputerVision:
 
 		contours.sort(key=lambda x:cv2.arcLength(x, True), reverse=True)
 		#cv2.drawContours(frame, contours, -1, (255,0,0), 1)
-##		for c in contours: #{
-##			sizeList.append(cv2.arcLength(c, True))
-##		#}
-##		sizeList.sort()
-##
-##		for c in contours:
-##			temp = cv2.arcLength(c, True)
-##			if temp == sizeList[1]:
-##				candidate = c
-##				break
+		
+		#Grab the two biggest contours in the frame
 		candidate = contours[1]
-##--------------TODO: Change 3 to 2------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-		candidate1 = contours[2]
+		##TODO: From 3 to 2-------------------------------------------------------------------------------------------------
+		candidate1 = contours[3]
 		#print(candidate)
 		#print('Candidate: '+str(candidate))
 		if candidate is not None:
@@ -177,28 +173,85 @@ class ComputerVision:
 		outer.append(outer[0])
 		inner = []
 		for t in approx1:
-			cv2.putText(frame, str(tuple(t[0])), tuple(t[0]),
-				cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+			cv2.putText(frame, str(tuple(t[0])), tuple(t[0]), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
 			inner.append(tuple(t[0]))
 		inner.append(inner[0])
 		# print(inner)
 		# inner.reverse()
-		print(inner)
 		#TODO: pass this garbage through the queue for the main thread
 		#Pass the outer track then the inner
-		self.parent.trackQueue.put(inner)
-		self.parent.trackQueue.put(outer)
+		#self.parent.trackQueue.put(inner)
+		#self.parent.trackQueue.put(outer)
 		self.trackIn = approx
 		self.trackOut = approx1
 
-		if random.random() < 0.5:
-			self.parent.UIQueue.q.put(('CamFeed', frame))
+		#Create a start line
+		innerValues = []
+		lengths = []
+		#print(approx1)
+		#print(inner)
+		for i in range(0, len(inner)):
+			if (i+1) != len(inner):
+				point1 = inner[i]
+				point2 = inner[i+1]
+				x = abs(point1[0] - point2[0])
+				y = abs(point1[1] - point2[1])
+				x2 = x*x
+				y2 = y*y
+				lineD = x2 + y2
+				length = math.sqrt(lineD)
+				lengths.append(length)
+				
+				innerValues.append([point1, point2])
+		
+		maxLength = -1
+		lineSide = []
+		for i in range(0,len(lengths)):
+			l = lengths[i]
+			#print(l)
+			#print(innerValues[i])
+			if l > maxLength:
+				maxLength = l
+				lineSide = innerValues[i]
+		
+		#print(maxLength)
+		#print(lineSide)
+		
+		midPointX = (lineSide[0][0] + lineSide[1][0]) / 2
+		midPointY = (lineSide[0][1] + lineSide[1][1]) / 2
+		midPoint = [midPointX, midPointY]
+		
+		midPoint[0] = int(round(midPoint[0]))
+		midPoint[1] = int(round(midPoint[1]))
+		#print(midPoint)
+		#print(tuple(midPoint))
+		
+		outerLine = self._getClosestPolyEdge(midPoint, outer)
+		outerPoints = outerLine[0]
+		
+		print(outerLine)
+		#print(outerPoints)
+		outerXMid = (outerPoints[0][0] + outerPoints[1][0]) / 2
+		outerYMid = (outerPoints[0][1] + outerPoints[1][1]) / 2
+		outerMidPoint = [outerXMid, outerYMid]
+		outerMidPoint[0] = int(round(outerMidPoint[0]))
+		outerMidPoint[1] = int(round(outerMidPoint[1]))
+		
+		cv2.line(frame, tuple(midPoint), tuple(midPoint), (255,0,0), 15)
+		cv2.line(frame, tuple(outerMidPoint), tuple(outerMidPoint), (255,0,0), 15)
+		
+		
+		
+		#if random.random() < 0.5:
+		#	self.parent.UIQueue.q.put(('CamFeed', frame))
 		self.getTrack = False
-		self.parent.getTrack = True
-		# cv2.imshow('frame', frame)
-		# while True:
-			# key = cv2.waitKey(1)
-			# if key == 27: break
+		#self.parent.getTrack = True
+		
+		
+		cv2.imshow('frame', frame)
+		while True:
+			key = cv2.waitKey(1)
+			if key == 27: break
 	#}
 	
 	def processFrame(self, frame, showFrame = False, draw = True):
@@ -392,6 +445,105 @@ class ComputerVision:
 		a = cv2.contourArea(contour)
 		return a > self.CONTOUR_AREA_MIN and a < self.CONTOUR_AREA_MAX
 
+	
+	def _getClosestPolyEdge(self, pos, polygon):
+		def point_to_line_dist(p1, p2, pos):
+			"""Calculate the distance between a point and a line segment.
+
+			To calculate the closest distance to a line segment, we first need to check
+			if the point projects onto the line segment.  If it does, then we calculate
+			the orthogonal distance from the point to the line.
+			If the point does not project to the line segment, we calculate the 
+			distance to both endpoints and take the shortest distance.
+
+			:param point: Numpy array of form [x,y], describing the point.
+			:type point: numpy.core.multiarray.ndarray
+			:param line: list of endpoint arrays of form [P1, P2]
+			:type line: list of numpy.core.multiarray.ndarray
+			:return: The minimum distance to a point.
+			:rtype: float
+			"""
+			
+			point = np.array(pos)
+			line = [np.array(p1), np.array(p2)]
+			
+			# unit vector
+			unit_line = line[1] - line[0]
+			norm_unit_line = unit_line / np.linalg.norm(unit_line)
+
+			# compute the perpendicular distance to the theoretical infinite line
+			segment_dist = (
+				np.linalg.norm(np.cross(line[1] - line[0], line[0] - point)) /
+				np.linalg.norm(unit_line)
+			)
+			
+			diff = (
+				(norm_unit_line[0] * (point[0] - line[0][0])) + 
+				(norm_unit_line[1] * (point[1] - line[0][1]))
+			)
+
+			x_seg = (norm_unit_line[0] * diff) + line[0][0]
+			y_seg = (norm_unit_line[1] * diff) + line[0][1]
+
+			endpoint_dist = min(
+				np.linalg.norm(line[0] - point),
+				np.linalg.norm(line[1] - point)
+			)
+
+			# decide if the intersection point falls on the line segment
+			lp1_x = line[0][0]  # line point 1 x
+			lp1_y = line[0][1]  # line point 1 y
+			lp2_x = line[1][0]  # line point 2 x
+			lp2_y = line[1][1]  # line point 2 y
+			is_betw_x = lp1_x <= x_seg <= lp2_x or lp2_x <= x_seg <= lp1_x
+			is_betw_y = lp1_y <= y_seg <= lp2_y or lp2_y <= y_seg <= lp1_y
+			
+			if is_betw_x and is_betw_y:
+				return (segment_dist, False)
+			else:
+				# if not, then return the minimum distance to the segment endpoints
+				return (endpoint_dist, True)
+			
+		def dist(A, B, C):
+			"""Calculate the distance of point C to line segment spanned by points A, B.
+			"""
+
+			a = np.asarray(A)
+			b = np.asarray(B)
+			c = np.asarray(C)
+			#project c onto line spanned by a,b but consider the end points
+			#should the projection fall "outside" of the segment    
+			n, v = b - a, c - a
+			#the projection q of c onto the infinite line defined by points a,b
+			#can be parametrized as q = a + t*(b - a). In terms of dot-products,
+			#the coefficient t is (c - a).(b - a)/( (b-a).(b-a) ). If we want
+			#to restrict the "projected" point to belong to the finite segment
+			#connecting points a and b, it's sufficient to "clip" it into
+			#interval [0,1] - 0 corresponds to a, 1 corresponds to b.
+			t = max(0, min(np.dot(v, n)/np.dot(n, n), 1))
+			return np.linalg.norm(v - t*n)
+		
+		closest = ()
+		setPrevClosest = False
+		minD = 99999999
+		# print("START FOR POLY: " + str(polygon))
+		# print("CHECK AT POINT: " + str(pos))
+		
+		p1 = polygon[0]
+		for p in range(1, len(polygon)):
+			p2 = polygon[p]
+			(d, outside) = point_to_line_dist(p1, p2, pos)
+			if not outside or  (p1, p2) != self.prevClosest:
+				if d < minD:
+					minD = d
+					setPrevClosest = not outside
+					closest = (p1, p2)
+			p1 = p2
+
+		if setPrevClosest:
+			self.prevClosest = closest
+		return (closest, abs(minD))
+		
 class CameraException(Exception):
 	pass
 
