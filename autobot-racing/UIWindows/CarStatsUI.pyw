@@ -33,7 +33,7 @@ class CarStatsUI(): #{
 		self.createf3()
 
 		self.createCarConfigTitle()
-		#self.createCarLeaderBoardTitle()
+		self.createCarLeaderBoardTitle()
 		self.createCameraFrames()
 
 		#For Testing Remove Later----------------------------------------------------------------------------------------------------
@@ -253,7 +253,7 @@ class CarStatsUI(): #{
 		
 		newCarFrame.bind("<Button-1>", lambda event, arg=newCarFrame.winfo_id(): self.openEditCarWindow(event, arg))
 
-		statFrame = self.addLeaderBoardCar()
+		statFrame = self.addLeaderBoardCar(carName)
 		
 		car = Vehicle(self.parent.parent.vehicles, carName, IP, port, newCarFrame.winfo_id(), newCarFrame, statFrame, controlSystem, guidanceSystem)
 		self.parent.addNewCarObj(car)
@@ -362,11 +362,11 @@ class CarStatsUI(): #{
 		placeFrame = children[1]
 		lapNumFrame = children[2]
 
-		placeChildren = IPFrame.winfo_children()
-		lapNumChildren = portFrame.winfo_children()
+		placeChildren = placeFrame.winfo_children()
+		lapNumChildren = lapNumFrame.winfo_children()
 
-		placeLabel = IPChildren[0]
-		lapNumLabel = portChildren[0]
+		placeLabel = placeChildren[0]
+		lapNumLabel = lapNumChildren[0]
 
 		for c in carList:
 			if c.carFrameID != car.carFrameID:
@@ -376,6 +376,7 @@ class CarStatsUI(): #{
 					car.place = c.place
 					c.place = temp
 		car.lapNum = car.lapNum + 1
+		car.lastLapTime = self.parent.parent.timer
 		lapNumLabel['text'] = car.lapNum
 
 		
@@ -391,7 +392,7 @@ class CarStatsUI(): #{
 		newLeaderBoardFrame.columnconfigure(1, weight=3)
 
 		carFrame1 = Frame(newLeaderBoardFrame)
-		carLabel = Label(carFrame1, text=str(car.name))
+		carLabel = Label(carFrame1, text=str(carName))
 		carLabel.config(font=("Tahoma", 9))
 		carLabel.pack()
 
