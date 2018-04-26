@@ -44,6 +44,7 @@ class ComputerVision:
 		self.trackOut = []
 		self.trackIn = []
 		self.startLine = []
+		self.startLine2 = []
 		
 		if parent != None:
 			self.queue = parent.telemetryQueue
@@ -174,7 +175,7 @@ class ComputerVision:
 		outer.append(outer[0])
 		inner = []
 		for t in approx1:
-			cv2.putText(frame, str(tuple(t[0])), tuple(t[0]), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+			#cv2.putText(frame, str(tuple(t[0])), tuple(t[0]), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
 			inner.append(tuple(t[0]))
 		inner.append(inner[0])
 		print(inner)
@@ -267,6 +268,7 @@ class ComputerVision:
 		midPoint2 = [midPoint[0]+25, midPoint[1]]
 		outPoint2 = [outPoint[0]+25, outPoint[1]]
 		self.startLine = [midPoint, outPoint]
+		self.startLine2 = [midPoint2, outPoint2]
 		##TODO: Remove the drawing of the second set of points for the rectangle---------------------------------------------------
 		#cv2.line(frame, tuple(midPoint2), tuple(outPoint2), (255,0,0), 2)
 		lapPoly = [tuple(outPoint), tuple(midPoint), tuple(midPoint2), tuple(outPoint2), tuple(outPoint)]
@@ -369,6 +371,7 @@ class ComputerVision:
 			cv2.drawContours(frame, [self.trackOut], -1, (0,255,0), 2)
 		if len(self.startLine) > 0:
 			cv2.line(frame, tuple(self.startLine[0]), tuple(self.startLine[1]), (255,0,0), 2)
+			cv2.line(frame, tuple(self.startLine2[0]), tuple(self.startLine2[1]), (255,0,0), 2)
 		#Put the frame in the queue for the UI
 		if self.parent != None:
 			self.parent.UIQueue.q.put(('CamFeed', frame))
