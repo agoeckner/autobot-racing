@@ -238,7 +238,7 @@ class Vehicle():
 			# self.desiredSpeed = 0.1
 		# else:
 		# self.desiredSpeed = 0.2
-		# print(self.actualSpeed)
+		# print(self.desiredSpeed)
 		
 		# Snap steering  to trinary, the only steering available on these cars.
 		if abs(deltaHeading) < math.radians(5):

@@ -38,7 +38,7 @@ class CarStatsUI(): #{
 
 		#For Testing Remove Later----------------------------------------------------------------------------------------------------
 		self.addNewCarCallback('RED', '192.168.2.104', '4000', 0, 2, initialSpeed = 0.2)
-		# self.addNewCarCallback('BLUE', '192.168.2.103', '4000', 0, 2)
+		self.addNewCarCallback('BLUE', '192.168.2.103', '4000', 0, 2, initialSpeed = 0.2)
 		#----------------------------------------------------------------------------------------------------------------------------
 
 		self.window.bind("<Configure>", self.updateWindow)

@@ -24,7 +24,6 @@ def getPolygonMaxEdgeLen(polygon):
 	for p in range(1, len(polygon)):
 		p2 = polygon[p]
 		d = np.linalg.norm(np.array(p1) - np.array(p2))
-		print("d: " + str(d))
 		if d > maxLen:
 			maxLen = d
 		p1 = p2

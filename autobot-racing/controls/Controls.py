@@ -108,7 +108,10 @@ class GuidanceSystem:
 	# Returns the desired speed at a specific position on the track.
 	# Returns None if speed control is disabled.
 	def getDesiredSpeed(self, pos):
-		return self.vehicle.initialSpeed
+		if self.vehicle.actualSpeed > 250:
+			return 0.0
+		else:
+			return self.vehicle.initialSpeed
 	
 	# Determines if a point is within the boundaries of the track.
 	def isPointOnTrack(self, point):
