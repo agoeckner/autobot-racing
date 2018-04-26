@@ -126,19 +126,38 @@ class UIManager(): #{
 	def getGuidanceSystems(self): #{
 		return self.parent.getGuidanceSystems()
 	#}
+	
+	##-----------------------------------------------------------------------------
+	## Updates the stats for the vehicle
+	##-----------------------------------------------------------------------------
+	def updateVehicleStats(self, vehicle): #{
+		self.carStatsUI.updateLeaderBoard(vehicle, self.parent.vehicles.vehicleList)
+	#]
 
+	##-----------------------------------------------------------------------------
+	## Sets a flag to alert ComputerVision to find the track
+	##-----------------------------------------------------------------------------
 	def findTrackCallback(self): #{
 		self.parent.cv.getTrack = True
 	#}
 	
+	##-----------------------------------------------------------------------------
+	## Sets the raceState flag to Start
+	##-----------------------------------------------------------------------------
 	def startRace(self): #{
 		self.parent.raceState = 'START'
 	#}
 	
+	##-----------------------------------------------------------------------------
+	## Sets the raceState flag to Pause
+	##-----------------------------------------------------------------------------
 	def pauseRace(self): #{
 		self.parent.raceState = 'PAUSE'
 	#}
 	
+	##-----------------------------------------------------------------------------
+	## Sets the raceState flag to Stop
+	##-----------------------------------------------------------------------------
 	def stopRace(self): #{
 		self.parent.raceState = 'STOP'
 	#}
