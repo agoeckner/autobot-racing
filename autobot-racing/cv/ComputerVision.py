@@ -43,6 +43,7 @@ class ComputerVision:
 		self.getTrack = True
 		self.trackOut = []
 		self.trackIn = []
+		self.startLine = []
 		
 		if parent != None:
 			self.queue = parent.telemetryQueue
@@ -132,7 +133,7 @@ class ComputerVision:
 			self.processFrame(video)
 	
 	##-----------------------------------------------------------------------------
-	## Identifies the track
+	## Identifies the track and creates a start line
 	##-----------------------------------------------------------------------------
 	def findTrack(self, frame): #{
 		candidate = None
@@ -158,11 +159,11 @@ class ComputerVision:
 		if candidate is not None:
 			epsilon = 0.03 * cv2.arcLength(candidate, True)
 			approx = cv2.approxPolyDP(candidate, epsilon, True)
-			cv2.drawContours(frame, [approx], -1, (0,255,0), 2)
+			#cv2.drawContours(frame, [approx], -1, (0,255,0), 2)
 
 			epsilon = 0.02 * cv2.arcLength(candidate1, True)
 			approx1 = cv2.approxPolyDP(candidate1, epsilon, True)
-			cv2.drawContours(frame, [approx1], -1, (0,255,0), 2)
+			#cv2.drawContours(frame, [approx1], -1, (0,255,0), 2)
 			#self.parent.UIQueue.q.put(('CamFeed', frame))
 			#print(approx)
 			#print(approx1)
@@ -176,12 +177,12 @@ class ComputerVision:
 			cv2.putText(frame, str(tuple(t[0])), tuple(t[0]), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
 			inner.append(tuple(t[0]))
 		inner.append(inner[0])
-		# print(inner)
+		print(inner)
 		# inner.reverse()
 		#TODO: pass this garbage through the queue for the main thread
 		#Pass the outer track then the inner
-		#self.parent.trackQueue.put(inner)
-		#self.parent.trackQueue.put(outer)
+		self.parent.trackQueue.put(inner)
+		self.parent.trackQueue.put(outer)
 		self.trackIn = approx
 		self.trackOut = approx1
 
@@ -229,29 +230,59 @@ class ComputerVision:
 		outerLine = self._getClosestPolyEdge(midPoint, outer)
 		outerPoints = outerLine[0]
 		
-		print(outerLine)
+		#print(outerLine)
 		#print(outerPoints)
-		outerXMid = (outerPoints[0][0] + outerPoints[1][0]) / 2
-		outerYMid = (outerPoints[0][1] + outerPoints[1][1]) / 2
-		outerMidPoint = [outerXMid, outerYMid]
-		outerMidPoint[0] = int(round(outerMidPoint[0]))
-		outerMidPoint[1] = int(round(outerMidPoint[1]))
 		
-		cv2.line(frame, tuple(midPoint), tuple(midPoint), (255,0,0), 15)
-		cv2.line(frame, tuple(outerMidPoint), tuple(outerMidPoint), (255,0,0), 15)
+		#Find the closest point on the outer line
+		outerA = outerPoints[0]
+		outerB = outerPoints[1]
+		#print(outerA)
+		#print(outerB)
+		aToMid = [midPointX - outerA[0], midPointY - outerA[1]]
+		aToB = [outerB[0] - outerA[0], outerB[1] - outerB[1]]
 		
+		aToBMag = (aToB[0] * aToB[0]) + (aToB[1]*aToB[1])
+		#print(aToBMag)
+		aMidDotaB = (aToMid[0]*aToB[0]) + (aToMid[1]*aToB[1])
+		#print(aMidDotaB)
+		normDist = aMidDotaB / aToBMag
 		
+		outPointX = (outerA[0] + aToB[0]*normDist)
+		outPointY = outerA[1] + aToB[1]*normDist
+		#print(outPointX)
+		#print(outPointY)
+		outPoint = [outPointX, outPointY]
+		outPoint[0] = int(round(outPoint[0]))
+		outPoint[1] = int(round(outPoint[1]))
+		#print(outPoint)
+		#outerXMid = (outerPoints[0][0] + outerPoints[1][0]) / 2
+		#outerYMid = (outerPoints[0][1] + outerPoints[1][1]) / 2
+		#outerMidPoint = [outerXMid, outerYMid]
+		#outerMidPoint[0] = int(round(outerMidPoint[0]))
+		#outerMidPoint[1] = int(round(outerMidPoint[1]))
 		
-		#if random.random() < 0.5:
-		#	self.parent.UIQueue.q.put(('CamFeed', frame))
+		#cv2.line(frame, tuple(midPoint), tuple(outPoint), (255,0,0), 2)
+		#cv2.line(frame, tuple(outPoint), tuple(outPoint), (255,0,0), 15)
+		
+		midPoint2 = [midPoint[0]+25, midPoint[1]]
+		outPoint2 = [outPoint[0]+25, outPoint[1]]
+		self.startLine = [midPoint, outPoint]
+		##TODO: Remove the drawing of the second set of points for the rectangle---------------------------------------------------
+		#cv2.line(frame, tuple(midPoint2), tuple(outPoint2), (255,0,0), 2)
+		lapPoly = [tuple(outPoint), tuple(midPoint), tuple(midPoint2), tuple(outPoint2), tuple(outPoint)]
+		#print(lapPoly)
+		
+		self.parent.trackQueue.put(outer)
+		if random.random() < 0.5:
+			self.parent.UIQueue.q.put(('CamFeed', frame))
 		self.getTrack = False
-		#self.parent.getTrack = True
+		self.parent.getTrack = True
 		
 		
-		cv2.imshow('frame', frame)
-		while True:
-			key = cv2.waitKey(1)
-			if key == 27: break
+		#cv2.imshow('frame', frame)
+		#while True:
+		#	key = cv2.waitKey(1)
+		#	if key == 27: break
 	#}
 	
 	def processFrame(self, frame, showFrame = False, draw = True):
@@ -336,7 +367,8 @@ class ComputerVision:
 			cv2.drawContours(frame, [self.trackIn], -1, (0,255,0), 2)
 		if len(self.trackOut) > 0:
 			cv2.drawContours(frame, [self.trackOut], -1, (0,255,0), 2)
-		
+		if len(self.startLine) > 0:
+			cv2.line(frame, tuple(self.startLine[0]), tuple(self.startLine[1]), (255,0,0), 2)
 		#Put the frame in the queue for the UI
 		if self.parent != None:
 			self.parent.UIQueue.q.put(('CamFeed', frame))
