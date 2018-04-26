@@ -33,7 +33,8 @@ class Vehicle():
 		self.frame = frame
 		self.statFrame = statFrame
 		self.initialSpeed = initialSpeed
-		self.lastLapTime = 0.0
+		self.lastLapTime = 0.00
+		self.inStartPoly = False
 		self.place = 0
 		self.lapNum = 0
 		
