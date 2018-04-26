@@ -45,13 +45,14 @@ class FrameworkManager():
 		self.cv = ComputerVision(self, -1)#"../motion.avi")
 		self.UserInterface = UIManager(self, self.UIQueue)
 		self.vehicles = VehicleManager(self)
+		self.timer = 0.00
 
 		#Flag
 		self.getTrack = True
 		self.raceState = 'STOP'
 		
 		# TODO: ADD A BOGUS TRACK
-		self.track = Track([(100, 100), (100, 300), (500, 300), (500, 100), (100, 100)], [])
+		self.track = Track([(100, 100), (100, 300), (500, 300), (500, 100), (100, 100)], [], [])
 
 	##-----------------------------------------------------------------------------
 	## Start the program.
@@ -76,7 +77,7 @@ class FrameworkManager():
 					self.track = Track(self.trackQueue.get(), self.trackQueue.get(), self.trackQueue.get())
 					self.getTrack = False
 				self.getLatestTelemetry()
-				
+				self.timer = self.timer + 0.01
 				self.runNavGuidanceControl()
 				#print(str(self.track.innerWall))
 		except KeyboardInterrupt as e:
@@ -92,8 +93,15 @@ class FrameworkManager():
 			vehicle = self.vehicles.getVehicleByColor(color)
 			if vehicle != None:
 				vehicle.updateTelemetry(position, heading)
-				if Utilities.isPointInPolygon(vehicle.actualPosition) != False:
-					self.UIManager.updateVehicleStats(vehicle)
+				if isPointInPolygon(self.track.startPoly, vehicle.actualPosition) != False:
+					if vehicle.inStartPoly is False:
+						vehicle.inStartPoly = True
+						#print(self.track.startPoly)
+						print('In the polygon')
+						print(vehicle.lastLapTime)
+						self.UserInterface.updateVehicleStats(vehicle)
+				else:
+					vehicle.inStartPoly = False
 			
 		except queue.Empty:
 			pass
