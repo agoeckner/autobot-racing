@@ -9,6 +9,7 @@ import inspect
 import queue
 import threading
 import time
+import Utilities
 
 #TODO: TEMPORARY!
 class Track:
@@ -16,11 +17,7 @@ class Track:
 		self.innerWall = innerWall
 		self.innerWall.reverse()
 		self.outerWall = outerWall
-		print("INNER WALL: " + str(self.innerWall))
-		print("OUTER WALL: " + str(self.outerWall))
-
-		# self.track = self
-
+		self.longestStraightaway = Utilities.getPolygonMaxEdgeLen(self.innerWall)
 
 class FrameworkManager():
 	##-----------------------------------------------------------------------------
@@ -62,7 +59,7 @@ class FrameworkManager():
 		tUI.daemon = True
 		#tQueue.daemon = True
 		tUI.start()
-		time.sleep(5)
+		time.sleep(10)
 		tCV.start()
 		#tQueue.start()
 

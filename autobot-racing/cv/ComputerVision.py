@@ -28,13 +28,13 @@ class ComputerVision:
 	# The boundary sizes (in pixels squared) of contours that are acceptable
 	# for further processing.
 	CONTOUR_AREA_MIN = 100
-	CONTOUR_AREA_MAX = 300
+	CONTOUR_AREA_MAX = 400
 	
 	# The actual, measured ratio of the triangle targets placed on the vehicles.
-	TRIANGLE_RATIO = 0.48507125007 #0.363636
+	TRIANGLE_RATIO = 0.48507125007
 	
 	# The tolerance used to check if triangles conform to TRIANGLE_RATIO.
-	TRIANGLE_RATIO_TOLERANCE = 0.5 #0.1
+	TRIANGLE_RATIO_TOLERANCE = 1.0 #0.1
 	
 	
 	# Initializes the computer vision system. Set videoDevice to 0 for camera, -1 for Kinect.
