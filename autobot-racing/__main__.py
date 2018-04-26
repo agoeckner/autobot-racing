@@ -4,6 +4,7 @@ from UIManager import UIManager
 from Vehicle import Vehicle
 from VehicleManager import VehicleManager
 from cv.ComputerVision import *
+from Utilities import *
 import controls as ngc
 import inspect
 import queue
@@ -12,10 +13,11 @@ import time
 
 #TODO: TEMPORARY!
 class Track:
-	def __init__(self, innerWall, outerWall):
+	def __init__(self, innerWall, outerWall, startPoly):
 		self.innerWall = innerWall
 		self.innerWall.reverse()
 		self.outerWall = outerWall
+		self.startPoly = startPoly
 		print("INNER WALL: " + str(self.innerWall))
 		print("OUTER WALL: " + str(self.outerWall))
 
@@ -71,9 +73,10 @@ class FrameworkManager():
 		try:
 			while True:
 				if self.getTrack is True:
-					self.track = Track(self.trackQueue.get(), self.trackQueue.get())
+					self.track = Track(self.trackQueue.get(), self.trackQueue.get(), self.trackQueue.get())
 					self.getTrack = False
 				self.getLatestTelemetry()
+				
 				self.runNavGuidanceControl()
 				#print(str(self.track.innerWall))
 		except KeyboardInterrupt as e:
@@ -84,10 +87,13 @@ class FrameworkManager():
 		try:
 			# while True:
 			(position, heading, color) = self.telemetryQueue.get(True, 1)
-
+			
+			
 			vehicle = self.vehicles.getVehicleByColor(color)
 			if vehicle != None:
 				vehicle.updateTelemetry(position, heading)
+				if Utilities.isPointInPolygon(vehicle.actualPosition) != False:
+					self.UIManager.updateVehicleStats(vehicle)
 			
 		except queue.Empty:
 			pass
