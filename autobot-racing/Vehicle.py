@@ -19,7 +19,7 @@ class Vehicle():
 	# The maximum amount of time that a vehicle may be "missing" before stop command is sent.
 	EMERGENCY_STOP_TIMEOUT = 0.10 #seconds
 
-	def __init__(self, parent, name, IP, port, carFrameID, frame, controlSystem,
+	def __init__(self, parent, name, IP, port, carFrameID, frame, statFrame, controlSystem,
 		guidanceSystem,
 		initialSpeed = 0.1):
 		
@@ -31,7 +31,11 @@ class Vehicle():
 		self.port = port
 		self.carFrameID = carFrameID
 		self.frame = frame
+		self.statFrame = statFrame
 		self.initialSpeed = initialSpeed
+		self.lastLapTime = 0.0
+		self.place = 0
+		self.lapNum = 0
 		
 		# The position filter has not yet been initialized.
 		self.filterInitialized = False
@@ -191,6 +195,7 @@ class Vehicle():
 		
 		# Update last telemetry time.
 		self.lastTelemetryTime = currentTime
+		
 	
 	def runNavGuidanceControl(self):
 		if self.parent.parent.raceState is 'STOP' or self.parent.parent.raceState is 'PAUSE':
