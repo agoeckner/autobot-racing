@@ -153,7 +153,7 @@ class ComputerVision:
 		#Grab the two biggest contours in the frame
 		candidate = contours[1]
 		##TODO: From 3 to 2-------------------------------------------------------------------------------------------------
-		candidate1 = contours[3]
+		candidate1 = contours[2]
 		#print(candidate)
 		#print('Candidate: '+str(candidate))
 		if candidate is not None:
