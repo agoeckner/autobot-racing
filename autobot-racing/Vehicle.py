@@ -5,6 +5,7 @@ import numpy as np
 import sys
 import time
 import math
+import random
 
 # TEMPORARY...
 from matplotlib import pyplot as plt
@@ -17,7 +18,7 @@ class Vehicle():
 	HEADING_HISTORY_POINTS = 10
 	
 	# The maximum amount of time that a vehicle may be "missing" before stop command is sent.
-	EMERGENCY_STOP_TIMEOUT = 0.10 #seconds
+	EMERGENCY_STOP_TIMEOUT = 0.50 #seconds
 
 	def __init__(self, parent, name, IP, port, carFrameID, frame, statFrame, controlSystem,
 		guidanceSystem,
@@ -47,7 +48,7 @@ class Vehicle():
 		self.control = parent.parent.controlSystems[controlSystem]()
 		print("Vehicle " + str(name) + " using control system: " + str(self.control))
 		self.guidance = parent.parent.guidanceSystems[guidanceSystem](self.parent.parent,
-			wallDistance = 20, lookahead = 200)
+			wallDistance = 15, lookahead = 200)
 		print("Vehicle " + str(name) + " using guidance system: " + str(self.guidance))
 		self.guidance.vehicle = self
 		
@@ -213,10 +214,10 @@ class Vehicle():
 			return
 		
 		# Automatically stop if we go outside the track.
-		if not self.guidance.isPointOnTrack(self.actualPosition):
-			self.sendMsg(0, 0.0)
-			print("WARN: Vehicle " + str(self.name) + " has been stopped. [OUT OF BOUNDS]")
-			return
+		# if not self.guidance.isPointOnTrack(self.actualPosition):
+			# self.sendMsg(0, 0.0)
+			# print("WARN: Vehicle " + str(self.name) + " has been stopped. [OUT OF BOUNDS]")
+			# return
 		
 		# Determine guidance.
 		desiredHeading = self.guidance.getDesiredHeading(self.actualPosition)
@@ -236,29 +237,29 @@ class Vehicle():
 		
 		# Update the desired speed/heading values.
 		self.updateDesiredHeading(desiredHeading)
-		self.updateDesiredSpeed(deltaSpeed)
-		self.desiredSpeed = 0.2
+		self.updateDesiredSpeed(desiredSpeed)
+		# if self.name == "BLUE":
+			# self.desiredSpeed = 0.1
+		# else:
+			# self.desiredSpeed = 0.2
+		# if random.randint(0,1) == 0:
+			# self.desiredSpeed = 0.1
+		# else:
+		# self.desiredSpeed = 0.2
+		# print(self.desiredSpeed)
 		
 		# Snap steering  to trinary, the only steering available on these cars.
-		
-		if abs(deltaHeading) < math.radians(5) and False:
+		if abs(deltaHeading) < math.radians(5):
 			hdg = 0.0
 		else:
 			hdg = deltaHeading
-		# info = "DESIRED: " + str(self.desiredHeading) + ", ACTUAL: " + str(self.actualHeading) + ", DELTA: " + str(deltaHeading) + ", ACTUAL DELTA: " + str(hdg)
 		
 		if hdg < 0.0:
-			# print("TURN LEFT? " + info)
 			hdg = -1
 		elif hdg > 0.0:
-			# print("TURN RIGHT? " + info)
 			hdg = 1
 		else:
-			# print("STRAIGHT: "+ info)
 			hdg = 0
-			
-		# TEMPORARY INVERSE
-		# hdg = -hdg
 		
 		# Send command to the car.
 		self.sendMsg(hdg, self.desiredSpeed)
@@ -270,8 +271,9 @@ class Vehicle():
 			# self.desiredHeading += deltaHeading
 			# self.desiredHeading = self.desiredHeading % 2 * math.pi #(2 * math.pi)
 	
-	def updateDesiredSpeed(self, deltaSpeed):
-		self.desiredSpeed += deltaSpeed
+	def updateDesiredSpeed(self, desiredSpeed):
+		self.desiredSpeed = desiredSpeed
+		# print("DESIRED SPEED: " + str(self.desiredSpeed) + " (update: " + str(deltaSpeed) + ")")
 	
 	#
 	# Communication functions:

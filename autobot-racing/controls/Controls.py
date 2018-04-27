@@ -108,7 +108,10 @@ class GuidanceSystem:
 	# Returns the desired speed at a specific position on the track.
 	# Returns None if speed control is disabled.
 	def getDesiredSpeed(self, pos):
-		return self.vehicle.initialSpeed
+		if self.vehicle.actualSpeed > 250:
+			return 0.0
+		else:
+			return self.vehicle.initialSpeed
 	
 	# Determines if a point is within the boundaries of the track.
 	def isPointOnTrack(self, point):
@@ -236,8 +239,20 @@ class WallFollowingGuidanceSystem(GuidanceSystem):
 		thetaW = atan2(wall0[1] - wall1[1], wall0[0] - wall1[0])# % (2 * pi)
 		# print("   THETAW: " + str(degrees(thetaW)))
 		
+		# Calculate a lookahead distance. We want to be less aggressive on sharp turns.
+		# wallLength = np.linalg.norm(np.array(wall0) - np.array(wall1))
+		# longestStraightaway = self.environment.track.longestStraightaway
+		# lookaheadMultiplier = longestStraightaway / wallLength
+		# lookaheadDist = np.power(self.distLookahead, lookaheadMultiplier)
+		lookaheadDist = self.distLookahead
+		
+		# print("=================================")
+		# print("MAX WALL LENGTH: " + str(longestStraightaway))
+		# print("CUR WALL LENGTH: " + str(wallLength))
+		# print("LOOKAHEAD DISTANCE: " + str(lookaheadDist))
+		
 		# Correction needed to return to correct distance from wall.
-		thetaD = pi / 2 - atan2(self.distLookahead, d - self.desiredWallDist)
+		thetaD = pi / 2 - atan2(lookaheadDist, d - self.desiredWallDist)
 		# print("   THETAD: " + str(degrees(thetaW)))
 		
 		# Final heading.

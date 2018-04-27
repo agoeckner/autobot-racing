@@ -37,8 +37,8 @@ class CarStatsUI(): #{
 		self.createCameraFrames()
 
 		#For Testing Remove Later----------------------------------------------------------------------------------------------------
-		# self.addNewCarCallback('Car 1', '127.0.0.5', '457', 'Option 1', 'Option 2')
-		self.addNewCarCallback('RED', '192.168.2.3', '4000', 0, 2)
+		self.addNewCarCallback('RED', '192.168.2.104', '4000', 0, 2, initialSpeed = 0.2)
+		self.addNewCarCallback('BLUE', '192.168.2.103', '4000', 0, 2, initialSpeed = 0.2)
 		#----------------------------------------------------------------------------------------------------------------------------
 
 		self.window.bind("<Configure>", self.updateWindow)
@@ -226,7 +226,7 @@ class CarStatsUI(): #{
 	##-----------------------------------------------------------------------------
 	## Callback for the AddNewCar UI to update car display frame
 	##-----------------------------------------------------------------------------
-	def addNewCarCallback(self, carName, IP, port, controlSystem, guidanceSystem): #{
+	def addNewCarCallback(self, carName, IP, port, controlSystem, guidanceSystem, **kwargs): #{
 		newCarFrame = Frame(self.CarConfigCarsFrame, height=10, borderwidth=5,highlightbackground="green", highlightthickness=1)
 		newCarFrame.pack(side='top', padx=5, pady=3, fill=X)
 
@@ -255,7 +255,8 @@ class CarStatsUI(): #{
 
 		statFrame = self.addLeaderBoardCar(carName)
 		
-		car = Vehicle(self.parent.parent.vehicles, carName, IP, port, newCarFrame.winfo_id(), newCarFrame, statFrame, controlSystem, guidanceSystem)
+		car = Vehicle(self.parent.parent.vehicles, carName, IP, port, newCarFrame.winfo_id(), newCarFrame, statFrame, controlSystem, guidanceSystem, **kwargs)
+    
 		self.parent.addNewCarObj(car)
 	#}
 

@@ -14,6 +14,7 @@ import sys
 import os
 sys.path.insert(1, os.path.join(sys.path[0], "..", "autobot-racing"))
 import controls as ngc
+import Utilities
 
 Window.clearcolor = (1, 1, 1, 1)
 
@@ -94,6 +95,7 @@ class SimTrack:
 		self.innerWall = innerWall
 		# self.innerWall.reverse() # TODO: TEMPORARY REVERSAL
 		self.outerWall = outerWall
+		self.longestStraightaway = Utilities.getPolygonMaxEdgeLen(self.innerWall)
 
 class SimVehicleManager:
 	def __init__(self, environment):
@@ -111,7 +113,7 @@ class SimVehicleManager:
 class SimVehicle:
 	# Turning radius measured to be ~1.5 feet
 	# TODO: Properly implement turning radius.
-	MIN_TURN_ANGLE = pi / 36
+	MIN_TURN_ANGLE = pi / 22
 
 	def __init__(self, initialPosition, initialHeading, initialSpeed,
 			control, guidance, color = (1, 0, 0, 1)):
@@ -166,7 +168,7 @@ class ControlSim(App):
 	def initSim(self):
 		# Add the track.
 		inner = [(356, 154), (357, 252), (183, 257), (180, 155), (356, 154)]
-		# inner.reverse()
+		inner.reverse()
 		self.track = SimTrack(
 			# NORMAL TRACKS:
 			# [(200, 220), (460, 280), (600, 220), (600, 150), (200, 150), (200, 220)],
@@ -178,9 +180,9 @@ class ControlSim(App):
 		# Add the vehicles.
 		self.vehicles = SimVehicleManager(self)
 		self.vehicles.addVehicle(
-			SimVehicle([500,70], pi/2, 7,
+			SimVehicle([200,70], 0, 7,
 				ngc.ControlSystem(),
-				ngc.PassingGuidanceSystem(self,
+				ngc.WallFollowingGuidanceSystem(self,
 					wallDistance = 20,
 					lookahead = 25),
 				color = (1, 0, 0, 0.5)))
@@ -211,8 +213,7 @@ class ControlSim(App):
 	
 	def step(self, dt):
 		self.display.on_step(self.vehicles)
-		return
-		# return
+
 		for vehicle in self.vehicles:
 			# Move the vehicle.
 			vehicle.position[0] += cos(vehicle.heading) * vehicle.actualSpeed
@@ -231,8 +232,8 @@ class ControlSim(App):
 			deltaSpeed = vehicle.control.throttle(vehicle.actualSpeed, desiredSpeed)
 			
 			# Add some error.
-			if randint(0, 6) == 0:
-				deltaHeading = deltaHeading + 2 * (random() - 0.5)
+			if randint(0, 5) == 0:
+				deltaHeading = deltaHeading + 4 * (random() - 0.5)
 			
 			# Apply changes to vehicle.
 			vehicle.updateHeading(deltaHeading)

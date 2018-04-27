@@ -34,7 +34,7 @@ class PassingGuidanceSystem(WallFollowingGuidanceSystem):
 				continue
 			if vehicle.actualSpeed < v.actualSpeed or v.actualSpeed == 0:
 				continue
-			d = euclideanDistance(pos, v.position)
+			d = euclideanDistance(pos, v.actualPosition)
 			if d < 5:
 				raise Exception("COLLISION")
 			if d < self.CAUTION_DISTANCE:
@@ -56,7 +56,7 @@ class PassingGuidanceSystem(WallFollowingGuidanceSystem):
 		for v in vehicles:
 			if v == vehicle:
 				continue
-			d = euclideanDistance(vehicle.position, v.position)
+			d = euclideanDistance(vehicle.actualPosition, v.actualPosition)
 			if d > self.FOLLOW_PASS_THRESHOLD_DIST:
 				continue
 			if v.actualSpeed >= vehicle.actualSpeed:

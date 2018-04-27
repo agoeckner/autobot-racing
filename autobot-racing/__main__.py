@@ -10,6 +10,7 @@ import inspect
 import queue
 import threading
 import time
+import Utilities
 
 #TODO: TEMPORARY!
 class Track:
@@ -18,12 +19,8 @@ class Track:
 		self.innerWall.reverse()
 		self.outerWall = outerWall
 		self.startPoly = startPoly
-		print("INNER WALL: " + str(self.innerWall))
-		print("OUTER WALL: " + str(self.outerWall))
-
-		# self.track = self
-
-
+		self.longestStraightaway = Utilities.getPolygonMaxEdgeLen(self.innerWall)
+   
 class FrameworkManager():
 	##-----------------------------------------------------------------------------
 	## Constructor
