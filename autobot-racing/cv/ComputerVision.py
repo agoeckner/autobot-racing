@@ -274,7 +274,7 @@ class ComputerVision:
 		lapPoly = [tuple(outPoint), tuple(midPoint), tuple(midPoint2), tuple(outPoint2), tuple(outPoint)]
 		#print(lapPoly)
 		
-		self.parent.trackQueue.put(outer)
+		self.parent.trackQueue.put(lapPoly)
 		if random.random() < 0.5:
 			self.parent.UIQueue.q.put(('CamFeed', frame))
 		self.getTrack = False
@@ -372,6 +372,7 @@ class ComputerVision:
 		if len(self.startLine) > 0:
 			cv2.line(frame, tuple(self.startLine[0]), tuple(self.startLine[1]), (255,0,0), 2)
 			cv2.line(frame, tuple(self.startLine2[0]), tuple(self.startLine2[1]), (255,0,0), 2)
+			
 		#Put the frame in the queue for the UI
 		if self.parent != None:
 			self.parent.UIQueue.q.put(('CamFeed', frame))

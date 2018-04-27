@@ -97,9 +97,9 @@ class FrameworkManager():
 					if vehicle.inStartPoly is False:
 						vehicle.inStartPoly = True
 						#print(self.track.startPoly)
-						print('In the polygon')
 						print(vehicle.lastLapTime)
 						self.UserInterface.updateVehicleStats(vehicle)
+					#print('In the polygon')
 				else:
 					vehicle.inStartPoly = False
 			
