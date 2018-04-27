@@ -77,7 +77,7 @@ class PassingGuidanceSystem(WallFollowingGuidanceSystem):
 		return self.origWallDist
 
 #Acceleration, sprint 3 User story 4
-#Zach Perrt
+#Zach Perryo
 class AccelerationGuidanceSystem(WallFollowingGuidanceSystem):
 	
 	def __init__(self, *args, **kwargs):
@@ -87,17 +87,20 @@ class AccelerationGuidanceSystem(WallFollowingGuidanceSystem):
 	def getDesiredSpeed(self, pos):
 		vehicle = self.vehicle
 
-		# Check for collisions with the walls.
+		# Check for length of wall
 		((wall0, wall1), d) = self._getClosestPolyEdge(pos, self.environment.track.innerWall)
-		if d < self.CAUTION_DISTANCE:
-			# print("TOO CLOSE TO INNER WALL")
+		#Wall length is good
+		if d > self.CAUTION_DISTANCE:
+			# print("Good length of  wall is" + d)
 			return vehicle.initialSpeed * self.CAUTION_SPEED_PERCENTAGE
 		((wall0, wall1), d) = self._getClosestPolyEdge(pos, self.environment.track.outerWall)
+		#Wall length is too short
 		if d < self.CAUTION_DISTANCE:
-			# print("TOO CLOSE TO OUTER WALL")
+			# print("Wall is too short")
 			return vehicle.initialSpeed * self.CAUTION_SPEED_PERCENTAGE
 		
-		# Check for collisions with other vehicles.
+		# Check for collisions with other vehicles. Dont accelerate into other vehicles
+		# this is the same as the avoidance calculation
 		vehicles = self.environment.vehicles
 		for v in vehicles:
 			if v == vehicle:
