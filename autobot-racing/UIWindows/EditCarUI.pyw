@@ -40,7 +40,6 @@ class EditCarUI(): #{
         self.createf12()
 
         self.carNameEntry.focus_force()
-        self.window.mainloop()
     #}
 
     ##-----------------------------------------------------------------------------

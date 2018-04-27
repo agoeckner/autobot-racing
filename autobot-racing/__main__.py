@@ -4,6 +4,7 @@ from UIManager import UIManager
 from Vehicle import Vehicle
 from VehicleManager import VehicleManager
 from cv.ComputerVision import *
+from Utilities import *
 import controls as ngc
 import inspect
 import queue
@@ -13,12 +14,13 @@ import Utilities
 
 #TODO: TEMPORARY!
 class Track:
-	def __init__(self, innerWall, outerWall):
+	def __init__(self, innerWall, outerWall, startPoly):
 		self.innerWall = innerWall
 		self.innerWall.reverse()
 		self.outerWall = outerWall
+		self.startPoly = startPoly
 		self.longestStraightaway = Utilities.getPolygonMaxEdgeLen(self.innerWall)
-
+   
 class FrameworkManager():
 	##-----------------------------------------------------------------------------
 	## Constructor
@@ -40,13 +42,14 @@ class FrameworkManager():
 		self.cv = ComputerVision(self, -1)#"../motion.avi")
 		self.UserInterface = UIManager(self, self.UIQueue)
 		self.vehicles = VehicleManager(self)
+		self.timer = 0.00
 
 		#Flag
 		self.getTrack = True
 		self.raceState = 'STOP'
 		
 		# TODO: ADD A BOGUS TRACK
-		self.track = Track([(100, 100), (100, 300), (500, 300), (500, 100), (100, 100)], [])
+		self.track = Track([(100, 100), (100, 300), (500, 300), (500, 100), (100, 100)], [], [])
 
 	##-----------------------------------------------------------------------------
 	## Start the program.
@@ -59,7 +62,7 @@ class FrameworkManager():
 		tUI.daemon = True
 		#tQueue.daemon = True
 		tUI.start()
-		time.sleep(10)
+		time.sleep(3)
 		tCV.start()
 		#tQueue.start()
 
@@ -68,9 +71,10 @@ class FrameworkManager():
 		try:
 			while True:
 				if self.getTrack is True:
-					self.track = Track(self.trackQueue.get(), self.trackQueue.get())
+					self.track = Track(self.trackQueue.get(), self.trackQueue.get(), self.trackQueue.get())
 					self.getTrack = False
 				self.getLatestTelemetry()
+				self.timer = self.timer + 0.01
 				self.runNavGuidanceControl()
 				#print(str(self.track.innerWall))
 		except KeyboardInterrupt as e:
@@ -81,10 +85,20 @@ class FrameworkManager():
 		try:
 			# while True:
 			(position, heading, color) = self.telemetryQueue.get(True, 1)
-
+			
+			
 			vehicle = self.vehicles.getVehicleByColor(color)
 			if vehicle != None:
 				vehicle.updateTelemetry(position, heading)
+				if isPointInPolygon(self.track.startPoly, vehicle.actualPosition) != False:
+					if vehicle.inStartPoly is False:
+						vehicle.inStartPoly = True
+						#print(self.track.startPoly)
+						print(vehicle.lastLapTime)
+						self.UserInterface.updateVehicleStats(vehicle)
+					#print('In the polygon')
+				else:
+					vehicle.inStartPoly = False
 			
 		except queue.Empty:
 			pass
