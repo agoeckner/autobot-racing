@@ -15,7 +15,7 @@ class ComputerVision:
 		(255, 0, 0),
 		(0, 255, 0),
 		(0, 0, 255),
-		# (255, 0, 255),
+		(255, 255, 0),
 	)
 	
 	# Used to determine the cutoff for black/white

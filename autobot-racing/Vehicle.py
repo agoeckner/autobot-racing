@@ -64,6 +64,8 @@ class Vehicle():
 			self.color = (0, 255, 0)
 		elif name.upper() == "BLUE":
 			self.color = (0, 0, 255)
+		elif name.upper() == "YELLOW":
+			self.color = (255,255,0)
 		
 		# Store the most recent position/heading data.
 		self.position = deque(maxlen = self.POSITION_HISTORY_POINTS)
