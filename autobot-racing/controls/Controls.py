@@ -94,6 +94,10 @@ class PIControlSystem(ControlSystem):
 		return desired - actual
 		
 class GuidanceSystem:
+	CAUTION_DISTANCE = 10
+	CAUTION_SPEED_PERCENTAGE = 0.5
+
+
 	def __init__(self, environment):
 		self.environment = environment
 		self.vehicle = None #will be set by VehicleManager
@@ -108,10 +112,23 @@ class GuidanceSystem:
 	# Returns the desired speed at a specific position on the track.
 	# Returns None if speed control is disabled.
 	def getDesiredSpeed(self, pos):
+		vehicle = self.vehicle
+		
+		# return self.vehicle.initialSpeed
 		if self.vehicle.actualSpeed > 250:
 			return 0.0
-		else:
-			return self.vehicle.initialSpeed
+
+		# Check for collisions with the walls.
+		((wall0, wall1), d) = self._getClosestPolyEdge(pos, self.environment.track.innerWall)
+		if d < self.CAUTION_DISTANCE:
+			# print("TOO CLOSE TO INNER WALL")
+			return vehicle.initialSpeed * self.CAUTION_SPEED_PERCENTAGE
+		((wall0, wall1), d) = self._getClosestPolyEdge(pos, self.environment.track.outerWall)
+		if d < self.CAUTION_DISTANCE:
+			# print("TOO CLOSE TO OUTER WALL")
+			return vehicle.initialSpeed * self.CAUTION_SPEED_PERCENTAGE
+		
+		return self.vehicle.initialSpeed
 	
 	# Determines if a point is within the boundaries of the track.
 	def isPointOnTrack(self, point):
