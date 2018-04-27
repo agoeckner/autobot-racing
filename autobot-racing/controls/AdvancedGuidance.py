@@ -75,3 +75,42 @@ class PassingGuidanceSystem(WallFollowingGuidanceSystem):
 			return v.guidance.actualWallDist + adjust
 		# print("NOT PASSING")
 		return self.origWallDist
+
+#Acceleration, sprint 3 User story 4
+#Zach Perry
+#class AccelerationGuidanceSystem(WallFollowingGuidanceSystem):
+#	
+#	def __init__(self, *args, **kwargs):
+#		super(PassingGuidanceSystem, self).__init__(*args, **kwargs)
+#		self.origWallDist = self.desiredWallDist
+#	
+#	def getDesiredSpeed(self, pos):
+#		vehicle = self.vehicle
+#
+		# Check for length of wall
+#		((wall0, wall1), d) = self._getClosestPolyEdge(pos, self.environment.track.innerWall)
+		#Wall length is good
+#		if d > self.CAUTION_DISTANCE:
+			# print("Good length of  wall is" + d)
+#			return vehicle.initialSpeed * self.CAUTION_SPEED_PERCENTAGE
+#		((wall0, wall1), d) = self._getClosestPolyEdge(pos, self.environment.track.outerWall)
+		#Wall length is too short
+#		if d < self.CAUTION_DISTANCE:
+			# print("Wall is too short")
+#			return vehicle.initialSpeed * self.CAUTION_SPEED_PERCENTAGE
+#		
+		# Check for collisions with other vehicles. Dont accelerate into other vehicles
+		# this is the same as the avoidance calculation
+#		vehicles = self.environment.vehicles
+#		for v in vehicles:
+#			if v == vehicle:
+#				continue
+#			if vehicle.actualSpeed < v.actualSpeed or v.actualSpeed == 0:
+#				continue
+#			d = euclideanDistance(pos, v.position)
+#			if d < 5:
+#				raise Exception("COLLISION")
+#			if d < self.CAUTION_DISTANCE:
+				# print("TOO CLOSE TO OTHER VEHICLE")
+#				return (vehicle.actualSpeed + v.actualSpeed) * self.CAUTION_SPEED_PERCENTAGE
+#		return self.vehicle.initialSpeed
