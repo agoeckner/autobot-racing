@@ -94,7 +94,7 @@ class PIControlSystem(ControlSystem):
 		return desired - actual
 		
 class GuidanceSystem:
-	CAUTION_DISTANCE = 10
+	CAUTION_DISTANCE = 15
 	CAUTION_SPEED_PERCENTAGE = 0.5
 
 
